@@ -1,0 +1,8 @@
+numpy
+pandas
+matplotlib
+scipy
+reranking~=0.3.6
+torch
+pytrec_eval
+sklearn
