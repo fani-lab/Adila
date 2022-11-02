@@ -1,7 +1,7 @@
 # Fair Team Formation
 Many recommender systems suffer from popularity bias, in which popular items are regularly recommended whereas less popular, specialised products are rarely or never recommended. The same problem can happen in team formation. Our goal is to form teams in a way that every qualified person gets equal chance to be a member of a team since already existing team formation algorithms give more opportunity to the more popular people, which in our work means those who have more publications previously. We are aware that a person with more published papers has more experience, but the problem in this case is, more and more opportunities will be given to popular authors while there might be authors as qualified as those with less chance to work in these teams. Therefore, we aim to make teams in which every qualified candidate has the same opportunity to be chosen as a member. The long- tail phenomenon in our simulated dataset derived from DBLP is shown below.
 
-![popularity bias of paper publication by author](./output/graph.png)
+
 
 ## Setup
 using the [starter.ipynb](./starter.ipynb). Basic setup to run our project.
