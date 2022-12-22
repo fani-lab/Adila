@@ -1,5 +1,6 @@
 import copy
 import json
+import os
 import statistics
 import torch
 import pickle
@@ -54,7 +55,6 @@ class Reranking:
 
         with open(self.splits_address, 'r') as reader:
             self.splits = json.load(reader)
-        # testset_indexes = self.teamsvecs["member"][self.splits['test']]
         self.predictions = torch.load(self.predictions_address)
         final_reranked_prediction_list = list()
         metric_before = list()
@@ -97,11 +97,12 @@ class Reranking:
         self.df, self.df_mean, self.aucroc, (self.fpr, self.tpr) = calculate_metrics(ranked_Y, self.final_reranked_prediction_list, False)
         self.df_, self.df_mean_, self.aucroc_, (self.fpr_, self.tpr_) = calculate_metrics(Y, torch.load(self.predictions_address), False)
 
-    def create_plot(self, reranking_results, reranking_algorithm: str, color: str, fairness_metric: str, utility_metric: str):
+    def create_plot(self, reranking_results, reranking_algorithm: str, color: str, fairness_metric: str,
+                    utility_metric: str, baseline: str, rfile: str, saving_address: str):
 
         custom_scatter_plot = list()
-        custom_scatter_plot.append((self.df_mean_.loc[[utility_metric]], statistics.fmean(reranking_results[0])))
-        custom_scatter_plot.append((self.df_mean.loc[[utility_metric]], statistics.fmean(reranking_results[1])))
+        custom_scatter_plot.append((self.df_mean_.loc[[utility_metric]], statistics.mean(reranking_results[0])))
+        custom_scatter_plot.append((self.df_mean.loc[[utility_metric]], statistics.mean(reranking_results[1])))
         before_plot = plt.scatter(custom_scatter_plot[0][1], custom_scatter_plot[0][0], c=color, marker='v')
         after_plot = plt.scatter(custom_scatter_plot[1][1], custom_scatter_plot[1][0], c=color, marker='o')
         plt.ylim(ymin=0, ymax=1)
@@ -110,16 +111,31 @@ class Reranking:
         plt.xlabel(fairness_metric)
         plt.title('Utility vs Fairness before and after re-ranking with {}'.format(reranking_algorithm))
         plt.legend((before_plot, after_plot), ('before reranking', 'after reranking'))
-        plt.savefig('{}.png'.format(reranking_algorithm))
+        plt.savefig(os.path.join(saving_address, '{}_{}_{}.png'.format(reranking_algorithm, baseline, rfile)))
         plt.show()
 
+    def aggregate(self, output_directory: str, splits_address: str, vectorized_dataset_address: str
+        ,reranking_algorithm: str='det_relaxed', utility_metric: str='map_cut_10'):
 
-# Sample code for running and debugging
-reranking_object = Reranking(vectorized_dataset_address='../processed/dblp-toy/teamsvecs.pkl',
-                             splits_address=f'../processed/dblp-toy/splits.json',
-                             predictions_address=f'../output/toy.dblp.v12.json/fnn/t31.s11.m13.l[100].lr0.1.b4096.e20/f0.test.pred')
+        files = list()
+        for dirpath, dirnames, filenames in os.walk(output_directory):
+            if not dirnames: files += [os.path.join(os.path.normpath(dirpath), file).split(os.sep) for file in filenames
+                                       if file.endswith("pred")]
 
-reranking_object.dataset_stats(1)
-reranking_res = reranking_object.perform_reranking(algorithm='det_relaxed', distribution_list=reranking_object.stats['distributions'])
-reranking_object.metric_to_plot_wrapper(reranking_res)
-reranking_object.create_plot(reranking_res, 'det_relaxed', 'green', 'ndkl', 'map_cut_10')
+        files = pd.DataFrame(files, columns=['ad1', 'ad2', 'domain', 'baseline', 'setting', 'rfile'])
+
+        for i, row in files.iterrows():
+            address = f"{row['ad1']}/{row['ad2']}/{row['domain']}/{row['baseline']}/{row['setting']}/{row['rfile']}"
+            saving_address = f"{row['ad1']}/{row['ad2']}/{row['domain']}/{row['baseline']}/{row['setting']}/"
+            reranking_object = Reranking(vectorized_dataset_address=vectorized_dataset_address,
+                                         splits_address=splits_address,
+                                         predictions_address=address)
+            reranking_object.dataset_stats(1)
+            reranking_res = reranking_object.perform_reranking(algorithm=reranking_algorithm, distribution_list=reranking_object.stats['distributions'])
+            reranking_object.metric_to_plot_wrapper(reranking_res)
+            if row['baseline'] == 'fnn':
+                color = 'red'
+            else:
+                color = 'blue'
+            reranking_object.create_plot(reranking_res, reranking_algorithm, color, 'ndkl', utility_metric, row['baseline'], row['rfile'], saving_address=saving_address)
+
