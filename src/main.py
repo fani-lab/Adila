@@ -96,9 +96,9 @@ class Reranking:
         self.final_reranked_prediction_list = np.asarray(reranking_results[4])
         self.df, self.df_mean, self.aucroc, (self.fpr, self.tpr) = calculate_metrics(ranked_Y, self.final_reranked_prediction_list, False)
         self.df_, self.df_mean_, self.aucroc_, (self.fpr_, self.tpr_) = calculate_metrics(Y, torch.load(self.predictions_address), False)
-
+    #TODO rfile should be removed if we come to conclusion that it's not necessary
     def create_plot(self, reranking_results, reranking_algorithm: str, color: str, fairness_metric: str,
-                    utility_metric: str, baseline: str, rfile: str, saving_address: str):
+                    utility_metric: str, baseline: str, rfile: str, saving_address: str, save_and_plot: bool=False):
 
         custom_scatter_plot = list()
         custom_scatter_plot.append((self.df_mean_.loc[[utility_metric]], statistics.mean(reranking_results[0])))
@@ -109,12 +109,14 @@ class Reranking:
         plt.xlim(xmin=0, xmax=1)
         plt.ylabel(utility_metric)
         plt.xlabel(fairness_metric)
-        plt.title('Utility vs Fairness before and after re-ranking with {}'.format(reranking_algorithm))
-        plt.legend((before_plot, after_plot), ('before reranking', 'after reranking'))
-        plt.savefig(os.path.join(saving_address, '{}_{}_{}.png'.format(reranking_algorithm, baseline, rfile)))
-        plt.show()
+        if save_and_plot:
+            plt.title('Utility vs Fairness before and after re-ranking with {}'.format(reranking_algorithm))
+            plt.legend((before_plot, after_plot), ('before reranking', 'after reranking'))
+            plt.savefig(os.path.join(saving_address, '{}_{}.png'.format(reranking_algorithm, baseline)))
+            plt.show()
 
-    def aggregate(self, output_directory: str, splits_address: str, vectorized_dataset_address: str
+    @staticmethod
+    def aggregate(output_directory: str, splits_address: str, vectorized_dataset_address: str
         ,reranking_algorithm: str='det_relaxed', utility_metric: str='map_cut_10'):
 
         files = list()
@@ -124,6 +126,7 @@ class Reranking:
 
         files = pd.DataFrame(files, columns=['ad1', 'ad2', 'domain', 'baseline', 'setting', 'rfile'])
 
+        last_baseline, last_setting, plot_queue = None, None, list()
         for i, row in files.iterrows():
             address = f"{row['ad1']}/{row['ad2']}/{row['domain']}/{row['baseline']}/{row['setting']}/{row['rfile']}"
             saving_address = f"{row['ad1']}/{row['ad2']}/{row['domain']}/{row['baseline']}/{row['setting']}/"
@@ -137,5 +140,36 @@ class Reranking:
                 color = 'red'
             else:
                 color = 'blue'
-            reranking_object.create_plot(reranking_res, reranking_algorithm, color, 'ndkl', utility_metric, row['baseline'], row['rfile'], saving_address=saving_address)
+
+            if last_baseline is None and last_setting is None:
+                plot_queue.append((reranking_object, (reranking_res, reranking_algorithm, color, 'ndkl', utility_metric,
+                                                      row['baseline'], row['rfile'], saving_address)))
+
+            elif last_baseline != row['baseline'] or last_setting != row['setting']:
+
+                for i in range(len(plot_queue) - 1):
+                    plot_material = plot_queue.pop(0)
+                    plot_material[0].create_plot(*plot_material[1])
+                plot_material = plot_queue.pop(0)
+                plot_material[0].create_plot(*plot_material[1], True)
+                plot_queue = list()
+                plot_queue.append((reranking_object, (reranking_res, reranking_algorithm, color, 'ndkl', utility_metric,
+                                                      row['baseline'], row['rfile'], saving_address)))
+
+            else:
+                plot_queue.append((reranking_object, (reranking_res, reranking_algorithm, color, 'ndkl', utility_metric,
+                                                      row['baseline'], row['rfile'], saving_address)))
+
+
+            last_baseline, last_setting = row['baseline'], row['setting']
+        # For the last items that mighe be remaining in the queue
+        if len(plot_queue) != 0:
+            for i in range(len(plot_queue) - 1):
+                plot_material = plot_queue.pop(0)
+                plot_material[0].create_plot(*plot_material[1])
+            plot_material = plot_queue.pop(0)
+            plot_material[0].create_plot(*plot_material[1], True)
+
+# Sample for testing
+Reranking.aggregate('../output/toy.dblp.v12.json', '../processed/dblp-toy/splits.json', '../processed/dblp-toy/teamsvecs.pkl')
 
