@@ -2,6 +2,8 @@ import copy
 import json
 import os
 import statistics
+
+import pandas as pd
 import torch
 import pickle
 import reranking
@@ -86,6 +88,9 @@ class Reranking:
         metric_before_result = pd.DataFrame(metric_before)
         metric_after_result = pd.DataFrame(metric_after)
 
+        # saving indexes and re-ranked predictions
+        index_pred_frame = pd.DataFrame(index=self.ranking_indices, data=final_reranked_prediction_list, dtype="float64")
+        index_pred_frame.to_csv('{}.rerank.{}.csv'.format(self.predictions_address, k_max))
 
         return plt_metric_before, plt_metric_after, metric_before_result, metric_after_result, final_reranked_prediction_list, self.ranking_indices
 
