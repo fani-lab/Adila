@@ -122,6 +122,8 @@ class Reranking:
         self.df, self.df_mean, self.aucroc, (self.fpr, self.tpr) = calculate_metrics(sparse_matrix_reranked, predictions, False)
         self.df_, self.df_mean_, self.aucroc_, (self.fpr_, self.tpr_) = calculate_metrics(Y, predictions, False)
 
+        self.df_mean_.to_csv('{}.{}.before.csv'.format(self.predictions_address, 'map.cut.10'))
+        self.df_mean.to_csv('{}.{}.after.csv'.format(self.predictions_address, 'map.cut.10'))
 
     #TODO rfile should be removed if we come to conclusion that it's not necessary
     def create_plot(self, reranking_results, reranking_algorithm: str, color: str, fairness_metric: str,
