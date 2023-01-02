@@ -2,11 +2,12 @@ import copy
 import json
 import os
 import statistics
-
 import pandas as pd
 import torch
 import pickle
 import reranking
+from scipy.sparse import csr_matrix
+
 from experiment.metric import *
 
 
@@ -20,6 +21,8 @@ class Reranking:
         self.stats = dict()
         self.teamsvecs = None
         self.predictions = None
+        self.ranking_indices = list()
+        self.map10 = list()
 
     def dataset_stats(self, coefficient: float):
         """
@@ -72,35 +75,54 @@ class Reranking:
             popularity = list()
             for member in index_pred: popularity.append(self.labels[member[0]])
 
-            self.ranking_indices = reranking.rerank(popularity, distribution_list, k_max=k_max, algorithm=algorithm)
-            reranked_to_numbers = [deep_copy[i] for i in self.ranking_indices]
+            current_ranking_indices = reranking.rerank(popularity, distribution_list, k_max=k_max, algorithm=algorithm)
+            reranked_to_numbers = [deep_copy[i] for i in current_ranking_indices]
             final_reranked_prediction_list.append(reranked_to_numbers)
 
             before = reranking.ndkl(popularity, distribution_list)
 
-            after = reranking.ndkl([self.labels[i] for i in self.ranking_indices], distribution_list)
+            after = reranking.ndkl([self.labels[i] for i in current_ranking_indices], distribution_list)
 
             plt_metric_before.append(before)
             plt_metric_after.append(after)
             metric_before.append([counter, before])
             metric_after.append([counter, after])
+            self.ranking_indices.append(current_ranking_indices)
 
         metric_before_result = pd.DataFrame(metric_before)
         metric_after_result = pd.DataFrame(metric_after)
 
+
         # saving indexes and re-ranked predictions
-        index_pred_frame = pd.DataFrame(index=self.ranking_indices, data=final_reranked_prediction_list, dtype="float64")
+        index_pred_frame = pd.DataFrame(data=final_reranked_prediction_list, dtype="float64")
+        index_pred_frame['indexes'] = self.ranking_indices
         index_pred_frame.to_csv('{}.rerank.{}.csv'.format(self.predictions_address, k_max))
+        # saving fairness metric before and after results to file
+        # string formatting and not fixing the NDKL is for the time we add more fairness metrics
+        metric_before_result.to_csv('{}.{}.before.csv'.format(self.predictions_address, 'ndkl'))
+        metric_after_result.to_csv('{}.{}.after.csv'.format(self.predictions_address, 'ndkl'))
 
         return plt_metric_before, plt_metric_after, metric_before_result, metric_after_result, final_reranked_prediction_list, self.ranking_indices
 
-    def metric_to_plot_wrapper(self, reranking_results):
+    def metric_to_plot_wrapper(self):
 
         Y = self.teamsvecs["member"][self.splits['test']]
-        ranked_Y = Y[:, reranking_results[5]]
-        self.final_reranked_prediction_list = np.asarray(reranking_results[4])
-        self.df, self.df_mean, self.aucroc, (self.fpr, self.tpr) = calculate_metrics(ranked_Y, self.final_reranked_prediction_list, False)
-        self.df_, self.df_mean_, self.aucroc_, (self.fpr_, self.tpr_) = calculate_metrics(Y, torch.load(self.predictions_address), False)
+        rows, cols, value = list(), list(), list()
+        print('Creating sparse matrix started...')
+        for i in range (0, len(self.ranking_indices)):
+            for index in range (0, len(self.ranking_indices[i])):
+                rows.append(i)
+                cols.append(self.ranking_indices[i][index])
+                value.append(Y[i, self.ranking_indices[i][index]])
+        sparse_matrix_reranked = csr_matrix((value, (rows, cols)), shape=Y.shape)
+        print('Creating sparse matrix finished !')
+
+        predictions = torch.load(self.predictions_address)
+
+        self.df, self.df_mean, self.aucroc, (self.fpr, self.tpr) = calculate_metrics(sparse_matrix_reranked, predictions, False)
+        self.df_, self.df_mean_, self.aucroc_, (self.fpr_, self.tpr_) = calculate_metrics(Y, predictions, False)
+
+
     #TODO rfile should be removed if we come to conclusion that it's not necessary
     def create_plot(self, reranking_results, reranking_algorithm: str, color: str, fairness_metric: str,
                     utility_metric: str, baseline: str, rfile: str, saving_address: str, save_and_plot: bool=False):
@@ -140,7 +162,7 @@ class Reranking:
                                          predictions_address=address)
             reranking_object.dataset_stats(1)
             reranking_res = reranking_object.perform_reranking(algorithm=reranking_algorithm, distribution_list=reranking_object.stats['distributions'])
-            reranking_object.metric_to_plot_wrapper(reranking_res)
+            reranking_object.metric_to_plot_wrapper()
             if row['baseline'] == 'fnn':
                 color = 'red'
             else:
