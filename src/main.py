@@ -14,12 +14,15 @@ from experiment.metric import *
 
 class Reranking:
     @staticmethod
-    def get_stats(teamsvecs_members, coefficient: float, output: str):
+    def get_stats(teamsvecs_members, coefficient: float, output: str) -> tuple:
         """
         Args:
-            coefficient: the coefficient to define popularity
+            teamsvecs_members: teamsvecs pickle file
+            coefficient: coefficient to calculate a threshold for popularity ( e.g. if 0.5, threshold = 0.5 * average number of teams for a specific member)
+            output: address of the output directory
         Returns:
-            stats: dict
+             tuple (dict, list)
+
         """
         stats = {}
         stats['*nmembers'] = teamsvecs_members.shape[1]
@@ -37,16 +40,19 @@ class Reranking:
         return stats, labels
 
     @staticmethod
-    def rerank(preds, labels, output, ratios, algorithm: str = 'det_greedy', k_max=5):
+    def rerank(preds, labels, output, ratios, algorithm: str = 'det_greedy', k_max=5) -> tuple:
         """
         Args:
+            preds: loaded predictions from a .pred file
+            labels: popularity labels
+            output: address of the output directory
+            ratios: desired ratio of popular/non-popular items in the output
             algorithm: the chosen algorithm for reranking
             k_max: maximum number of returned team members by reranker
-            distribution_list: the desired distribution of attributes
         Returns:
-            tuple
+            tuple (list, list)
         """
-        idx = []; probs = []
+        idx, probs = list()
         for team in tqdm(preds):
             member_popularity_probs = [(m, labels[m] , float(team[m])) for m in range(len(team))]
             member_popularity_probs.sort(key=lambda x: x[2], reverse=True) #sort based on probs
@@ -61,7 +67,17 @@ class Reranking:
         return idx, probs
 
     @staticmethod
-    def eval_fairness(preds, labels, reranked_idx, ratios, output):
+    def eval_fairness(preds, labels, reranked_idx, ratios, output) -> dict:
+        """
+        Args:
+            preds: loaded predictions from a .pred file
+            labels: popularity labels
+            reranked_idx: indices of re-ranked teams with a pre-defined cut-off
+            ratios: desired ratio of popular/non-popular items in the output
+            output: address of the output directory
+        Returns:
+            dict: ndkl metric before and after re-ranking
+        """
         dic = {'ndkl.before':[], 'ndkl.after':[]}
         for i, team in enumerate(tqdm(preds)):
             member_popularity_probs = [(m, labels[m], float(team[m])) for m in range(len(team))]
@@ -71,7 +87,18 @@ class Reranking:
         return dic
 
     @staticmethod
-    def reranked_teamsvecs(teamsvecs_members, splits, reranked_idx, reranked_probs, output):
+    def reranked_teamsvecs(teamsvecs_members, splits, reranked_idx, reranked_probs, output) -> csr_matrix:
+        """
+        Args:
+            teamsvecs_members: teamsvecs pickle file
+            splits: indices of test and train samples
+            reranked_idx: indices of re-ranked teams with a pre-defined cut-off
+            reranked_probs: original probability of re-ranked items
+            output: address of the output directory
+
+        Returns:
+            csr_matrix
+        """
         y_test = teamsvecs_members[splits['test']]
         rows, cols, value = list(), list(), list()
         for i, reranked_team in enumerate(tqdm(reranked_idx)):
@@ -85,7 +112,19 @@ class Reranking:
         return sparse_matrix_reranked
 
     @staticmethod
-    def eval_utility(teamsvecs_members, reranked_preds, preds, splits, metrics, output):
+    def eval_utility(teamsvecs_members, reranked_preds, preds, splits, metrics, output) -> None:
+        """
+        Args:
+            teamsvecs_members: teamsvecs pickle file
+            reranked_preds: re-ranked teams
+            preds: loaded predictions from a .pred file
+            splits: indices of test and train samples
+            metrics: desired utility metrics
+            output: address of the output directory
+
+        Returns:
+            None
+        """
         # predictions = torch.load(self.predictions_address)
         y_test = teamsvecs_members[splits['test']]
         df_, df_mean_, aucroc_, _ = calculate_metrics(y_test, preds, True, metrics) #although we already have this at test.pred.eval.mean.csv
@@ -114,7 +153,20 @@ class Reranking:
         #     plt.show()
 
     @staticmethod
-    def run(fpreds, output, fteamsvecs, fsplits, ratios, fariness_metric={'ndkl'}, utility_metrics={'map_cut_2,5,10'}):
+    def run(fpreds, output, fteamsvecs, fsplits, ratios, fairness_metric={'ndkl'}, utility_metrics={'map_cut_2,5,10'}) -> None:
+        """
+        Args:
+            fpreds: address of the .pred file
+            output: address of the output directory
+            fteamsvecs: address of teamsvecs file
+            fsplits: address of splits.json file
+            ratios: desired ratio of popular/non-popular items in the output
+            fairness_metric: desired fairness metric
+            utility_metrics: desired utility metric
+
+        Returns:
+            None
+        """
         print('#'*100)
         print(f'Reranking for the baseline {output} ...')
         st = time()
@@ -131,7 +183,7 @@ class Reranking:
         print(f'Reranking the predictions based on {algorithm} for top-{k_max} ...')
         reranked_idx, probs = Reranking.rerank(preds, labels, f'{output}/{os.path.split(fpreds)[-1]}', ratios, algorithm, k_max)
 
-        print(f'Evaluating fairness metric {fariness_metric} ...') #for now, it's hardcoded for 'ndkl'
+        print(f'Evaluating fairness metric {fairness_metric} ...') #for now, it's hardcoded for 'ndkl'
         Reranking.eval_fairness(preds, labels, reranked_idx, ratios, output)
         print('Reranked teams sparse matrix reconstruction ...')
         reranked_teamsvecs_member = Reranking.reranked_teamsvecs(teamsvecs['member'], splits, reranked_idx, probs, output)
