@@ -188,11 +188,8 @@ class Reranking:
 
         try:
             print('Loading re-ranking results ...')
-            df = pd.read_csv(f'{new_output}.rerank.{k_max}.csv')
+            df = pd.read_csv(f'{new_output}.rerank.{k_max}.csv', converters={'reranked_idx': eval, 'reranked_probs': eval})
             reranked_idx, probs = df['reranked_idx'].to_list(), df['reranked_probs'].to_list()
-            reranked_idx = list(map(lambda x : x[1:-2].replace(',', '').split(), reranked_idx))
-            probs = list(map(lambda x : x[1:-2].replace(',', '').split(), probs))
-            probs = [list(map(float, p)) for p in probs]
         except FileNotFoundError:
             print(f'Loading re-ranking results failed, reranking the predictions based on {algorithm} for top-{k_max} ...')
             reranked_idx, probs = Reranking.rerank(preds, labels, new_output, ratios, algorithm, k_max)
