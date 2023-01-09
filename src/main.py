@@ -127,29 +127,47 @@ class Reranking:
         # predictions = torch.load(self.predictions_address)
         y_test = teamsvecs_members[splits['test']]
         df_, df_mean_, aucroc_, _ = calculate_metrics(y_test, preds, True, metrics) #although we already have this at test.pred.eval.mean.csv
+        df_mean_.index.name = 'metric'
         df_mean_.to_csv(f'{output}.utilityeval.before.csv')
 
         df, df_mean, aucroc, _ = calculate_metrics(y_test, reranked_preds.toarray(), True, metrics)
+        df_mean.index.name = 'metric'
         df_mean.to_csv(f'{output}.utilityeval.after.csv')
 
-    #TODO rfile should be removed if we come to conclusion that it's not necessary
-    def create_plot(self, reranking_results, reranking_algorithm: str, color: str, fairness_metric: str,
-                    utility_metric: str, baseline: str, rfile: str, saving_address: str, save_and_plot: bool=False):
+    @staticmethod
+    def create_plot(fairness_before: list, fairness_after: list, utility_before, utility_after, legend_material: dict,output, save=False):
         pass
+        #color_list = ['red', 'blue', 'green', 'black', 'yellow']
         # custom_scatter_plot = list()
         # custom_scatter_plot.append((self.df_mean_.loc[[utility_metric]], statistics.mean(reranking_results[0])))
         # custom_scatter_plot.append((self.df_mean.loc[[utility_metric]], statistics.mean(reranking_results[1])))
         # before_plot = plt.scatter(custom_scatter_plot[0][1], custom_scatter_plot[0][0], c=color, marker='v')
         # after_plot = plt.scatter(custom_scatter_plot[1][1], custom_scatter_plot[1][0], c=color, marker='o')
+        # for fold in zip(fairness_before, utility_before):
+        #     plt.scatter(fold[0], fold[1], c=color_list.pop(), marker='v')
+        # color_list = ['red', 'blue', 'green', 'black', 'yellow']
+        # for fold in zip(fairness_after, utility_after):
+        #     plt.scatter(fold[0], fold[1], c=color_list.pop(), marker='o')
+        #
         # plt.ylim(ymin=0, ymax=1)
         # plt.xlim(xmin=0, xmax=1)
-        # plt.ylabel(utility_metric)
-        # plt.xlabel(fairness_metric)
-        # if save_and_plot:
-        #     plt.title('Utility vs Fairness before and after re-ranking with {}'.format(reranking_algorithm))
-        #     plt.legend((before_plot, after_plot), ('before reranking', 'after reranking'))
-        #     plt.savefig(os.path.join(saving_address, '{}_{}.png'.format(reranking_algorithm, baseline)))
+        # plt.ylabel(legend_material['utility_metric'])
+        # plt.xlabel(legend_material['fairness_metric'])
+        # if save :
+        #     plt.title(f'Utility vs Fairness before and after re-ranking with {legend_material.get("algorithm")}')
+        #     #plt.legend((before_plot, after_plot), ('before reranking', 'after reranking'))
+        #     plt.savefig(output)
         #     plt.show()
+
+    @staticmethod
+    def fairness_average(fairevals: list) -> tuple:
+
+        return statistics.mean([df['ndkl_before'].mean() for df in fairevals]), statistics.mean([df['ndkl_after'].mean() for df in fairevals])
+
+    @staticmethod
+    def utility_average(utilityevals: list, metric: str) -> float:
+
+        return statistics.mean([df.loc[df['metric'] == metric, 'mean'].tolist()[0] for df in utilityevals])
 
     @staticmethod
     def run(fpreds, output, fteamsvecs, fsplits, ratios, fairness_metric={'ndkl'}, utility_metrics={'map_cut_2,5,10'}) -> None:
