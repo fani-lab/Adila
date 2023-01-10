@@ -62,7 +62,7 @@ class Reranking:
             idx.append(reranked_idx)
             probs.append(reranked_probs)
 
-        pd.DataFrame({'reranked_idx': idx, 'reranked_probs': probs}).to_csv(f'{output}.rerank.{k_max}.csv')
+        pd.DataFrame({'reranked_idx': idx, 'reranked_probs': probs}).to_csv(f'{output}.rerank.{algorithm}.{k_max}.csv')
         return idx, probs
 
     @staticmethod
@@ -206,7 +206,7 @@ class Reranking:
 
         try:
             print('Loading re-ranking results ...')
-            df = pd.read_csv(f'{new_output}.rerank.{k_max}.csv', converters={'reranked_idx': eval, 'reranked_probs': eval})
+            df = pd.read_csv(f'{new_output}.rerank.{algorithm}.{k_max}.csv', converters={'reranked_idx': eval, 'reranked_probs': eval})
             reranked_idx, probs = df['reranked_idx'].to_list(), df['reranked_probs'].to_list()
         except FileNotFoundError:
             print(f'Loading re-ranking results failed, reranking the predictions based on {algorithm} for top-{k_max} ...')
