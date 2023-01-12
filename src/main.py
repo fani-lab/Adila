@@ -1,6 +1,6 @@
 import json, os, statistics, pandas as pd, pickle
 import multiprocessing
-from time import time
+from time import time, perf_counter
 from functools import partial
 
 import torch
@@ -57,7 +57,10 @@ class Reranking:
             member_popularity_probs.sort(key=lambda x: x[2], reverse=True) #sort based on probs
             #TODO: e.g., please comment the semantics of the output indexes by an example
             #in the output list, we may have an index for a member outside the top k_max list that brought up by the reranker and comes to the top k_max
+            start_time = perf_counter()
             reranked_idx = reranking.rerank([label for _, label, _ in member_popularity_probs], ratios, k_max=k_max, algorithm=algorithm)
+            finish_time = perf_counter()
+            with open(f'../output/fairness.runtime.txt', 'a') as file: file.write(f'{finish_time-start_time} {output} {algorithm} {k_max}\n')
             reranked_probs = [member_popularity_probs[m][2] for m in reranked_idx]
             idx.append(reranked_idx)
             probs.append(reranked_probs)
@@ -241,9 +244,9 @@ class Reranking:
         print('#'*100)
 
 if __name__ == "__main__":
-    output = '../output/toy.dblp.v12.json' #tobe argv
-    fsplits = '../output/toy.dblp.v12.json/splits.json'
-    fteamsvecs = '../data/preprocessed/dblp/toy.dblp.v12.json/teamsvecs.pkl'
+    output = '../output/title.basics.tsv.filtered.mt75.ts3'  # tobe argv
+    fsplits = '../data/preprocessed/imdb/title.basics.tsv.filtered.mt75.ts3/splits.json'
+    fteamsvecs = '../data/preprocessed/imdb/title.basics.tsv.filtered.mt75.ts3/teamsvecs.pkl'
     files = list()
     for dirpath, dirnames, filenames in os.walk(output):
         files += [os.path.join(os.path.normpath(dirpath), file).split(os.sep) for file in filenames if file.endswith("pred")]
@@ -252,16 +255,16 @@ if __name__ == "__main__":
     address_list = list()
 
     # serial run #todo: by argv
-    for i, row in files.iterrows():
-        output = f"{row['.']}/{row['..']}/{row['domain']}/{row['baseline']}/{row['setting']}/"
-        Reranking.run(fpreds=f'{output}/{row["rfile"]}', output=f'{output}/rerank/', fteamsvecs=fteamsvecs, fsplits=fsplits, ratios=None)
+    # for i, row in files.iterrows():
+    #     output = f"{row['.']}/{row['..']}/{row['domain']}/{row['baseline']}/{row['setting']}/"
+    #     Reranking.run(fpreds=f'{output}/{row["rfile"]}', output=f'{output}/rerank/', fteamsvecs=fteamsvecs, fsplits=fsplits, ratios=None)
 
     # #parallel run
-    # ncore = -1 #tobe argv
-    # with multiprocessing.Pool(multiprocessing.cpu_count() if ncore < 0 else ncore) as executor:
-    #     print(f'Parallel run started ...')
-    #     pairs = []
-    #     for i, row in files.iterrows():
-    #         output = f"{row['.']}/{row['..']}/{row['domain']}/{row['baseline']}/{row['setting']}/"
-    #         pairs.append((f'{output}/{row["rfile"]}', f'{output}/rerank/'))
-    #     executor.starmap(partial(Reranking.run, fteamsvecs=fteamsvecs, fsplits=fsplits, ratios=None), pairs)
+    ncore = -1 #tobe argv
+    with multiprocessing.Pool(multiprocessing.cpu_count() if ncore < 0 else ncore) as executor:
+        print(f'Parallel run started ...')
+        pairs = []
+        for i, row in files.iterrows():
+            output = f"{row['.']}/{row['..']}/{row['domain']}/{row['baseline']}/{row['setting']}/"
+            pairs.append((f'{output}/{row["rfile"]}', f'{output}/rerank/'))
+        executor.starmap(partial(Reranking.run, fteamsvecs=fteamsvecs, fsplits=fsplits, ratios=None), pairs)
