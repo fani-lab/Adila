@@ -69,7 +69,7 @@ class Reranking:
         return idx, probs
 
     @staticmethod
-    def eval_fairness(preds, labels, reranked_idx, ratios, output, algorithm) -> dict:
+    def eval_fairness(preds, labels, reranked_idx, ratios, output, algorithm, k_max) -> dict:
         """
         Args:
             preds: loaded predictions from a .pred file
@@ -85,11 +85,11 @@ class Reranking:
             member_popularity_probs = [(m, labels[m], float(team[m])) for m in range(len(team))]
             dic['ndkl.before'].append(reranking.ndkl([label for _, label, _ in member_popularity_probs], ratios))
             dic['ndkl.after'].append(reranking.ndkl([labels[int(m)] for m in reranked_idx[i]], ratios))
-        pd.DataFrame(dic).to_csv(f'{output}.faireval.{algorithm}.csv')
+        pd.DataFrame(dic).to_csv(f'{output}.faireval.{algorithm}.{k_max}.csv')
         return dic
 
     @staticmethod
-    def reranked_preds(teamsvecs_members, splits, reranked_idx, reranked_probs, output, algorithm) -> csr_matrix:
+    def reranked_preds(teamsvecs_members, splits, reranked_idx, reranked_probs, output, algorithm, k_max) -> csr_matrix:
         """
         Args:
             teamsvecs_members: teamsvecs pickle file
@@ -110,11 +110,11 @@ class Reranking:
                 #value.append(y_test[i, reranked_member])
                 value.append(reranked_probs[i][j])
         sparse_matrix_reranked = csr_matrix((value, (rows, cols)), shape=y_test.shape)
-        with open(f'{output}reranked.{algorithm}.preds.pkl', 'wb') as f: pickle.dump(sparse_matrix_reranked, f)
+        with open(f'{output}reranked.{algorithm}.{k_max}.preds.pkl', 'wb') as f: pickle.dump(sparse_matrix_reranked, f)
         return sparse_matrix_reranked
 
     @staticmethod
-    def eval_utility(teamsvecs_members, reranked_preds, preds, splits, metrics, output, algorithm, op=('after', 'before')) -> None:
+    def eval_utility(teamsvecs_members, reranked_preds, preds, splits, metrics, output, algorithm, op=('after', 'before'), k_max=None) -> None:
         """
         Args:
             teamsvecs_members: teamsvecs pickle file
@@ -136,7 +136,7 @@ class Reranking:
         if 'after' in op:
             df, df_mean, aucroc, _ = calculate_metrics(y_test, reranked_preds.toarray(), True, metrics)
             df_mean.index.name = 'metric'
-            df_mean.to_csv(f'{output}.utilityeval.{algorithm}.after.csv')
+            df_mean.to_csv(f'{output}.utilityeval.{algorithm}.{k_max}.after.csv')
 
     @staticmethod
     def create_plot(fairness_before: list, fairness_after: list, utility_before, utility_after, legend_material: dict,output, save=False):
@@ -206,7 +206,7 @@ class Reranking:
         if not ratios: ratios = stats['popularity_ratio']
 
         new_output = f'{output}/{os.path.split(fpreds)[-1]}'
-        algorithm, k_max = 'det_greedy', 5
+        algorithm, k_max = 'det_cons', None
 
         try:
             print('Loading re-ranking results ...')
@@ -218,35 +218,39 @@ class Reranking:
 
         try:
             print('Loading fairness evaluation results ...')
-            fairness_eval = pd.read_csv(f'{new_output}.faireval.{algorithm}.csv')
+            fairness_eval = pd.read_csv(f'{new_output}.faireval.{algorithm}.{k_max}.csv')
         except FileNotFoundError:
             print(f'Loading fairness results failed, Evaluating fairness metric {fairness_metric} ...') #for now, it's hardcoded for 'ndkl'
-            Reranking.eval_fairness(preds, labels, reranked_idx, ratios, new_output, algorithm)
+            Reranking.eval_fairness(preds, labels, reranked_idx, ratios, new_output, algorithm, k_max)
         try:
             print('Loading re-ranked predictions sparse matrix ...')
-            with open(f'{output}reranked.{algorithm}.preds.pkl', 'rb') as f: reranked_preds = pickle.load(f)
+            with open(f'{output}reranked.{algorithm}.{k_max}.preds.pkl', 'rb') as f: reranked_preds = pickle.load(f)
         except FileNotFoundError:
             print(' Loading re-ranked predictions sparse matrix failed. Re-ranked predictions sparse matrix reconstruction ...')
-            reranked_preds = Reranking.reranked_preds(teamsvecs['member'], splits, reranked_idx, probs, output, algorithm)
+            reranked_preds = Reranking.reranked_preds(teamsvecs['member'], splits, reranked_idx, probs, output, algorithm, k_max)
         try:
             print('Loading utility metric evaluation results ...')
             utility_before = pd.read_csv(f'{new_output}.utilityeval.before.csv')
         except:
             print(f' Loading utility metric results failed. Evaluating utility metric {utility_metrics} ...')
-            Reranking.eval_utility(teamsvecs['member'], reranked_preds, preds, splits, utility_metrics, new_output, algorithm)
+            Reranking.eval_utility(teamsvecs['member'], reranked_preds, preds, splits, utility_metrics, new_output, algorithm, k_max=k_max)
         try:
-            utility_after =  pd.read_csv(f'{new_output}.utilityeval.{algorithm}.after.csv')
+            utility_after =  pd.read_csv(f'{new_output}.utilityeval.{algorithm}.{k_max}.after.csv')
         except:
             print(f' Loading utility metric results failed. Evaluating utility metric {utility_metrics} ...')
-            Reranking.eval_utility(teamsvecs['member'], reranked_preds, preds, splits, utility_metrics, new_output, algorithm, op=('after',))
+            Reranking.eval_utility(teamsvecs['member'], reranked_preds, preds, splits, utility_metrics, new_output, algorithm, op=('after',), k_max=k_max)
 
         print(f'Reranking for the baseline {output} completed by {multiprocessing.current_process()}! {time() - st}')
         print('#'*100)
 
 if __name__ == "__main__":
-    output = '../output/title.basics.tsv.filtered.mt75.ts3'  # tobe argv
-    fsplits = '../data/preprocessed/imdb/title.basics.tsv.filtered.mt75.ts3/splits.json'
-    fteamsvecs = '../data/preprocessed/imdb/title.basics.tsv.filtered.mt75.ts3/teamsvecs.pkl'
+    # output = '../output/toy.dblp.v12.json' #tobe argv
+    # fsplits = '../output/toy.dblp.v12.json/splits.json'
+    # fteamsvecs = '../data/preprocessed/dblp/toy.dblp.v12.json/teamsvecs.pkl'
+    output = '../output/dblp.v12.json.filtered.mt75.ts3'  # tobe argv
+    fsplits = '../data/preprocessed/dblp/dblp.v12.json/splits.json'
+    fteamsvecs = '../data/preprocessed/dblp/dblp.v12.json/teamsvecs.pkl'
+
     files = list()
     for dirpath, dirnames, filenames in os.walk(output):
         files += [os.path.join(os.path.normpath(dirpath), file).split(os.sep) for file in filenames if file.endswith("pred")]
