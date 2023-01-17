@@ -1,5 +1,6 @@
 import json, os, statistics, pandas as pd, pickle
 import multiprocessing
+import argparse
 from time import time, perf_counter
 from functools import partial
 
@@ -166,7 +167,7 @@ class Reranking:
     @staticmethod
     def fairness_average(fairevals: list) -> tuple:
 
-        return statistics.mean([df['ndkl_before'].mean() for df in fairevals]), statistics.mean([df['ndkl_after'].mean() for df in fairevals])
+        return statistics.mean([df['ndkl.before'].mean() for df in fairevals]), statistics.mean([df['ndkl.after'].mean() for df in fairevals])
 
     @staticmethod
     def utility_average(utilityevals: list, metric: str) -> float:
@@ -174,7 +175,7 @@ class Reranking:
         return statistics.mean([df.loc[df['metric'] == metric, 'mean'].tolist()[0] for df in utilityevals])
 
     @staticmethod
-    def run(fpreds, output, fteamsvecs, fsplits, ratios, fairness_metric={'ndkl'}, utility_metrics={'map_cut_2,5,10'}) -> None:
+    def run(fpreds, output, fteamsvecs, fsplits, ratios, fairness_metric={'ndkl'}, utility_metrics={'map_cut_2,5,10'}, algorithm='det_cons', k_max=None) -> None:
         """
         Args:
             fpreds: address of the .pred file
@@ -206,7 +207,6 @@ class Reranking:
         if not ratios: ratios = stats['popularity_ratio']
 
         new_output = f'{output}/{os.path.split(fpreds)[-1]}'
-        algorithm, k_max = 'det_cons', None
 
         try:
             print('Loading re-ranking results ...')
@@ -243,13 +243,31 @@ class Reranking:
         print(f'Reranking for the baseline {output} completed by {multiprocessing.current_process()}! {time() - st}')
         print('#'*100)
 
+    @staticmethod
+    def addargs(parser):
+        dataset = parser.add_argument_group('dataset')
+        dataset.add_argument('-pred', '--pred-list', nargs='+', type=str, default=[], required=True, help='address of the .pred file; required; (eg. -data ./../data/output/f0.test.pred)')
+        dataset.add_argument('-output', '--output-list', nargs='+', type=str, default=[], required=True, help='address of the output directory')
+        dataset.add_argument('-fteamsvecs', '--fteamsvecs-list', nargs='+', type=str, default=[], required=True, help='address of teamsvecs file')
+        dataset.add_argument('-fsplits', '--fsplits-list', nargs='+', type=str, default=[], required=True, help='address of splits.json file')
+
+        fairness = parser.add_argument_group('fairness')
+        fairness.add_argument('-ratios', '--ratios-list', nargs='+', type=list, default=None, required=False, help='desired ratio of popular/non-popular items in the output')
+        dataset.add_argument('-fairness_metric', '--fairness_metric-list', nargs='+', type=set, default={'ndkl'}, required=False, help='desired fairness metric')
+        dataset.add_argument('-algorithm', '--algorithm-list', nargs='+', type=str, default='det_cons', required=False, help='reranking algorithm that is going to be utilized')
+        dataset.add_argument('-k_max', '--k_max-list', nargs='+', type=str, default=None, required=False, help='cutoff for the reranking function')
+        dataset.add_argument('-utility_metrics', '--utility_metrics-list', nargs='+', type=set, default={'map_cut_2,5,10'}, required=False, help='desired utility metric')
+
+# python -u main.py -pred ../output/toy.dblp.v12.json/bnn/t31.s11.m13.l[100].lr0.1.b4096.e20.s1/f0.test.pred
+# 					-fsplit '../output/toy.dblp.v12.json/splits.json'
+# 					-fteamsvecs '../data/preprocessed/dblp/toy.dblp.v12.json/teamsvecs.pkl'
+#                    -output '../output/toy.dblp.v12.json'
+
 if __name__ == "__main__":
-    # output = '../output/toy.dblp.v12.json' #tobe argv
-    # fsplits = '../output/toy.dblp.v12.json/splits.json'
-    # fteamsvecs = '../data/preprocessed/dblp/toy.dblp.v12.json/teamsvecs.pkl'
-    output = '../output/dblp.v12.json.filtered.mt75.ts3'  # tobe argv
-    fsplits = '../data/preprocessed/dblp/dblp.v12.json/splits.json'
-    fteamsvecs = '../data/preprocessed/dblp/dblp.v12.json/teamsvecs.pkl'
+    output = '../output/toy.dblp.v12.json' #tobe argv
+    fsplits = '../output/toy.dblp.v12.json/splits.json'
+    fteamsvecs = '../data/preprocessed/dblp/toy.dblp.v12.json/teamsvecs.pkl'
+
 
     files = list()
     for dirpath, dirnames, filenames in os.walk(output):
@@ -259,16 +277,16 @@ if __name__ == "__main__":
     address_list = list()
 
     # serial run #todo: by argv
-    # for i, row in files.iterrows():
-    #     output = f"{row['.']}/{row['..']}/{row['domain']}/{row['baseline']}/{row['setting']}/"
-    #     Reranking.run(fpreds=f'{output}/{row["rfile"]}', output=f'{output}/rerank/', fteamsvecs=fteamsvecs, fsplits=fsplits, ratios=None)
+    for i, row in files.iterrows():
+        output = f"{row['.']}/{row['..']}/{row['domain']}/{row['baseline']}/{row['setting']}/"
+        Reranking.run(fpreds=f'{output}/{row["rfile"]}', output=f'{output}/rerank/', fteamsvecs=fteamsvecs, fsplits=fsplits, ratios=None)
 
     # #parallel run
-    ncore = -1 #tobe argv
-    with multiprocessing.Pool(multiprocessing.cpu_count() if ncore < 0 else ncore) as executor:
-        print(f'Parallel run started ...')
-        pairs = []
-        for i, row in files.iterrows():
-            output = f"{row['.']}/{row['..']}/{row['domain']}/{row['baseline']}/{row['setting']}/"
-            pairs.append((f'{output}/{row["rfile"]}', f'{output}/rerank/'))
-        executor.starmap(partial(Reranking.run, fteamsvecs=fteamsvecs, fsplits=fsplits, ratios=None), pairs)
+    # ncore = -1 #tobe argv
+    # with multiprocessing.Pool(multiprocessing.cpu_count() if ncore < 0 else ncore) as executor:
+    #     print(f'Parallel run started ...')
+    #     pairs = []
+    #     for i, row in files.iterrows():
+    #         output = f"{row['.']}/{row['..']}/{row['domain']}/{row['baseline']}/{row['setting']}/"
+    #         pairs.append((f'{output}/{row["rfile"]}', f'{output}/rerank/'))
+    #     executor.starmap(partial(Reranking.run, fteamsvecs=fteamsvecs, fsplits=fsplits, ratios=None), pairs)
