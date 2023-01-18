@@ -84,6 +84,7 @@ class Reranking:
         dic = {'ndkl.before':[], 'ndkl.after':[]}
         for i, team in enumerate(tqdm(preds)):
             member_popularity_probs = [(m, labels[m], float(team[m])) for m in range(len(team))]
+            member_popularity_probs.sort(key=lambda x: x[2], reverse=True)
             dic['ndkl.before'].append(reranking.ndkl([label for _, label, _ in member_popularity_probs], ratios))
             dic['ndkl.after'].append(reranking.ndkl([labels[int(m)] for m in reranked_idx[i]], ratios))
         pd.DataFrame(dic).to_csv(f'{output}.faireval.{algorithm}.{k_max}.csv')
