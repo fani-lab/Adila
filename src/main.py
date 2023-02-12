@@ -247,47 +247,56 @@ class Reranking:
     @staticmethod
     def addargs(parser):
         dataset = parser.add_argument_group('dataset')
-        dataset.add_argument('-pred', '--pred-list', nargs='+', type=str, default=[], required=True, help='address of the .pred file; required; (eg. -data ./../data/output/f0.test.pred)')
-        dataset.add_argument('-output', '--output-list', nargs='+', type=str, default=[], required=True, help='address of the output directory')
-        dataset.add_argument('-fteamsvecs', '--fteamsvecs-list', nargs='+', type=str, default=[], required=True, help='address of teamsvecs file')
-        dataset.add_argument('-fsplits', '--fsplits-list', nargs='+', type=str, default=[], required=True, help='address of splits.json file')
+        dataset.add_argument('-pred', '--pred-list', type=str, required=True, help='address of the .pred file; required; (eg. -data ./../data/output/f0.test.pred)')
+        dataset.add_argument('-output', '--output', type=str, required=True, help='address of the output directory')
+        dataset.add_argument('-fteamsvecs', '--fteamsvecs', type=str, required=True, help='address of teamsvecs file')
+        dataset.add_argument('-fsplits', '--fsplits', type=str, required=True, help='address of splits.json file')
 
         fairness = parser.add_argument_group('fairness')
-        fairness.add_argument('-ratios', '--ratios-list', nargs='+', type=list, default=None, required=False, help='desired ratio of popular/non-popular items in the output')
+        fairness.add_argument('-ratios', '--ratios', nargs='+', type=float, default=None, required=False, help='desired ratio of popular/non-popular items in the output')
         dataset.add_argument('-fairness_metric', '--fairness_metric-list', nargs='+', type=set, default={'ndkl'}, required=False, help='desired fairness metric')
-        dataset.add_argument('-algorithm', '--algorithm-list', nargs='+', type=str, default='det_cons', required=False, help='reranking algorithm that is going to be utilized')
-        dataset.add_argument('-k_max', '--k_max-list', nargs='+', type=str, default=None, required=False, help='cutoff for the reranking function')
-        dataset.add_argument('-utility_metrics', '--utility_metrics-list', nargs='+', type=set, default={'map_cut_2,5,10'}, required=False, help='desired utility metric')
+        dataset.add_argument('-algorithm', '--algorithm', nargs='+', type=str, default='det_cons', required=False, help='reranking algorithm that is going to be utilized')
+        dataset.add_argument('-k_max', '--k_max', type=int, default=10, required=False, help='cutoff for the reranking function')
+        dataset.add_argument('-utility_metrics', '--utility_metrics', nargs='+', type=set, default={'map_cut_2,5,10'}, required=False, help='desired utility metric')
 
-# python -u main.py -pred ../output/toy.dblp.v12.json/bnn/t31.s11.m13.l[100].lr0.1.b4096.e20.s1/f0.test.pred
-# 					-fsplit '../output/toy.dblp.v12.json/splits.json'
-# 					-fteamsvecs '../data/preprocessed/dblp/toy.dblp.v12.json/teamsvecs.pkl'
-#                    -output '../output/toy.dblp.v12.json'
+        mode = parser.add_argument_group('mode')
+        mode.add_argument('-mode', type=int, default=0, choices=[0, 1], help='0 for sequential run and 1 for parallel')
+        mode.add_argument('-core', type=int, default=-1, help='number of cores to dedicate to parallel run, -1 means all available cores')
+
+"""
+A running example of arguments
+python -u main.py -pred ../output/toy.dblp.v12.json/bnn/t31.s11.m13.l[100].lr0.1.b4096.e20.s1/f0.test.pred
+-fsplit '../output/toy.dblp.v12.json/splits.json'
+-fteamsvecs '../data/preprocessed/dblp/toy.dblp.v12.json/teamsvecs.pkl'
+-output '../output/toy.dblp.v12.json'
+"""
 
 if __name__ == "__main__":
-    output = '../output/toy.dblp.v12.json' #tobe argv
-    fsplits = '../output/toy.dblp.v12.json/splits.json'
-    fteamsvecs = '../data/preprocessed/dblp/toy.dblp.v12.json/teamsvecs.pkl'
+
+    parser = argparse.ArgumentParser(description='Fair Team Formation')
+    Reranking.addargs(parser)
+    args = parser.parse_args()
 
 
     files = list()
-    for dirpath, dirnames, filenames in os.walk(output):
+    for dirpath, dirnames, filenames in os.walk(args.output):
         files += [os.path.join(os.path.normpath(dirpath), file).split(os.sep) for file in filenames if file.endswith("pred")]
 
     files = pd.DataFrame(files, columns=['.', '..', 'domain', 'baseline', 'setting', 'rfile'])
     address_list = list()
 
-    # serial run #todo: by argv
-    for i, row in files.iterrows():
-        output = f"{row['.']}/{row['..']}/{row['domain']}/{row['baseline']}/{row['setting']}/"
-        Reranking.run(fpreds=f'{output}/{row["rfile"]}', output=f'{output}/rerank/', fteamsvecs=fteamsvecs, fsplits=fsplits, ratios=None)
-
-    # #parallel run
-    # ncore = -1 #tobe argv
-    # with multiprocessing.Pool(multiprocessing.cpu_count() if ncore < 0 else ncore) as executor:
-    #     print(f'Parallel run started ...')
-    #     pairs = []
-    #     for i, row in files.iterrows():
-    #         output = f"{row['.']}/{row['..']}/{row['domain']}/{row['baseline']}/{row['setting']}/"
-    #         pairs.append((f'{output}/{row["rfile"]}', f'{output}/rerank/'))
-    #     executor.starmap(partial(Reranking.run, fteamsvecs=fteamsvecs, fsplits=fsplits, ratios=None), pairs)
+    # sequential run
+    if args.mode == 0:
+        for i, row in files.iterrows():
+            output = f"{row['.']}/{row['..']}/{row['domain']}/{row['baseline']}/{row['setting']}/"
+            Reranking.run(fpreds=f'{output}/{row["rfile"]}', output=f'{output}/rerank/', fteamsvecs=args.fteamsvecs,
+                          fsplits=args.fsplits, ratios=args.ratios)
+    # parallel run
+    elif args.mode == 1:
+        with multiprocessing.Pool(multiprocessing.cpu_count() if args.core < 0 else args.core) as executor:
+            print(f'Parallel run started ...')
+            pairs = []
+            for i, row in files.iterrows():
+                output = f"{row['.']}/{row['..']}/{row['domain']}/{row['baseline']}/{row['setting']}/"
+                pairs.append((f'{output}/{row["rfile"]}', f'{output}/rerank/'))
+            executor.starmap(partial(Reranking.run, fteamsvecs=args.fteamsvecs, fsplits=args.fsplits, ratios=args.ratios), pairs)
