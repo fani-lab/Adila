@@ -6,5 +6,30 @@ There are three groups of methodologies to address the bias phenomenon. The firs
 At the moment our research focuses on the third group of methodologies, and we are trying to implement the techniques presented in “Fairness-Aware Ranking in Search & Recommendation Systems with Application to LinkedIn Talent Search” on our team formation framework namely, OpeNTF.
 
 
-## Setup
-using the [starter.ipynb](./starter.ipynb). Basic setup to run our project.
+## 1.Setup
+Our recent version is being developed with Python3.8. For running this project locally, first the repo should be cloned:
+```bash
+git clone https://github.com/fani-lab/fair_team_formation.git
+```
+after creating a Python virtual environment you can install the required libraries and frameworks by running this command:
+```bash
+cd fair_team_formation
+pip install -r requirements.txt
+```
+## 2.Quick Start
+To run the code, you can use [src/main.py](https://github.com/fani-lab/fair_team_formation/blob/main/src/main.py)
+in order to run the code on a toy dataset from dblp, you can use the following commands:
+```bash
+cd src
+python -u main.py --pred
+"../output/toy.dblp.v12.json/bnn/"
+--fsplit
+"../output/toy.dblp.v12.json/splits.json"
+--fteamsvecs
+"../data/preprocessed/dblp/toy.dblp.v12.json/teamsvecs.pkl"
+--output
+"../output/toy.dblp.v12.json"
+--ratios
+0.5
+0.5
+```
