@@ -1,0 +1,9 @@
+RESULTS:
+Same Results for 96 entries
+	Jin-Kao Hao -> where genderize=-1 and gender-api=0
+	Li-Qun Xu -> where genderize=-1 and gender-api=1
+	Qingxiao Guan -> where genderize=1 and gender-api=0
+	Guo-Hong Ding -> where genderize=-1 and gender-api=1
+Invalid Count in Genderize for 3 entries
+Invalid Count in GenderAPI for 0 entries
+Female vs Males Names: 23 vs 77
