@@ -9,15 +9,15 @@ At the moment our research focuses on the third group of methodologies, and we a
 ## 1.Setup
 Our recent version is being developed with Python3.8. For running this project locally, first the repo should be cloned:
 ```bash
-git clone https://github.com/fani-lab/fair_team_formation.git
+git clone https://github.com/fani-lab/Adila.git
 ```
 after creating a Python virtual environment you can install the required libraries and frameworks by running this command:
 ```bash
-cd fair_team_formation
+cd Adila
 pip install -r requirements.txt
 ```
 ## 2.Quick Start
-To run the code, you can use [src/main.py](https://github.com/fani-lab/fair_team_formation/blob/main/src/main.py)
+To run the code, you can use [src/main.py](https://github.com/fani-lab/Adila/blob/main/src/main.py)
 in order to run the code on a toy dataset from dblp, you can use the following commands:
 ```bash
 cd src
