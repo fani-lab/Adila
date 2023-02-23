@@ -260,7 +260,7 @@ if __name__ == "__main__":
 
     files = pd.DataFrame(files, columns=['.', '..', 'domain', 'baseline', 'setting', 'rfile'])
     address_list = list()
-
+    ratios = dict([('p', args.ratios[0]), ('np', args.ratios[1])])
     # sequential run
     if args.mode == 0:
         for i, row in files.iterrows():
