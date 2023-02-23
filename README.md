@@ -1,4 +1,5 @@
-# ``Adila``: Fairness-Aware Team Formation
+# ``Adila``<sup>*</sup>: Fairness-Aware Team Formation
+<sup>*[A feminine Arabic given name meaning _just and fair_.](https://en.wikipedia.org/wiki/Adila_(name))<sup>
 
 In classic team formation, our goal is to come up with a set of recommended experts for a specific problem or project. There are some necessary skills for each project and our experts must cover those while maximizing the chance of successfully finishing the project.
 Most team formation approaches are not fairness aware. Hence, the results are usually biased. This bias might be on single or multiple protected attributes. For example, we might have a gender bias in the process of team formation or bias on the combination of gender and popularity. When we are planning to use these systems in industry and automation of real-life decision-making processes, we must make sure our system is fairness aware.
