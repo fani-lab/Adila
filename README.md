@@ -14,6 +14,7 @@
 3. [Pipeline](#3-pipeline)
 4. [Acknowledgement](#4-acknowledgement)
 5. [License](#5-license)  
+6. [Citation](#6-citation)
 
 ## 1. Setup
 `Adila` needs ``Python=3.8`` and others packages listed in [``requirements.txt``](requirements.txt):
@@ -49,11 +50,15 @@ python -u main.py
 
 Where the arguements are:
 
-> `pred`: a folder that includes the prediction files of neural methods in the format of ??? 
-> `fsplit`: the split.json file that indicates the index (rowid) of teams whose members are predicted in `--pred`  
-> `fteamsvecs`: the sparse matrix representation of all teams, including the teams whose members are predicted in `--pred`
-> `ratios`: the desired `popular`/`nonpopular` ratio among members of predicted teams after mitigation process by re-ranking algorithms 
-> `output`: the path to the re-ranked predictions of experts for teams, as well as, the teams' success and fairness evaluation `before` and `after` mitigation process.
+  > `pred`: a folder that includes the prediction files of neural methods in the format of ??? 
+
+  > `fsplit`: the split.json file that indicates the index (rowid) of teams whose members are predicted in `--pred`  
+
+  > `fteamsvecs`: the sparse matrix representation of all teams, including the teams whose members are predicted in `--pred`
+
+  > `ratios`: the desired `popular`/`nonpopular` ratio among members of predicted teams after mitigation process by re-ranking algorithms 
+
+  > `output`: the path to the re-ranked predictions of experts for teams, as well as, the teams' success and fairness evaluation `before` and `after` mitigation process.
 
 ## 3. Pipeline
 
