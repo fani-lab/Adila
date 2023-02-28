@@ -40,7 +40,7 @@ class Reranking:
         return stats, labels
 
     @staticmethod
-    def rerank(preds, labels, output, ratios, algorithm: str = 'det_greedy', k_max=5, cutoff=None) -> tuple:
+    def rerank(preds, labels, output, ratios, algorithm: str = 'det_greedy', k_max=5) -> tuple:
         """
         Args:
             preds: loaded predictions from a .pred file
@@ -49,7 +49,6 @@ class Reranking:
             ratios: desired ratio of popular/non-popular items in the output
             algorithm: the chosen algorithm for reranking
             k_max: maximum number of returned team members by reranker
-            cutoff: to resize the list of experts before giving it to the re-ranker
         Returns:
             tuple (list, list)
         """
@@ -57,11 +56,7 @@ class Reranking:
         for team in tqdm(preds):
             member_popularity_probs = [(m, labels[m] , float(team[m])) for m in range(len(team))]
             member_popularity_probs.sort(key=lambda x: x[2], reverse=True) #sort based on probs
-
-            if cutoff is None:
-                pass
-            else:
-                member_popularity_probs = member_popularity_probs[:cutoff]
+            #TODO: e.g., please comment the semantics of the output indexes by an example
             #in the output list, we may have an index for a member outside the top k_max list that brought up by the reranker and comes to the top k_max
             start_time = perf_counter()
             reranked_idx = reranking.rerank([label for _, label, _ in member_popularity_probs], ratios, k_max=k_max, algorithm=algorithm)
@@ -157,7 +152,7 @@ class Reranking:
         return statistics.mean([df.loc[df['metric'] == metric, 'mean'].tolist()[0] for df in utilityevals])
 
     @staticmethod
-    def run(fpreds, output, fteamsvecs, fsplits, ratios, fairness_metric={'ndkl'}, utility_metrics={'map_cut_2,5,10'}, algorithm='det_cons', k_max=None, cutoff=None) -> None:
+    def run(fpreds, output, fteamsvecs, fsplits, ratios, fairness_metric={'ndkl'}, utility_metrics={'map_cut_2,5,10'}, algorithm='det_cons', k_max=None) -> None:
         """
         Args:
             fpreds: address of the .pred file
@@ -196,7 +191,7 @@ class Reranking:
             reranked_idx, probs = df['reranked_idx'].to_list(), df['reranked_probs'].to_list()
         except FileNotFoundError:
             print(f'Loading re-ranking results failed, reranking the predictions based on {algorithm} for top-{k_max} ...')
-            reranked_idx, probs = Reranking.rerank(preds, labels, new_output, ratios, algorithm, k_max, cutoff)
+            reranked_idx, probs = Reranking.rerank(preds, labels, new_output, ratios, algorithm, k_max)
 
         try:
             print('Loading fairness evaluation results ...')
@@ -239,7 +234,6 @@ class Reranking:
         dataset.add_argument('-algorithm', '--algorithm', nargs='+', type=str, default='det_cons', required=False, help='reranking algorithm that is going to be utilized')
         dataset.add_argument('-k_max', '--k_max', type=int, default=10, required=False, help='cutoff for the reranking function')
         dataset.add_argument('-utility_metrics', '--utility_metrics', nargs='+', type=set, default={'map_cut_2,5,10'}, required=False, help='desired utility metric')
-        dataset.add_argument('-cutoff', '--cutoff', type=int, required=False, help='cutoff before passing to re-ranker')
 
         mode = parser.add_argument_group('mode')
         mode.add_argument('-mode', type=int, default=0, choices=[0, 1], help='0 for sequential run and 1 for parallel')
@@ -272,7 +266,7 @@ if __name__ == "__main__":
         for i, row in files.iterrows():
             output = f"{row['.']}/{row['..']}/{row['domain']}/{row['baseline']}/{row['setting']}/"
             Reranking.run(fpreds=f'{output}/{row["rfile"]}', output=f'{output}/rerank/', fteamsvecs=args.fteamsvecs,
-                          fsplits=args.fsplits, ratios=ratios, cutoff=args.cutoff)
+                          fsplits=args.fsplits, ratios=args.ratios)
     # parallel run
     elif args.mode == 1:
         with multiprocessing.Pool(multiprocessing.cpu_count() if args.core < 0 else args.core) as executor:
@@ -281,4 +275,4 @@ if __name__ == "__main__":
             for i, row in files.iterrows():
                 output = f"{row['.']}/{row['..']}/{row['domain']}/{row['baseline']}/{row['setting']}/"
                 pairs.append((f'{output}/{row["rfile"]}', f'{output}/rerank/'))
-            executor.starmap(partial(Reranking.run, fteamsvecs=args.fteamsvecs, fsplits=args.fsplits, ratios=ratios, cutoff=args.cutoff), pairs)
+            executor.starmap(partial(Reranking.run, fteamsvecs=args.fteamsvecs, fsplits=args.fsplits, ratios=args.ratios), pairs)
