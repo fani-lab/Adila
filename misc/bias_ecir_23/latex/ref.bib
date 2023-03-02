@@ -1,0 +1,2109 @@
+@inproceedings{DBLP:conf/acl/HamiltonLJ16,
+  author    = {William L. Hamilton and
+               Jure Leskovec and
+               Dan Jurafsky},
+  title     = {Diachronic Word Embeddings Reveal Statistical Laws of Semantic Change},
+  booktitle = {{ACL} 2016},
+  year      = {2016},
+  timestamp = {Fri, 06 Aug 2021 00:41:03 +0200},
+  biburl    = {https://dblp.org/rec/conf/acl/HamiltonLJ16.bib},
+  bibsource = {dblp computer science bibliography, https://dblp.org}
+}
+@inproceedings{10.1145/3511808.3557590,
+author = {Dashti, Arman and Samet, Saeed and Fani, Hossein},
+title = {Effective Neural Team Formation via Negative Samples},
+year = {2022},
+isbn = {9781450392365},
+publisher = {Association for Computing Machinery},
+address = {New York, NY, USA},
+abstract = {Forming teams of experts who collectively hold a set of required skills and can successfully cooperate is challenging due to the vast pool of feasible candidates with diverse backgrounds, skills, and personalities. Neural models have been proposed to address scalability while maintaining efficacy by learning the distributions of experts and skills from successful teams in the past in order to recommend future teams. However, such models are prone to overfitting when training data suffers from a long-tailed distribution, i.e., few experts have most of the successful collaborations, and the majority has participated sparingly. In this paper, we present an optimization objective that leverages both successful and virtually unsuccessful teams to overcome the long-tailed distribution problem. We propose three negative sampling heuristics that can be seamlessly employed during the training of neural models. We study the synergistic effects of negative samples on the performance of neural models compared to lack thereof on two large-scale benchmark datasets of computer science publications and movies, respectively. Our experiments show that neural models that take unsuccessful teams (negative samples) into account are more efficient and effective in training and inference, respectively.},
+booktitle = {{CIKM}},
+pages = {3908–3912},
+numpages = {5},
+keywords = {neural team formation, negative sampling},
+location = {Atlanta, GA, USA},
+}
+@inproceedings{DBLP:conf/edbt/RadSKZB22,
+  author    = {Radin Hamidi Rad and
+               Shirin Seyedsalehi and
+               Mehdi Kargar and
+               Morteza Zihayat and
+               Ebrahim Bagheri},
+  title     = {A Neural Approach to Forming Coherent Teams in Collaboration Networks},
+  booktitle = {{EDBT}},
+  pages     = {2:440--2:444},
+  publisher = {OpenProceedings.org},
+  year      = {2022},
+  timestamp = {Tue, 11 Oct 2022 14:23:40 +0200},
+  biburl    = {https://dblp.org/rec/conf/edbt/RadSKZB22.bib},
+  bibsource = {dblp computer science bibliography, https://dblp.org}
+}
+@inproceedings{DBLP:conf/sigir/RadBKSS21,
+  author    = {Radin Hamidi Rad and
+               Ebrahim Bagheri and
+               Mehdi Kargar and
+               Divesh Srivastava and
+               Jaroslaw Szlichta},
+
+  title     = {Retrieving Skill-Based Teams from Collaboration Networks},
+  booktitle = {{SIGIR}},
+  pages     = {2015--2019},
+  publisher = {{ACM}},
+  year      = {2021},
+  timestamp = {Sun, 02 Oct 2022 16:15:16 +0200},
+  biburl    = {https://dblp.org/rec/conf/sigir/RadBKSS21.bib},
+  bibsource = {dblp computer science bibliography, https://dblp.org}
+}
+@article{DBLP:journals/pami/WangCZ22,
+  author    = {Xin Wang and
+               Yudong Chen and
+               Wenwu Zhu},
+  title     = {A Survey on Curriculum Learning},
+  journal   = {{IEEE} Trans. Pattern Anal. Mach. Intell.},
+  volume    = {44},
+  number    = {9},
+  pages     = {4555--4576},
+  year      = {2022},
+  timestamp = {Tue, 20 Dec 2022 09:23:44 +0100},
+  biburl    = {https://dblp.org/rec/journals/pami/WangCZ22.bib},
+  bibsource = {dblp computer science bibliography, https://dblp.org}
+}
+@inproceedings{DBLP:conf/cikm/DashtiSPF22,
+  author    = {Arman Dashti and
+               Karan Saxena and
+               Dhwani Patel and
+               Hossein Fani},
+  title     = {OpeNTF: {A} Benchmark Library for Neural Team Formation},
+  booktitle = {Proceedings of the 31st {ACM} International Conference on Information
+               {\&} Knowledge Management, Atlanta, GA, USA, October 17-21, 2022},
+  pages     = {3913--3917},
+  publisher = {{ACM}},
+  year      = {2022},
+  timestamp = {Wed, 19 Oct 2022 17:09:02 +0200},
+  biburl    = {https://dblp.org/rec/conf/cikm/DashtiSPF22.bib},
+  bibsource = {dblp computer science bibliography, https://dblp.org}
+}
+@inproceedings{DBLP:conf/websci/RadBKSS22,
+  author    = {Radin Hamidi Rad and
+               Ebrahim Bagheri and
+               Mehdi Kargar and
+               Divesh Srivastava and
+               Jaroslaw Szlichta},
+  title     = {Subgraph Representation Learning for Team Mining},
+  booktitle = {{WebSci}},
+  pages     = {148--153},
+  publisher = {{ACM}},
+  year      = {2022},
+  timestamp = {Tue, 28 Jun 2022 11:32:47 +0200},
+  biburl    = {https://dblp.org/rec/conf/websci/RadBKSS22.bib},
+  bibsource = {dblp computer science bibliography, https://dblp.org}
+}
+@inproceedings{10.5555/3044805.3045025,
+author = {Le, Quoc and Mikolov, Tomas},
+title = {Distributed Representations of Sentences and Documents},
+year = {2014},
+publisher = {JMLR.org},
+abstract = {Many machine learning algorithms require the input to be represented as a fixed-length feature vector. When it comes to texts, one of the most common fixed-length features is bag-of-words. Despite their popularity, bag-of-words features have two major weaknesses: they lose the ordering of the words and they also ignore semantics of the words. For example, "powerful," "strong" and "Paris" are equally distant. In this paper, we propose Paragraph Vector, an unsupervised algorithm that learns fixed-length feature representations from variable-length pieces of texts, such as sentences, paragraphs, and documents. Our algorithm represents each document by a dense vector which is trained to predict words in the document. Its construction gives our algorithm the potential to overcome the weaknesses of bag-of-words models. Empirical results show that Paragraph Vectors outperforms bag-of-words models as well as other techniques for text representations. Finally, we achieve new state-of-the-art results on several text classification and sentiment analysis tasks.},
+booktitle = {{ICML}},
+pages = {II–1188–II–1196},
+location = {Beijing, China},
+series = {ICML'14}
+}
+
+
+@inproceedings{10.1145/3018661.3018689,
+author = {Wu, Chao-Yuan and Ahmed, Amr and Beutel, Alex and Smola, Alexander J. and Jing, How},
+title = {Recurrent Recommender Networks},
+year = {2017},
+isbn = {9781450346757},
+publisher = {Association for Computing Machinery},
+address = {New York, NY, USA},
+abstract = {Recommender systems traditionally assume that user profiles and movie attributes are static. Temporal dynamics are purely reactive, that is, they are inferred after they are observed, e.g. after a user's taste has changed or based on hand-engineered temporal bias corrections for movies. We propose Recurrent Recommender Networks (RRN) that are able to predict future behavioral trajectories. This is achieved by endowing both users and movies with a Long Short-Term Memory (LSTM) autoregressive model that captures dynamics, in addition to a more traditional low-rank factorization. On multiple real-world datasets, our model offers excellent prediction accuracy and it is very compact, since we need not learn latent state but rather just the state transition function.},
+pages = {495–503},
+numpages = {9},
+keywords = {recurrent neural networks, recommender systems},
+location = {Cambridge, United Kingdom},
+series = {WSDM '17}
+}
+
+@article{Goel_Kazemi_Brubaker_Poupart_2020, title={Diachronic Embedding for Temporal Knowledge Graph Completion}, volume={34}, abstractNote={&lt;p&gt;Knowledge graphs (KGs) typically contain temporal facts indicating relationships among entities at different times. Due to their incompleteness, several approaches have been proposed to infer new facts for a KG based on the existing ones–a problem known as &lt;em&gt;KG completion&lt;/em&gt;. KG embedding approaches have proved effective for KG completion, however, they have been developed mostly for static KGs. Developing temporal KG embedding models is an increasingly important problem. In this paper, we build novel models for temporal KG completion through equipping static models with a diachronic entity embedding function which provides the characteristics of entities at &lt;em&gt;any&lt;/em&gt; point in time. This is in contrast to the existing temporal KG embedding approaches where only static entity features are provided. The proposed embedding function is model-agnostic and can be potentially combined with any static model. We prove that combining it with SimplE, a recent model for static KG embedding, results in a fully expressive model for temporal KG completion. Our experiments indicate the superiority of our proposal compared to existing baselines.&lt;/p&gt;}, number={04}, journal={Proceedings of the AAAI Conference on Artificial Intelligence}, author={Goel, Rishab and Kazemi, Seyed Mehran and Brubaker, Marcus and Poupart, Pascal}, year={2020}, month={Apr.}, pages={3988-3995} }
+
+@inproceedings{10.1145/3437963.3441741,
+author = {Liao, Siyuan and Liang, Shangsong and Meng, Zaiqiao and Zhang, Qiang},
+title = {Learning Dynamic Embeddings for Temporal Knowledge Graphs},
+year = {2021},
+isbn = {9781450382977},
+publisher = {Association for Computing Machinery},
+address = {New York, NY, USA},
+abstract = {Representation learning for temporal knowledge graphs has attracted increasing attention in recent years. In this paper, we study the problem of learning dynamic embeddings for temporal knowledge graphs. We address this problem by proposing a Dynamic Bayesian Knowledge Graphs Embedding model (DBKGE), which is able to dynamically track the semantic representations of entities over time in a joint metric space and make predictions for the future. Unlike other temporal knowledge graph embedding methods, DBKGE is a novel probabilistic representation learning method that aims at inferring dynamic embeddings of entities in a streaming scenario. To obtain high-quality embeddings and model their uncertainty, our DBKGE embeds entities with means and variances of Gaussian distributions. Based on amortized inference, an online inference algorithm is proposed to jointly learn the latent representations of entities and smooth their changes across time. Experiments on Yago and Wiki datasets demonstrate that our proposed algorithm outperforms the state-of-the-art static and temporal knowledge graph embedding models.},
+booktitle = {WSDM},
+pages = {535–543},
+numpages = {9},
+keywords = {probabilistic model, temporal knowledge graph, online learning},
+location = {Virtual Event, Israel},
+series = {WSDM '21}
+}
+
+
+
+
+@InProceedings{10.1007/978-3-030-45439-5_49,
+author="Fani, Hossein
+and Bagheri, Ebrahim
+and Du, Weichang",
+title="Temporal Latent Space Modeling for Community Prediction",
+year="2020",
+publisher="Springer International Publishing",
+address="Cham",
+pages="745--759",
+abstract="We propose a temporal latent space model for user community prediction in social networks, whose goal is to predict future emerging user communities based on past history of users' topics of interest. Our model assumes that each user lies within an unobserved latent space, and similar users in the latent space representation are more likely to be members of the same user community. The model allows each user to adjust its location in the latent space as her topics of interest evolve over time. Empirically, we demonstrate that our model, when evaluated on a Twitter dataset, outperforms existing approaches under two application scenarios, namely news recommendation and user prediction on a host of metrics such as mrr, ndcg as well as precision and f-measure.",
+isbn="978-3-030-45439-5"
+}
+
+@article{YouEtAl99,
+  abstract = {Although multidisciplinary research teams are well equipped to
+          attack complex problems, actually succeeding in such endeavors
+          is not so easy. This paper explores problems that may arise in
+          multidisciplinary research teams, develops a grounded theory, and
+          offers suggestions to help multidisciplinary research teams reach
+          their goals. It also offers advice to educational administrators about
+          how they can support multidisciplinary efforts in overcoming these
+          potential difficulties.},
+  added-at = {2014-03-21T09:10:25.000+0100},
+  author = {Younglove-Webb, Julie and Gray, Barbara and Abdalla, Charles William and Thurow, Amy Purvis},
+  description = {Julie Younglove-Webb, Barbara Gray, Charles William Abdalla, and Amy Purvis Thurow - The Dynamics of Multidisciplinary Research Teams in Academia - The Review of Higher Education 22:4},
+  interhash = {3f4c72aa5c2c0573e37d32df6eec7169},
+  intrahash = {7811a7be2063770a93b79dd8deb96c1a},
+  issn = {1090-7009},
+  journal = {The Review of Higher Education},
+  keywords = {gt multidis},
+  number = 4,
+  pages = {425-440},
+  timestamp = {2014-03-21T09:10:25.000+0100},
+  title = {The Dynamics of Multidisciplinary Research Teams in Academia},
+  volume = 22,
+  year = 1999
+}
+
+@article{Magill-Evans,
+author = {Magill-Evans, Joyce and Hodge, Megan and Darrah, Johanna},
+year = {2002},
+month = {02},
+pages = {222-6},
+title = {Establishing a transdisciplinary research team in academia [Electronic version]},
+volume = {31},
+journal = {Journal of allied health}
+}
+
+@article{156562,  author={Bursic, K.M.},  journal={IEEE Transactions on Engineering Management},   title={Strategies and benefits of the successful use of teams in manufacturing organizations},   year={1992},  volume={39},  number={3},  pages={277-289},  doi={10.1109/17.156562}}
+
+@article{RAHMANNIYAY2019153,
+title = {A multi-objective multi-stage stochastic model for project team formation under uncertainty in time requirements},
+journal = {Computers \& Industrial Engineering},
+volume = {132},
+pages = {153-165},
+year = {2019},
+issn = {0360-8352},
+author = {Fahimeh Rahmanniyay and Andrew Junfang Yu and Javad Seif},
+keywords = {Team formation, Competency, Multi-objective optimization, Multi-stage stochastic programming, Overhaul projects, Project management},
+abstract = {Team formation is one of the key stages in project management. The cost associated with the individuals who form a team and the quality of the tasks completed by the team are two of the main concerns in team formation problems. In this study, we consider simultaneous optimization of cost and quality in a team formation problem. Because these problems in a project usually arise in multi-period planning with uncertain parameters, a multi-objective multi-stage stochastic programming (MOMSP) model is developed and presented. Having sufficient scenarios to realistically represent real-world environments often leads to high computational complexity. Thus, we have adopted scenario cluster decomposition methods in our modeling and developed a heuristic algorithm. It is shown that the model can be solved for problems with practical size. The presented model and its solution methodology can be applied to different types of projects. In this study, a project that involves an overhaul of a set of aircraft is presented as a case study in which the goals are to minimize staffing costs and maximize the reliability of the aircraft by staffing workforce with high competency.}
+}
+
+@article{doi:10.1177/001979399504800405,
+author = {Peter D. Sherer},
+title ={Leveraging Human Assets in Law Firms: Human Capital Structures and Organizational Capabilities},
+journal = {ILR Review},
+volume = {48},
+number = {4},
+pages = {671-691},
+year = {1995},
+    abstract = { Partners in a law firm are the source of firm knowledge and hold claims to the firm's residual income; associates work for partners, acquire knowledge, and receive a fixed level of compensation. The author uses the ratio of associates to partners to measure the leveraging of human assets in law firms, which he likens to the leveraging of financial capital in other firms. Analyzing data on 312 large offices of law firms in 1991, he finds that this leverage ratio was related to business strategy, human resource management, and organizational structure. As an index of law firms' human capital structures, it also had important implications for organizational capabilities and firm competitiveness. For example, offices characterized by a rare and tightly controlled human capital structure had the highest billing rates, reflecting their capability of providing clients with services that deeply embody the knowledge of partners. }
+}
+
+@inproceedings{10.1145/2808580.2808685,
+author = {Bernab\'{e}, Rodrigo Borrego and Navia, Iv\'{a}n \'{A}lvarez and Garc\'{\i}a-Pe\~{n}alvo, Francisco Jos\'{e}},
+title = {Faat: Freelance as a Team},
+year = {2015},
+isbn = {9781450334426},
+publisher = {Association for Computing Machinery},
+address = {New York, NY, USA},
+abstract = {Agile methodologies are reliable engineering and management practices, capable of helping in the development of quality and successful software in business environments. However, most of these methodologies are centered on a development team and its internal communication. Moreover, for simplicity, a single product development is taken into account with its successive releases. There is another scenario: that of a single programmer working alone and often in much smaller projects and in several at the same time. Also in this scenario the client proximity is not as described by the agile environment ideal. In that case, the priorities and needs change, communication takes on another meaning and working mechanisms are not always comparable to that of a team. This paper introduces Faat (Freelance as a Team), a methodology specifically designed for those professionals. Integrating existing practices to the needs and possibilities of an individual programmer. However, it has been frequently considered the possible application of this methodology to small teams and/or other more general scenarios. This methodology has been tested in the web-based learning applications.},
+booktitle = {Proceedings of the 3rd International Conference on Technological Ecosystems for Enhancing Multiculturality},
+pages = {687–694},
+numpages = {8},
+keywords = {personal software process, agile methodology, development process},
+location = {Porto, Portugal},
+series = {TEEM '15}
+}
+
+@article {PMID:26182585,
+	Title = {How to build effective teams in healthcare},
+	Author = {Craig, Maxine and McKeown, Debi},
+	Number = {14},
+	Volume = {111},
+	Year = {2015},
+	Journal = {Nursing times},
+	ISSN = {0954-7762},
+	Pages = {16—18},
+	Abstract = {In healthcare, good team building is where all team members understand, believe in and work towards the shared purpose of caring and working for patients. This sense of common purpose should never be assumed. Team leaders should talk about it at every opportunity and ensure all team members are working towards it in their day-to-day work. All teams move through different stages of development, but are at their most productive where there is openness and trust, with members working to their own strengths. Team leaders should develop a "teaming strategy" to plan how people will act and work together, including effective use of communication technology to help them make better use of face-to-face time.},
+	URL = {http://europepmc.org/abstract/MED/26182585}
+}
+
+@article{doi:10.1177/0956797614537280,
+author = {Roderick I. Swaab and Michael Schaerer and Eric M. Anicich and Richard Ronay and Adam D. Galinsky},
+title ={The Too-Much-Talent Effect: Team Interdependence Determines When More Talent Is Too Much or Not Enough},
+journal = {Psychological Science},
+volume = {25},
+number = {8},
+pages = {1581-1591},
+year = {2014},
+    abstract = { Five studies examined the relationship between talent and team performance. Two survey studies found that people believe there is a linear and nearly monotonic relationship between talent and performance: Participants expected that more talent improves performance and that this relationship never turns negative. However, building off research on status conflicts, we predicted that talent facilitates performance—but only up to a point, after which the benefits of more talent decrease and eventually become detrimental as intrateam coordination suffers. We also predicted that the level of task interdependence is a key determinant of when more talent is detrimental rather than beneficial. Three archival studies revealed that the too-much-talent effect emerged when team members were interdependent (football and basketball) but not independent (baseball). Our basketball analysis also established the mediating role of team coordination. When teams need to come together, more talent can tear them apart. }
+}
+
+@inproceedings{DBLP:conf/kdd/LappasLT09,
+  author    = {Theodoros Lappas and
+               Kun Liu and
+               Evimaria Terzi},
+  title     = {Finding a team of experts in social networks},
+  booktitle = { {SIGKDD} 2009},
+  pages     = {467--476},
+  publisher = {{ACM}},
+  year      = {2009},
+  timestamp = {Fri, 17 Jan 2020 11:40:51 +0100},
+  biburl    = {https://dblp.org/rec/conf/kdd/LappasLT09.bib},
+  bibsource = {dblp computer science bibliography, https://dblp.org}
+}
+
+@article{DBLP:journals/fdata/SapienzaGF19,
+  author    = {Anna Sapienza and
+               Palash Goyal and
+               Emilio Ferrara},
+  title     = {Deep Neural Networks for Optimal Team Composition},
+  journal   = {Frontiers Big Data},
+  volume    = {2},
+  pages     = {14},
+  year      = {2019},
+  timestamp = {Wed, 20 May 2020 16:23:36 +0200},
+  biburl    = {https://dblp.org/rec/journals/fdata/SapienzaGF19.bib},
+  bibsource = {dblp computer science bibliography, https://dblp.org}
+}
+
+
+@InProceedings{pmlr-v37-blundell15,
+  title = 	 {Weight Uncertainty in Neural Network},
+  author = 	 {Blundell, Charles and Cornebise, Julien and Kavukcuoglu, Koray and Wierstra, Daan},
+  booktitle = 	 {{PMLR}},
+  pages = 	 {1613--1622},
+  year = 	 {2015},
+  volume = 	 {37},
+  series = 	 {Proceedings of Machine Learning Research},
+  address = 	 {Lille, France},
+  month = 	 {07--09 Jul},
+  publisher =    {PMLR},
+  abstract = 	 {We introduce a new, efficient, principled and backpropagation-compatible algorithm for learning a probability distribution on the weights of a neural network, called Bayes by Backprop. It regularises the weights by minimising a compression cost, known as the variational free energy or the expected lower bound on the marginal likelihood. We show that this principled kind of regularisation yields comparable performance to dropout on MNIST classification. We then demonstrate how the learnt uncertainty in the weights can be used to improve generalisation in non-linear regression problems, and how this weight uncertainty can be used to drive the exploration-exploitation trade-off in reinforcement learning.}
+}
+
+@inproceedings{10.1145/2488388.2488452,
+author = {Kunegis, J\'{e}r\^{o}me and Preusse, Julia and Schwagereit, Felix},
+title = {What is the Added Value of Negative Links in Online Social Networks?},
+year = {2013},
+isbn = {9781450320351},
+publisher = {Association for Computing Machinery},
+address = {New York, NY, USA},
+abstract = {We investigate the "negative link" feature of social networks that allows users to tag other users as foes or as distrusted in addition to the usual friend and trusted links. To answer the question whether negative links have an added value for an online social network, we investigate the machine learning problem of predicting the negative links of such a network using only the positive links as a basis, with the idea that if this problem can be solved with high accuracy, then the "negative link" feature is redundant. In doing so, we also present a general methodology for assessing the added value of any new link type in online social networks. Our evaluation is performed on two social networks that allow negative links: The technology news website Slashdot and the product review site Epinions. In experiments with these two datasets, we come to the conclusion that a combination of centrality-based and proximity-based link prediction functions can be used to predict the negative edges in the networks we analyse. We explain this result by an application of the models of preferential attachment and balance theory to our learning problem, and show that the "negative link" feature has a small but measurable added value for these social networks.},
+booktitle = {Proceedings of the 22nd International Conference on World Wide Web},
+pages = {727–736},
+numpages = {10},
+keywords = {link prediction, platform policies, distrust, signed network, enmity},
+location = {Rio de Janeiro, Brazil},
+series = {WWW '13}
+}
+
+@inproceedings{10.1145/1772690.1772756,
+author = {Leskovec, Jure and Huttenlocher, Daniel and Kleinberg, Jon},
+title = {Predicting Positive and Negative Links in Online Social Networks},
+year = {2010},
+isbn = {9781605587998},
+publisher = {Association for Computing Machinery},
+address = {New York, NY, USA},
+abstract = {We study online social networks in which relationships can be either positive (indicating relations such as friendship) or negative (indicating relations such as opposition or antagonism). Such a mix of positive and negative links arise in a variety of online settings; we study datasets from Epinions, Slashdot and Wikipedia. We find that the signs of links in the underlying social networks can be predicted with high accuracy, using models that generalize across this diverse range of sites. These models provide insight into some of the fundamental principles that drive the formation of signed links in networks, shedding light on theories of balance and status from social psychology; they also suggest social computing applications by which the attitude of one user toward another can be estimated from evidence provided by their relationships with other members of the surrounding social network.},
+booktitle = {{WWW}},
+pages = {641–650},
+numpages = {10},
+keywords = {negative edges, structural balance, distrust, signed networks, trust, positive edges, status theory},
+location = {Raleigh, North Carolina, USA},
+series = {WWW '10}
+}
+
+@article{10.1145/2956185,
+author = {Tang, Jiliang and Chang, Yi and Aggarwal, Charu and Liu, Huan},
+title = {A Survey of Signed Network Mining in Social Media},
+year = {2016},
+issue_date = {September 2017},
+publisher = {Association for Computing Machinery},
+address = {New York, NY, USA},
+volume = {49},
+number = {3},
+issn = {0360-0300},
+abstract = {Many real-world relations can be represented by signed networks with positive and negative links, as a result of which signed network analysis has attracted increasing attention from multiple disciplines. With the increasing prevalence of social media networks, signed network analysis has evolved from developing and measuring theories to mining tasks. In this article, we present a review of mining signed networks in the context of social media and discuss some promising research directions and new frontiers. We begin by giving basic concepts and unique properties and principles of signed networks. Then we classify and review tasks of signed network mining with representative algorithms. We also delineate some tasks that have not been extensively studied with formal definitions and also propose research directions to expand the field of signed network mining.},
+journal = {ACM Comput. Surv.},
+month = {aug},
+articleno = {42},
+numpages = {37},
+keywords = {signed network mining, social media, Negative links, signed networks}
+}
+
+
+@InProceedings{pmlr-v139-daghaghi21a,
+  title = 	 {A Tale of Two Efficient and Informative Negative Sampling Distributions},
+  author =       {Daghaghi, Shabnam and Medini, Tharun and Meisburger, Nicholas and Chen, Beidi and Zhao, Mengnan and Shrivastava, Anshumali},
+  booktitle = 	 {{PMLR}},
+  pages = 	 {2319--2329},
+  year = 	 {2021},
+  volume = 	 {139},
+  series = 	 {Proceedings of Machine Learning Research},
+  month = 	 {18--24 Jul},
+  publisher =    {PMLR},
+  abstract = 	 {Softmax classifiers with a very large number of classes naturally occur in many applications such as natural language processing and information retrieval. The calculation of full softmax is costly from the computational and energy perspective. There have been various sampling approaches to overcome this challenge, popularly known as negative sampling (NS). Ideally, NS should sample negative classes from a distribution that is dependent on the input data, the current parameters, and the correct positive class. Unfortunately, due to the dynamically updated parameters and data samples, there is no sampling scheme that is provably adaptive and samples the negative classes efficiently. Therefore, alternative heuristics like random sampling, static frequency-based sampling, or learning-based biased sampling, which primarily trade either the sampling cost or the adaptivity of samples per iteration are adopted. In this paper, we show two classes of distributions where the sampling scheme is truly adaptive and provably generates negative samples in near-constant time. Our implementation in C++ on CPU is significantly superior, both in terms of wall-clock time and accuracy, compared to the most optimized TensorFlow implementations of other popular negative sampling approaches on powerful NVIDIA V100 GPU.}
+}
+
+@inproceedings{ahrabian-etal-2020-structure,
+    title = "Structure Aware Negative Sampling in Knowledge Graphs",
+    author = "Ahrabian, Kian  and
+      Feizi, Aarash  and
+      Salehi, Yasmin  and
+      Hamilton, William L.  and
+      Bose, Avishek Joey",
+    booktitle = "Proceedings of the 2020 Conference on Empirical Methods in Natural Language Processing (EMNLP)",
+    month = nov,
+    year = "2020",
+    address = "Online",
+    publisher = "Association for Computational Linguistics",
+    url = "https://aclanthology.org/2020.emnlp-main.492",
+    pages = "6093--6101",
+    abstract = "Learning low-dimensional representations for entities and relations in knowledge graphs using contrastive estimation represents a scalable and effective method for inferring connectivity patterns. A crucial aspect of contrastive learning approaches is the choice of corruption distribution that generates hard negative samples, which force the embedding model to learn discriminative representations and find critical characteristics of observed data. While earlier methods either employ too simple corruption distributions, i.e. uniform, yielding easy uninformative negatives or sophisticated adversarial distributions with challenging optimization schemes, they do not explicitly incorporate known graph structure resulting in suboptimal negatives. In this paper, we propose Structure Aware Negative Sampling (SANS), an inexpensive negative sampling strategy that utilizes the rich graph structure by selecting negative samples from a node{'}s $k$-hop neighborhood. Empirically, we demonstrate that SANS finds semantically meaningful negatives and is competitive with SOTA approaches while requires no additional parameters nor difficult adversarial optimization.",
+}
+
+
+@article{10.1016/j.neucom.2015.11.028,
+author = {Qin, Pengda and Xu, Weiran and Guo, Jun},
+title = {A Novel Negative Sampling Based on TFIDF for Learning Word Representation},
+year = {2016},
+issue_date = {February 2016},
+publisher = {Elsevier Science Publishers B. V.},
+address = {NLD},
+volume = {177},
+number = {C},
+issn = {0925-2312},
+abstract = {In recent years, continuous-valued word embedding learned by neural network attaches extensive attentions. Especially, Mikolov's Continuous Bag-of-Words (CBOW) model and Skip-gram model optimized by Negative Sampling (NEG) achieves impressive result in capturing word semantic and syntactic information. However, the property of NEG that samples over word frequency has the drawbacks of unbalanced training and tends to decrease the training times of medium-frequency words which have greater amount of information; furthermore, words with higher frequency are less probability of being the negative samples. Focus on these issues, this paper proposed a novel NEG strategy that samples negatives based on the notion of Term Frequency-Inverse Document Frequency (NEG-TFIDF). Two ideas are included in this method. First, Negative Sampling is considers as the more effective optimization approach for learning word representation; second, the concept of TFIDF is combined to optimize Negative Sampling, which is a classic and popular method to assess the discrimination of one word for a corpus. Statistical results prove that NEG-TFIDF feasibly reduces the interference of high-frequency words that have very less information and increases the training times of medium-frequency words keeping the total training times being constant and without more calculations. The experiment results show that NEG-TFIDF outperforms Mikolov's NEG on both word analogy and word similarity test tasks, particularly in terms of the performance of medium-frequency words. Meanwhile, it also achieves better effects on NLP tasks. Moreover, NEG-TFIDF is a reasonable solution to the problem that NEG's performance decreases when the number of negative samples increases beyond a boundary value.},
+journal = {Neurocomput.},
+month = {feb},
+pages = {257–265},
+numpages = {9},
+keywords = {Distributed representation, Negative sampling, TFIDF, Word embedding}
+}
+
+@inproceedings{10.5555/3044805.3045025,
+author = {Le, Quoc and Mikolov, Tomas},
+title = {Distributed Representations of Sentences and Documents},
+year = {2014},
+publisher = {JMLR.org},
+abstract = {Many machine learning algorithms require the input to be represented as a fixed-length feature vector. When it comes to texts, one of the most common fixed-length features is bag-of-words. Despite their popularity, bag-of-words features have two major weaknesses: they lose the ordering of the words and they also ignore semantics of the words. For example, "powerful," "strong" and "Paris" are equally distant. In this paper, we propose Paragraph Vector, an unsupervised algorithm that learns fixed-length feature representations from variable-length pieces of texts, such as sentences, paragraphs, and documents. Our algorithm represents each document by a dense vector which is trained to predict words in the document. Its construction gives our algorithm the potential to overcome the weaknesses of bag-of-words models. Empirical results show that Paragraph Vectors outperforms bag-of-words models as well as other techniques for text representations. Finally, we achieve new state-of-the-art results on several text classification and sentiment analysis tasks.},
+booktitle = {{ICML}},
+pages = {II–1188–II–1196},
+location = {Beijing, China},
+series = {ICML'14}
+}
+
+@inproceedings{10.5555/2999792.2999959,
+author = {Mikolov, Tomas and Sutskever, Ilya and Chen, Kai and Corrado, Greg and Dean, Jeffrey},
+title = {Distributed Representations of Words and Phrases and Their Compositionality},
+year = {2013},
+publisher = {Curran Associates Inc.},
+address = {Red Hook, NY, USA},
+abstract = {The recently introduced continuous Skip-gram model is an efficient method for learning high-quality distributed vector representations that capture a large number of precise syntactic and semantic word relationships. In this paper we present several extensions that improve both the quality of the vectors and the training speed. By subsampling of the frequent words we obtain significant speedup and also learn more regular word representations. We also describe a simple alternative to the hierarchical softmax called negative sampling.An inherent limitation of word representations is their indifference to word order and their inability to represent idiomatic phrases. For example, the meanings of "Canada" and "Air" cannot be easily combined to obtain "Air Canada". Motivated by this example, we present a simple method for finding phrases in text, and show that learning good vector representations for millions of phrases is possible.},
+booktitle = {{NIPS}},
+pages = {3111–3119},
+numpages = {9},
+location = {Lake Tahoe, Nevada},
+series = {NIPS'13}
+}
+
+@article{10.1145/2133806.2133830,
+author = {Horowitz, Damon and Kamvar, Sepandar D.},
+title = {Searching the Village: Models and Methods for Social Search},
+year = {2012},
+issue_date = {April 2012},
+publisher = {Association for Computing Machinery},
+address = {New York, NY, USA},
+volume = {55},
+number = {4},
+issn = {0001-0782},
+abstract = {We describe Aardvark, a social search engine. With Aardvark, users ask a question, either by instant message, e-mail, Web input, text message, or voice. Aardvark then routes the question to the person in the user's extended social network most likely to be able to answer that question. As compared to a traditional Web search engine, where the challenge lies in finding the right document to satisfy a user's information need, the challenge in a social search engine like Aardvark lies in finding the right person to satisfy a user's information need. Further, while trust in a traditional search engine is based on authority, in a social search engine like Aardvark, trust is based on intimacy. We describe how these considerations inform the architecture, algorithms, and user interface of Aardvark, and how they are reflected in the behavior of Aardvark users.},
+journal = {Commun. ACM},
+month = {apr},
+pages = {111–118},
+numpages = {8}
+}
+
+@inproceedings{10.1145/1772690.1772735,
+author = {Horowitz, Damon and Kamvar, Sepandar D.},
+title = {The Anatomy of a Large-Scale Social Search Engine},
+year = {2010},
+isbn = {9781605587998},
+publisher = {Association for Computing Machinery},
+address = {New York, NY, USA},
+abstract = {We present Aardvark, a social search engine. With Aardvark, users ask a question, either by instant message, email, web input, text message, or voice. Aardvark then routes the question to the person in the user's extended social network most likely to be able to answer that question. As compared to a traditional web search engine, where the challenge lies in finding the right document to satisfy a user's information need, the challenge in a social search engine like Aardvark lies in finding the right person to satisfy a user's information need. Further, while trust in a traditional search engine is based on authority, in a social search engine like Aardvark, trust is based on intimacy. We describe how these considerations inform the architecture, algorithms, and user interface of Aardvark, and how they are reflected in the behavior of Aardvark users.},
+booktitle = {{WWW}},
+pages = {431–440},
+numpages = {10},
+keywords = {social search},
+location = {Raleigh, North Carolina, USA}
+}
+
+@inproceedings{10.1145/2556195.2556248,
+author = {Rendle, Steffen and Freudenthaler, Christoph},
+title = {Improving Pairwise Learning for Item Recommendation from Implicit Feedback},
+year = {2014},
+isbn = {9781450323512},
+publisher = {Association for Computing Machinery},
+address = {New York, NY, USA},
+abstract = {Pairwise algorithms are popular for learning recommender systems from implicit feedback. For each user, or more generally context, they try to discriminate between a small set of selected items and the large set of remaining (irrelevant) items. Learning is typically based on stochastic gradient descent (SGD) with uniformly drawn pairs. In this work, we show that convergence of such SGD learning algorithms slows down considerably if the item popularity has a tailed distribution. We propose a non-uniform item sampler to overcome this problem. The proposed sampler is context-dependent and oversamples informative pairs to speed up convergence. An efficient implementation with constant amortized runtime costs is developed. Furthermore, it is shown how the proposed learning algorithm can be applied to a large class of recommender models. The properties of the new learning algorithm are studied empirically on two real-world recommender system problems. The experiments indicate that the proposed adaptive sampler improves the state-of-the art learning algorithm largely in convergence without negative effects on prediction quality or iteration runtime.},
+booktitle = {{WSDM}},
+pages = {273–282},
+numpages = {10},
+keywords = {item recommendation, matrix factorization, factorization model, recommender systems},
+location = {New York, New York, USA},
+series = {WSDM '14}
+}
+
+@inproceedings{10.1145/2484028.2484126,
+author = {Zhang, Weinan and Chen, Tianqi and Wang, Jun and Yu, Yong},
+title = {Optimizing Top-n Collaborative Filtering via Dynamic Negative Item Sampling},
+year = {2013},
+isbn = {9781450320344},
+publisher = {Association for Computing Machinery},
+address = {New York, NY, USA},
+abstract = {Collaborative filtering techniques rely on aggregated user preference data to make personalized predictions. In many cases, users are reluctant to explicitly express their preferences and many recommender systems have to infer them from implicit user behaviors, such as clicking a link in a webpage or playing a music track. The clicks and the plays are good for indicating the items a user liked (i.e., positive training examples), but the items a user did not like (negative training examples) are not directly observed. Previous approaches either randomly pick negative training samples from unseen items or incorporate some heuristics into the learning model, leading to a biased solution and a prolonged training period. In this paper, we propose to dynamically choose negative training samples from the ranked list produced by the current prediction model and iteratively update our model. The experiments conducted on three large-scale datasets show that our approach not only reduces the training time, but also leads to significant performance gains.},
+booktitle = {Proceedings of the 36th International ACM SIGIR Conference on Research and Development in Information Retrieval},
+pages = {785–788},
+numpages = {4},
+keywords = {negative item sampling, recommender systems, ranking-oriented collaborative filtering},
+location = {Dublin, Ireland},
+series = {SIGIR '13}
+}
+
+@inproceedings{DBLP:conf/sdm/AnKZ13,
+  author    = {Aijun An and
+               Mehdi Kargar and
+               Morteza Zihayat},
+  title     = {Finding Affordable and Collaborative Teams from a Network of Experts},
+  booktitle = { {SIAM} 2013},
+  pages     = {587--595},
+  publisher = {{SIAM}},
+  year      = {2013},
+  timestamp = {Tue, 15 Aug 2017 18:59:12 +0200},
+  biburl    = {https://dblp.org/rec/conf/sdm/AnKZ13.bib},
+  bibsource = {dblp computer science bibliography, https://dblp.org}
+}
+
+@inproceedings{DBLP:journals/corr/abs-1301-3781,
+  author    = {Tom{\'{a}}s Mikolov and
+               Kai Chen and
+               Greg Corrado and
+               Jeffrey Dean},
+  title     = {Efficient Estimation of Word Representations in Vector Space},
+  booktitle = {{ICLR} 2013},
+  year      = {2013},
+  timestamp = {Mon, 28 Dec 2020 11:31:01 +0100},
+  bibsource = {dblp computer science bibliography, https://dblp.org}
+}
+
+
+@inproceedings{DBLP:conf/cikm/RadFKSB20,
+  author    = {Radin Hamidi Rad and
+               Hossein Fani and
+               Mehdi Kargar and
+               Jaroslaw Szlichta and
+               Ebrahim Bagheri},
+  title     = {Learning to Form Skill-based Teams of Experts},
+  booktitle = {{CIKM} '20},
+  pages     = {2049--2052},
+  publisher = {{ACM}},
+  year      = {2020},
+  timestamp = {Fri, 25 Dec 2020 01:15:14 +0100},
+  biburl    = {https://dblp.org/rec/conf/cikm/RadFKSB20.bib},
+  bibsource = {dblp computer science bibliography, https://dblp.org}
+}
+@article{blackwell1954multidisciplinary,
+  title={Multidisciplinary team research},
+  author={Blackwell, Gordon W},
+  journal={Soc. F.},
+  volume={33},
+  pages={367},
+  year={1954},
+  publisher={HeinOnline}
+}
+
+@article{campion1993relations,
+  title={Relations between work group characteristics and effectiveness: Implications for designing effective work groups},
+  author={Campion, Michael A and Medsker, Gina J and Higgs, A Catherine},
+  journal={Personnel psychology},
+  volume={46},
+  number={4},
+  pages={823--847},
+  year={1993},
+  publisher={Wiley Online Library}
+}
+
+@article{haque2000analysing,
+  title={Analysing organisational issues in concurrent new product development},
+  author={Haque, Badr and Pawar, Kulwant S and Barson, Richard J},
+  journal={International Journal of Production Economics},
+  volume={67},
+  number={2},
+  pages={169--182},
+  year={2000},
+  publisher={Elsevier}
+}
+
+@article{macdonald1986characteristics,
+  title={Characteristics of interdisciplinary research teams},
+  author={Macdonald, William R and others},
+  journal={Interdisciplinary Analysis and Research},
+  pages={395--406},
+  year={1986},
+  publisher={Lomond Maryland}
+}
+
+@article{petrie1976you,
+  title={Do you see what I see? The epistemology of interdisciplinary inquiry},
+  author={Petrie, Hugh G},
+  journal={Educational Researcher},
+  volume={5},
+  number={2},
+  pages={9--15},
+  year={1976},
+  publisher={Sage Publications Sage CA: Thousand Oaks, CA}
+}
+
+@inproceedings{prince1992team,
+  title={Team process measurement and implications for training},
+  author={Prince, Ashley and Brannick, Michael T and Prince, Carolyn and Salas, Eduardo},
+  booktitle={{SAGE}},
+  volume={36},
+  number={17},
+  pages={1351--1355},
+  year={1992},
+  organization={SAGE Publications Sage CA: Los Angeles, CA}
+}
+
+@article{taylor1986building,
+  title={Building an interdisciplinary team},
+  author={Taylor, James B and others},
+  journal={Interdisciplinary Analysis and Research},
+  pages={141--154},
+  year={1986},
+  publisher={Lomond Maryland}
+}
+
+@article{zzkarian1999forming,
+  title={Forming teams: an analytical approach},
+  author={Zzkarian, ARMEN and Kusiak, Andrew},
+  journal={IIE transactions},
+  volume={31},
+  number={1},
+  pages={85--97},
+  year={1999},
+  publisher={Springer}
+}
+
+@article{pawar1997physical,
+  title={Physical or virtual team collocation: Does it matter?},
+  author={Pawar, Kulwant S and Sharifi, Sudi},
+  journal={International Journal of Production Economics},
+  volume={52},
+  number={3},
+  pages={283--290},
+  year={1997},
+  publisher={Elsevier}
+}
+
+@article{prasad1998decentralized,
+  title={Decentralized cooperation: a distributed approach to team design in a concurrent engineering organization},
+  author={Prasad, Biren},
+  journal={Team Performance Management: An International Journal},
+  year={1998},
+  publisher={MCB UP Ltd}
+}
+
+@article{baykasoglu2007project,
+  title={Project team selection using fuzzy optimization approach},
+  author={Baykasoglu, Adil and Dereli, Turkay and Das, Sena},
+  journal={Cybernetics and Systems: An International Journal},
+  volume={38},
+  number={2},
+  pages={155--185},
+  year={2007},
+  publisher={Taylor \& Francis}
+}
+
+@article{wi2009team,
+  title={A team formation model based on knowledge and collaboration},
+  author={Wi, Hyeongon and Oh, Seungjin and Mun, Jungtae and Jung, Mooyoung},
+  journal={Expert Systems with Applications},
+  volume={36},
+  number={5},
+  pages={9121--9134},
+  year={2009},
+  publisher={Elsevier}
+}
+
+@article{DBLP:journals/candie/FitzpatrickA05,
+  author    = {Erin Fitzpatrick and
+               Ronald G. Askin},
+  title     = {Forming effective worker teams with multi-functional skill requirements},
+  journal   = {Comput. Ind. Eng.},
+  volume    = {48},
+  number    = {3},
+  pages     = {593--608},
+  year      = {2005},
+  timestamp = {Thu, 20 Feb 2020 13:16:59 +0100},
+  biburl    = {https://dblp.org/rec/journals/candie/FitzpatrickA05.bib},
+  bibsource = {dblp computer science bibliography, https://dblp.org}
+}
+
+@article{DBLP:journals/tem/ChenL04,
+  author    = {Shi{-}Jie (Gary) Chen and
+               Li Lin},
+  title     = {Modeling team member characteristics for the formation of a multifunctional
+               team in concurrent engineering},
+  journal   = {{IEEE} Trans. Engineering Management},
+  volume    = {51},
+  number    = {2},
+  pages     = {111--124},
+  year      = {2004},
+  timestamp = {Thu, 20 May 2021 08:59:32 +0200},
+  biburl    = {https://dblp.org/rec/journals/tem/ChenL04.bib},
+  bibsource = {dblp computer science bibliography, https://dblp.org}
+}
+
+@inproceedings{kargar2011discovering,
+  title={Discovering top-k teams of experts with/without a leader in social networks},
+  author={Kargar, Mehdi and An, Aijun},
+  booktitle={Proceedings of the 20th ACM international conference on Information and knowledge management},
+  pages={985--994},
+  year={2011}
+}
+
+@inproceedings{kargar2013finding,
+  title={Finding affordable and collaborative teams from a network of experts},
+  author={Kargar, Mehdi and Zihayat, Morteza and An, Aijun},
+  booktitle={Proceedings of the 2013 SIAM international conference on data mining},
+  pages={587--595},
+  year={2013},
+  organization={SIAM}
+}
+@inproceedings{DBLP:conf/www/HorowitzK10,
+  author    = {Damon Horowitz and
+               Sepandar D. Kamvar},
+  title     = {The anatomy of a large-scale social search engine},
+  booktitle = {{WWW}},
+  pages     = {431--440},
+  publisher = {{ACM}},
+  year      = {2010},
+  timestamp = {Tue, 06 Nov 2018 16:57:09 +0100},
+  biburl    = {https://dblp.org/rec/conf/www/HorowitzK10.bib},
+  bibsource = {dblp computer science bibliography, https://dblp.org}
+}
+@article{DBLP:journals/cacm/HorowitzK12,
+  author    = {Damon Horowitz and
+               Sepandar D. Kamvar},
+  title     = {Searching the village: models and methods for social search},
+  journal   = {Commun. {ACM}},
+  volume    = {55},
+  number    = {4},
+  pages     = {111--118},
+  year      = {2012},
+  timestamp = {Tue, 06 Nov 2018 12:51:38 +0100},
+  biburl    = {https://dblp.org/rec/journals/cacm/HorowitzK12.bib},
+  bibsource = {dblp computer science bibliography, https://dblp.org}
+}
+@article{YouEtAl99,
+  abstract = {Although multidisciplinary research teams are well equipped to
+          attack complex problems, actually succeeding in such endeavors
+          is not so easy. This paper explores problems that may arise in
+          multidisciplinary research teams, develops a grounded theory, and
+          offers suggestions to help multidisciplinary research teams reach
+          their goals. It also offers advice to educational administrators about
+          how they can support multidisciplinary efforts in overcoming these
+          potential difficulties.},
+  added-at = {2014-03-21T09:10:25.000+0100},
+  author = {Younglove-Webb, Julie and Gray, Barbara and Abdalla, Charles William and Thurow, Amy Purvis},
+  biburl = {https://www.bibsonomy.org/bibtex/27811a7be2063770a93b79dd8deb96c1a/juheikki},
+  description = {Julie Younglove-Webb, Barbara Gray, Charles William Abdalla, and Amy Purvis Thurow - The Dynamics of Multidisciplinary Research Teams in Academia - The Review of Higher Education 22:4},
+  interhash = {3f4c72aa5c2c0573e37d32df6eec7169},
+  intrahash = {7811a7be2063770a93b79dd8deb96c1a},
+  issn = {1090-7009},
+  journal = {The Review of Higher Education},
+  keywords = {gt multidis},
+  number = 4,
+  pages = {425-440},
+  timestamp = {2014-03-21T09:10:25.000+0100},
+  title = {The Dynamics of Multidisciplinary Research Teams in Academia},
+  url = {http://muse.jhu.edu/journals/review_of_higher_education/v022/22.4younglove-webb.html},
+  volume = 22,
+  year = 1999
+}
+
+@article{magill2002establishing,
+  title={Establishing a transdisciplinary research team in academia},
+  author={Magill-Evans, Joyce and Hodge, Megan and Darrah, Johanna},
+  journal={Journal of Allied Health},
+  volume={31},
+  number={4},
+  pages={222--226},
+  year={2002},
+  publisher={Association of Schools Advancing Health Professions}
+}
+@ARTICLE{156562,
+  author={Bursic, K.M.},
+  journal={IEEE Transactions on Engineering Management}, 
+  title={Strategies and benefits of the successful use of teams in manufacturing organizations}, 
+  year={1992},
+  volume={39},
+  number={3},
+  pages={277-289},
+  
+@article{doi:10.1177/001979399504800405,
+author = {Peter D. Sherer},
+title ={Leveraging Human Assets in Law Firms: Human Capital Structures and Organizational Capabilities},
+journal = {ILR Review},
+volume = {48},
+number = {4},
+pages = {671-691},
+year = {1995}
+,
+    abstract = { Partners in a law firm are the source of firm knowledge and hold claims to the firm's residual income; associates work for partners, acquire knowledge, and receive a fixed level of compensation. The author uses the ratio of associates to partners to measure the leveraging of human assets in law firms, which he likens to the leveraging of financial capital in other firms. Analyzing data on 312 large offices of law firms in 1991, he finds that this leverage ratio was related to business strategy, human resource management, and organizational structure. As an index of law firms' human capital structures, it also had important implications for organizational capabilities and firm competitiveness. For example, offices characterized by a rare and tightly controlled human capital structure had the highest billing rates, reflecting their capability of providing clients with services that deeply embody the knowledge of partners. }
+}
+
+@inproceedings{DBLP:conf/teem/BernabeNG15,
+  author    = {Rodrigo Borrego Bernab{\'{e}} and
+               Iv{\'{a}}n {\'{A}}lvarez Navia and
+               Francisco Jos{\'{e}} Garc{\'{\i}}a{-}Pe{\~{n}}alvo},
+  title     = {Faat: freelance as a team},
+  booktitle = {{TEEM}},
+  pages     = {687--694},
+  publisher = {{ACM}},
+  year      = {2015},
+  timestamp = {Sun, 02 Oct 2022 16:16:23 +0200},
+  biburl    = {https://dblp.org/rec/conf/teem/BernabeNG15.bib},
+  bibsource = {dblp computer science bibliography, https://dblp.org}
+}
+
+@article {PMID:26182585,
+	Title = {How to build effective teams in healthcare},
+	Author = {Craig, Maxine and McKeown, Debi},
+	Number = {14},
+	Volume = {111},
+	Year = {2015},
+	Journal = {Nursing times},
+	ISSN = {0954-7762},
+	Pages = {16—18},
+	Abstract = {In healthcare, good team building is where all team members understand, believe in and work towards the shared purpose of caring and working for patients. This sense of common purpose should never be assumed. Team leaders should talk about it at every opportunity and ensure all team members are working towards it in their day-to-day work. All teams move through different stages of development, but are at their most productive where there is openness and trust, with members working to their own strengths. Team leaders should develop a "teaming strategy" to plan how people will act and work together, including effective use of communication technology to help them make better use of face-to-face time.},
+	URL = {http://europepmc.org/abstract/MED/26182585}
+}
+@article{doi:10.1177/0956797614537280,
+author = {Roderick I. Swaab and Michael Schaerer and Eric M. Anicich and Richard Ronay and Adam D. Galinsky},
+title ={The Too-Much-Talent Effect: Team Interdependence Determines When More Talent Is Too Much or Not Enough},
+journal = {Psychological Science},
+volume = {25},
+number = {8},
+pages = {1581-1591},
+year = {2014},
+    note ={PMID: 24973135}
+,
+    abstract = { Five studies examined the relationship between talent and team performance. Two survey studies found that people believe there is a linear and nearly monotonic relationship between talent and performance: Participants expected that more talent improves performance and that this relationship never turns negative. However, building off research on status conflicts, we predicted that talent facilitates performance—but only up to a point, after which the benefits of more talent decrease and eventually become detrimental as intrateam coordination suffers. We also predicted that the level of task interdependence is a key determinant of when more talent is detrimental rather than beneficial. Three archival studies revealed that the too-much-talent effect emerged when team members were interdependent (football and basketball) but not independent (baseball). Our basketball analysis also established the mediating role of team coordination. When teams need to come together, more talent can tear them apart. }
+}
+
+@article{DBLP:journals/cas/BaykasogluDD07,
+  author    = {Adil Baykasoglu and
+               T{\"{u}}rkay Dereli and
+               Sena Das},
+  title     = {Project Team Selection Using Fuzzy Optimization Approach},
+  journal   = {Cybern. Syst.},
+  volume    = {38},
+  number    = {2},
+  pages     = {155--185},
+  year      = {2007},
+  timestamp = {Thu, 14 Oct 2021 09:26:15 +0200},
+  biburl    = {https://dblp.org/rec/journals/cas/BaykasogluDD07.bib},
+  bibsource = {dblp computer science bibliography, https://dblp.org}
+}
+@article{DBLP:journals/eswa/WiOMJ09,
+  author    = {Hyeongon Wi and
+               Seungjin Oh and
+               Jungtae Mun and
+               Mooyoung Jung},
+  title     = {A team formation model based on knowledge and collaboration},
+  journal   = {Expert Syst. Appl.},
+  volume    = {36},
+  number    = {5},
+  pages     = {9121--9134},
+  year      = {2009},
+  timestamp = {Fri, 26 May 2017 22:54:09 +0200},
+  biburl    = {https://dblp.org/rec/journals/eswa/WiOMJ09.bib},
+  bibsource = {dblp computer science bibliography, https://dblp.org}
+}
+@inproceedings{DBLP:conf/kdd/LappasLT09,
+  author    = {Theodoros Lappas and
+               Kun Liu and
+               Evimaria Terzi},
+  title     = {Finding a team of experts in social networks},
+  booktitle = {{ACM} {SIGKDD}},
+  pages     = {467--476},
+  publisher = {{ACM}},
+  year      = {2009},
+  timestamp = {Sat, 09 Apr 2022 12:35:07 +0200},
+  biburl    = {https://dblp.org/rec/conf/kdd/LappasLT09.bib},
+  bibsource = {dblp computer science bibliography, https://dblp.org}
+}
+
+@inproceedings{DBLP:conf/cikm/KargarA11,
+  author    = {Mehdi Kargar and
+               Aijun An},
+  title     = {Discovering top-k teams of experts with/without a leader in social
+               networks},
+  booktitle = {Proceedings of the 20th {ACM} Conference on Information and Knowledge
+               Management, {CIKM} 2011, Glasgow, United Kingdom, October 24-28, 2011},
+  pages     = {985--994},
+  publisher = {{ACM}},
+  year      = {2011},
+  timestamp = {Tue, 06 Nov 2018 16:57:47 +0100},
+  biburl    = {https://dblp.org/rec/conf/cikm/KargarA11.bib},
+  bibsource = {dblp computer science bibliography, https://dblp.org}
+}
+@inproceedings{DBLP:conf/icde/KargarA12,
+  author    = {Mehdi Kargar and
+               Aijun An},
+  title     = {Efficient Top-k Keyword Search in Graphs with Polynomial Delay},
+  booktitle = {{IEEE} 28th International Conference on Data Engineering {ICDE}},
+  pages     = {1269--1272},
+  publisher = {{IEEE} Computer Society},
+  year      = {2012},
+  timestamp = {Wed, 16 Oct 2019 14:14:56 +0200},
+  biburl    = {https://dblp.org/rec/conf/icde/KargarA12.bib},
+  bibsource = {dblp computer science bibliography, https://dblp.org}
+}
+@inproceedings{DBLP:conf/sigir/GeyikGHOTWK18,
+  author    = {Sahin Cem Geyik and
+               Qi Guo and
+               Bo Hu and
+               Cagri Ozcaglar and
+               Ketan Thakkar and
+               Xianren Wu and
+               Krishnaram Kenthapadi},
+  title     = {Talent Search and Recommendation Systems at LinkedIn: Practical Challenges
+               and Lessons Learned},
+  booktitle = {ACM} {SIGIR},
+  pages     = {1353--1354},
+  publisher = {{ACM}},
+  year      = {2018},
+  timestamp = {Wed, 16 Sep 2020 13:34:22 +0200},
+  biburl    = {https://dblp.org/rec/conf/sigir/GeyikGHOTWK18.bib},
+  bibsource = {dblp computer science bibliography, https://dblp.org}
+}
+@inproceedings{DBLP:conf/innovations/DworkHPRZ12,
+  author    = {Cynthia Dwork and
+               Moritz Hardt and
+               Toniann Pitassi and
+               Omer Reingold and
+               Richard S. Zemel},
+  title     = {Fairness through awareness},
+  booktitle = {Innovations in Theoretical Computer Science 2012, Cambridge, MA, USA,
+               January 8-10, 2012},
+  pages     = {214--226},
+  publisher = {{ACM}},
+  year      = {2012},
+  timestamp = {Wed, 14 Nov 2018 10:56:52 +0100},
+  biburl    = {https://dblp.org/rec/conf/innovations/DworkHPRZ12.bib},
+  bibsource = {dblp computer science bibliography, https://dblp.org}
+}
+@inproceedings{DBLP:conf/kdd/HajianBC16,
+  author    = {Sara Hajian and
+               Francesco Bonchi and
+               Carlos Castillo},
+  title     = {Algorithmic Bias: From Discrimination Discovery to Fairness-aware
+               Data Mining},
+  booktitle = {Proceedings of the 22nd {ACM} {SIGKDD} International Conference on
+               Knowledge Discovery and Data Mining, San Francisco, CA, USA, August
+               13-17, 2016},
+  pages     = {2125--2126},
+  publisher = {{ACM}},
+  year      = {2016},
+  timestamp = {Thu, 23 Jun 2022 19:56:11 +0200},
+  biburl    = {https://dblp.org/rec/conf/kdd/HajianBC16.bib},
+  bibsource = {dblp computer science bibliography, https://dblp.org}
+}
+@inproceedings{DBLP:conf/chi/KayMM15,
+  author    = {Matthew Kay and
+               Cynthia Matuszek and
+               Sean A. Munson},
+  title     = {Unequal Representation and Gender Stereotypes in Image Search Results
+               for Occupations},
+  booktitle = {Proceedings of the 33rd Annual {ACM} Conference on Human Factors in
+               Computing Systems, {CHI} 2015, Seoul, Republic of Korea, April 18-23,
+               2015},
+  pages     = {3819--3828},
+  publisher = {{ACM}},
+  year      = {2015},
+  timestamp = {Fri, 12 Mar 2021 15:27:48 +0100},
+  biburl    = {https://dblp.org/rec/conf/chi/KayMM15.bib},
+  bibsource = {dblp computer science bibliography, https://dblp.org}
+}
+@inproceedings{DBLP:conf/www/BarnaboFLS19,
+  author    = {Giorgio Barnab{\`{o}} and
+               Adriano Fazzone and
+               Stefano Leonardi and
+               Chris Schwiegelshohn},
+  title     = {Algorithms for Fair Team Formation in Online Labour Marketplaces{\unicode{10033}}},
+  booktitle = {Companion of The 2019 World Wide Web Conference, {WWW} 2019, San Francisco,
+               CA, USA, May 13-17, 2019},
+  pages     = {484--490},
+  publisher = {{ACM}},
+  year      = {2019},
+  timestamp = {Thu, 14 Oct 2021 10:04:18 +0200},
+  biburl    = {https://dblp.org/rec/conf/www/BarnaboFLS19.bib},
+  bibsource = {dblp computer science bibliography, https://dblp.org}
+}
+@article{DBLP:journals/cacm/FriedlerSV21,
+  author    = {Sorelle A. Friedler and
+               Carlos Scheidegger and
+               Suresh Venkatasubramanian},
+  title     = {The (Im)possibility of fairness: different value systems require different
+               mechanisms for fair decision making},
+  journal   = {Commun. {ACM}},
+  volume    = {64},
+  number    = {4},
+  pages     = {136--143},
+  year      = {2021},
+  timestamp = {Fri, 23 Apr 2021 14:17:39 +0200},
+  biburl    = {https://dblp.org/rec/journals/cacm/FriedlerSV21.bib},
+  bibsource = {dblp computer science bibliography, https://dblp.org}
+}
+@inproceedings{DBLP:conf/chi/Poursabzi-Sangdeh21,
+  author    = {Forough Poursabzi{-}Sangdeh and
+               Daniel G. Goldstein and
+               Jake M. Hofman and
+               Jennifer Wortman Vaughan and
+               Hanna M. Wallach},
+  title     = {Manipulating and Measuring Model Interpretability},
+  booktitle = {{CHI}},
+  pages     = {237:1--237:52},
+  publisher = {{ACM}},
+  year      = {2021},
+  timestamp = {Mon, 03 Jan 2022 22:17:42 +0100},
+  biburl    = {https://dblp.org/rec/conf/chi/Poursabzi-Sangdeh21.bib},
+  bibsource = {dblp computer science bibliography, https://dblp.org}
+}
+@phdthesis{ho2020nbdt,
+  title={Nbdt: Neural-backed decision trees},
+  author={Ho, Daniel},
+  year={2020},
+  school={Master’s thesis, EECS Department, University of California, Berkeley}
+}
+@article{guanghui2021me,
+  title={Me-NDT: Neural-backed Decision Tree for Visual Explainability of Deep Medical Models},
+  author={Guanghui, FU and Wang, Ruiqian and Li, Jianqiang and Vakalopoulou, Maria and Kalogeiton, Vicky},
+  year={2021}
+}
+@inproceedings{DBLP:conf/sigir/YadavDJ21,
+  author    = {Himank Yadav and
+               Zhengxiao Du and
+               Thorsten Joachims},
+  title     = {Policy-Gradient Training of Fair and Unbiased Ranking Functions},
+  booktitle = {{SIGIR}},
+  pages     = {1044--1053},
+  publisher = {{ACM}},
+  year      = {2021},
+  timestamp = {Thu, 15 Jul 2021 15:30:48 +0200},
+  biburl    = {https://dblp.org/rec/conf/sigir/YadavDJ21.bib},
+  bibsource = {dblp computer science bibliography, https://dblp.org}
+}
+@article{DBLP:journals/ipm/YalcinB21,
+  author    = {Emre Yalcin and
+               Alper Bilge},
+  title     = {Investigating and counteracting popularity bias in group recommendations},
+  journal   = {Inf. Process. Manag.},
+  volume    = {58},
+  number    = {5},
+  pages     = {102608},
+  year      = {2021},
+  timestamp = {Thu, 12 Aug 2021 17:50:04 +0200},
+  biburl    = {https://dblp.org/rec/journals/ipm/YalcinB21.bib},
+  bibsource = {dblp computer science bibliography, https://dblp.org}
+}
+@inproceedings{DBLP:conf/colt/WoodworthGOS17,
+  author    = {Blake E. Woodworth and
+               Suriya Gunasekar and
+               Mesrob I. Ohannessian and
+               Nathan Srebro},
+  title     = {Learning Non-Discriminatory Predictors},
+  booktitle = {{COLT},
+  volume    = {65},
+  pages     = {1920--1953},
+  publisher = {{PMLR}},
+  year      = {2017},
+  url       = {http://proceedings.mlr.press/v65/woodworth17a.html},
+  timestamp = {Wed, 29 May 2019 08:41:46 +0200},
+  biburl    = {https://dblp.org/rec/conf/colt/WoodworthGOS17.bib},
+  bibsource = {dblp computer science bibliography, https://dblp.org}
+}
+@article{https://doi.org/10.1111/emre.12164,
+author = {Lauring, Jakob and Villesèche, Florence},
+title = {The Performance of Gender Diverse Teams: What Is the Relation between Diversity Attitudes and Degree of Diversity?},
+journal = {European Management Review},
+volume = {16},
+number = {2},
+pages = {243-254},
+keywords = {openness to diversity, critical mass theory, gender, diversity, teams, gender distribution, team performance},
+url = {https://onlinelibrary.wiley.com/doi/abs/10.1111/emre.12164},
+eprint = {https://onlinelibrary.wiley.com/doi/pdf/10.1111/emre.12164},
+abstract = {While gender diversity is slowly becoming an expected characteristic of teams, both academics and practitioners still need to better understand the relation between contextual characteristics and team composition for the performance of gender diverse teams. In this article, we investigate the relationship between diversity attitudes and the performance of gender diverse teams, and further, we show how numerical team gender composition is a key link in this relationship. Based on survey responses from 1,085 academic team leaders, we show that openness to diversity is strongly associated with team performance. We also find a moderating effect of the degree of gender diversity, so that the effect of openness to diversity, as positive team level diversity attitudes, is stronger when team gender composition converges towards numerical balance. These findings bridge critical mass theory and diversity and performance scholarship by establishing the joint effect of compositional and contextual characteristics on the performance of gender diverse teams.},
+year = {2019}
+}
+@article{10.2307/2522871,
+ ISSN = {00197939, 2162271X},
+ URL = {http://www.jstor.org/stable/2522871},
+ author = {Dennis J. Aigner and Glen G. Cain},
+ journal = {Industrial and Labor Relations Review},
+ number = {2},
+ pages = {175--187},
+ publisher = {Sage Publications, Inc.},
+ title = {Statistical Theories of Discrimination in Labor Markets},
+ urldate = {2022-11-16},
+ volume = {30},
+ year = {1977}
+}
+
+@inproceedings{barnabo2019algorithms,
+  title={Algorithms for Fair Team Formation in Online Labour Marketplaces},
+  author={Barnab{\`o}, Giorgio and Fazzone, Adriano and Leonardi, Stefano and Schwiegelshohn, Chris},
+  booktitle={WWW},
+  pages={484--490},
+  year={2019}
+}
+@article{hofstra2020diversity,
+  title={The diversity--innovation paradox in science},
+  author={Hofstra, Bas and Kulkarni, Vivek V and Munoz-Najar Galvez, Sebastian and He, Bryan and Jurafsky, Dan and McFarland, Daniel A},
+  journal={Proceedings of the National Academy of Sciences},
+  volume={117},
+  number={17},
+  pages={9284--9291},
+  year={2020},
+  publisher={National Acad Sciences}
+}
+@article{lauring2019performance,
+  title={The performance of gender diverse teams: what is the relation between diversity attitudes and degree of diversity?},
+  author={Lauring, Jakob and Villes{\`e}che, Florence},
+  journal={European Management Review},
+  volume={16},
+  number={2},
+  pages={243--254},
+  year={2019},
+  publisher={Wiley Online Library}
+}
+@article{nielsen2018making,
+  title={Making gender diversity work for scientific discovery and innovation},
+  author={Nielsen, Mathias Wullum and Bloch, Carter Walter and Schiebinger, Londa},
+  journal={Nature human behaviour},
+  volume={2},
+  number={10},
+  pages={726--734},
+  year={2018},
+  publisher={Nature Publishing Group}
+}
+@article{tannenbaum2019sex,
+  title={Sex and gender analysis improves science and engineering},
+  author={Tannenbaum, Cara and Ellis, Robert P and Eyssel, Friederike and Zou, James and Schiebinger, Londa},
+  journal={Nature},
+  volume={575},
+  number={7781},
+  pages={137--146},
+  year={2019},
+  publisher={Nature Publishing Group}
+}
+@book{moore2006diversity,
+  title={Diversity in science},
+  author={Moore, John W},
+  journal={Journal of Chemical Education},
+  volume={83},
+  number={6},
+  pages={823},
+  year={2006},
+  publisher={ACS Publications}
+}
+@inproceedings{DBLP:conf/kdd/SunGZZRHGTYHC20,
+  author    = {Jianing Sun and
+               Wei Guo and
+               Dengcheng Zhang and
+               Yingxue Zhang and
+               Florence Regol and
+               Yaochen Hu and
+               Huifeng Guo and
+               Ruiming Tang and
+               Han Yuan and
+               Xiuqiang He and
+               Mark Coates},
+  title     = {A Framework for Recommending Accurate and Diverse Items Using Bayesian
+               Graph Convolutional Neural Networks},
+  booktitle = {{KDD}},
+  pages     = {2030--2039},
+  publisher = {{ACM}},
+  year      = {2020},
+  timestamp = {Tue, 04 Oct 2022 16:42:32 +0200},
+  biburl    = {https://dblp.org/rec/conf/kdd/SunGZZRHGTYHC20.bib},
+  bibsource = {dblp computer science bibliography, https://dblp.org}
+}
+@inproceedings{DBLP:conf/kdd/Zhu0ZC21,
+  author    = {Ziwei Zhu and
+               Yun He and
+               Xing Zhao and
+               James Caverlee},
+  title     = {Popularity Bias in Dynamic Recommendation},
+  booktitle = {{KDD}},
+  pages     = {2439--2449},
+  publisher = {{ACM}},
+  year      = {2021},
+  timestamp = {Mon, 04 Jul 2022 09:54:06 +0200},
+  biburl    = {https://dblp.org/rec/conf/kdd/Zhu0ZC21.bib},
+  bibsource = {dblp computer science bibliography, https://dblp.org}
+}
+@inproceedings{DBLP:conf/cikm/DashtiSPF22,
+  author    = {Arman Dashti and
+               Karan Saxena and
+               Dhwani Patel and
+               Hossein Fani},
+  title     = {OpeNTF: {A} Benchmark Library for Neural Team Formation},
+  booktitle = {{CIKM}},
+  pages     = {3913--3917},
+  publisher = {{ACM}},
+  year      = {2022},
+  timestamp = {Wed, 19 Oct 2022 17:09:02 +0200},
+  biburl    = {https://dblp.org/rec/conf/cikm/DashtiSPF22.bib},
+  bibsource = {dblp computer science bibliography, https://dblp.org}
+}
+@inproceedings{DBLP:conf/cikm/DashtiSF22,
+  author    = {Arman Dashti and
+               Saeed Samet and
+               Hossein Fani},
+  title     = {Effective Neural Team Formation via Negative Samples},
+  booktitle = {CIKM},
+  pages     = {3908--3912},
+  publisher = {{ACM}},
+  year      = {2022},
+  timestamp = {Wed, 19 Oct 2022 17:09:02 +0200},
+  biburl    = {https://dblp.org/rec/conf/cikm/DashtiSF22.bib},
+  bibsource = {dblp computer science bibliography, https://dblp.org}
+}
+@inproceedings{DBLP:conf/cikm/ZiaeinejadSF22,
+  author    = {Soroush Ziaeinejad and
+               Saeed Samet and
+               Hossein Fani},
+  title     = {SEERa: {A} Framework for Community Prediction},
+  booktitle = {CIKM},
+  pages     = {4762--4766},
+  publisher = {{ACM}},
+  year      = {2022},
+  timestamp = {Wed, 19 Oct 2022 17:09:02 +0200},
+  biburl    = {https://dblp.org/rec/conf/cikm/ZiaeinejadSF22.bib},
+  bibsource = {dblp computer science bibliography, https://dblp.org}
+}
+@inproceedings{DBLP:conf/ecir/FaniTZSPB21,
+  author    = {Hossein Fani and
+               Mahtab Tamannaee and
+               Fattane Zarrinkalam and
+               Jamil Samouh and
+               Samad Paydar and
+               Ebrahim Bagheri},
+  title     = {An Extensible Toolkit of Query Refinement Methods and Gold Standard
+               Dataset Generation},
+  booktitle = {ECIR},
+  volume    = {12657},
+  pages     = {498--503},
+  publisher = {Springer},
+  year      = {2021},
+  timestamp = {Wed, 07 Apr 2021 01:00:00 +0200},
+  biburl    = {https://dblp.org/rec/conf/ecir/FaniTZSPB21.bib},
+  bibsource = {dblp computer science bibliography, https://dblp.org}
+}
+
+@article{DBLP:journals/ipm/FaniJBADK20,
+  author    = {Hossein Fani and
+               Eric Jiang and
+               Ebrahim Bagheri and
+               Feras N. Al{-}Obeidat and
+               Weichang Du and
+               Mehdi Kargar},
+  title     = {User community detection via embedding of social network structure
+               and temporal content},
+  journal   = {Inf. Process. Manag.},
+  volume    = {57},
+  number    = {2},
+  pages     = {102056},
+  year      = {2020},
+  timestamp = {Tue, 06 Oct 2020 01:00:00 +0200},
+  biburl    = {https://dblp.org/rec/journals/ipm/FaniJBADK20.bib},
+  bibsource = {dblp computer science bibliography, https://dblp.org}
+}
+
+@inproceedings{DBLP:conf/cikm/RadFKSB20,
+  author    = {Radin Hamidi Rad and
+               Hossein Fani and
+               Mehdi Kargar and
+               Jaroslaw Szlichta and
+               Ebrahim Bagheri},
+  title     = {Learning to Form Skill-based Teams of Experts},
+  booktitle = {{CIKM}},
+  pages     = {2049--2052},
+  publisher = {{ACM}},
+  year      = {2020},
+  timestamp = {Fri, 25 Dec 2020 01:15:14 +0100},
+  biburl    = {https://dblp.org/rec/conf/cikm/RadFKSB20.bib},
+  bibsource = {dblp computer science bibliography, https://dblp.org}
+}
+
+@inproceedings{DBLP:conf/cikm/TamannaeeFZSPB20,
+  author    = {Mahtab Tamannaee and
+               Hossein Fani and
+               Fattane Zarrinkalam and
+               Jamil Samouh and
+               Samad Paydar and
+               Ebrahim Bagheri},
+  title     = {ReQue: {A} Configurable Workflow and Dataset Collection for Query
+               Refinement},
+  booktitle = {{CIKM}},
+  pages     = {3165--3172},
+  publisher = {{ACM}},
+  year      = {2020},
+  timestamp = {Mon, 19 Oct 2020 01:00:00 +0200},
+  biburl    = {https://dblp.org/rec/conf/cikm/TamannaeeFZSPB20.bib},
+  bibsource = {dblp computer science bibliography, https://dblp.org}
+}
+
+@inproceedings{DBLP:conf/ecir/FaniBD20,
+  author    = {Hossein Fani and
+               Ebrahim Bagheri and
+               Weichang Du},
+  title     = {Temporal Latent Space Modeling for Community Prediction},
+  booktitle = {{ECIR}},
+  volume    = {12035},
+  pages     = {745--759},
+  publisher = {Springer},
+  year      = {2020},
+  timestamp = {Thu, 14 May 2020 10:17:16 +0200},
+  biburl    = {https://dblp.org/rec/conf/ecir/FaniBD20.bib},
+  bibsource = {dblp computer science bibliography, https://dblp.org}
+}
+
+@inproceedings{DBLP:conf/kdd/ZarrinkalamFB19,
+  author    = {Fattane Zarrinkalam and
+               Hossein Fani and
+               Ebrahim Bagheri},
+  title     = {Social User Interest Mining: Methods and Applications},
+  booktitle = {{KDD}},
+  pages     = {3235--3236},
+  publisher = {{ACM}},
+  year      = {2019},
+  timestamp = {Sun, 28 Jul 2019 15:40:22 +0200},
+  biburl    = {https://dblp.org/rec/conf/kdd/ZarrinkalamFB19.bib},
+  bibsource = {dblp computer science bibliography, https://dblp.org}
+}
+
+@inproceedings{DBLP:conf/sigir/ZarrinkalamFB19,
+  author    = {Fattane Zarrinkalam and
+               Hossein Fani and
+               Ebrahim Bagheri},
+  title     = {Extracting, Mining and Predicting Users' Interests from Social Networks},
+  booktitle = {{SIGIR}},
+  pages     = {1407--1408},
+  publisher = {{ACM}},
+  year      = {2019},
+  timestamp = {Sun, 21 Jul 2019 17:52:47 +0200},
+  biburl    = {https://dblp.org/rec/conf/sigir/ZarrinkalamFB19.bib},
+  bibsource = {dblp computer science bibliography, https://dblp.org}
+}
+
+@article{DBLP:journals/ci/FaniBZZD18,
+  author    = {Hossein Fani and
+               Ebrahim Bagheri and
+               Fattane Zarrinkalam and
+               Xin Zhao and
+               Weichang Du},
+  title     = {Finding Diachronic Like-Minded Users},
+  journal   = {Comput. Intell.},
+  volume    = {34},
+  number    = {1},
+  pages     = {124--144},
+  year      = {2018},
+  timestamp = {Sun, 15 Mar 2020 00:00:00 +0100},
+  biburl    = {https://dblp.org/rec/journals/ci/FaniBZZD18.bib},
+  bibsource = {dblp computer science bibliography, https://dblp.org}
+}
+
+@article{DBLP:journals/snam/FengZBFA18,
+  author    = {Yue Feng and
+               Fattane Zarrinkalam and
+               Ebrahim Bagheri and
+               Hossein Fani and
+               Feras N. Al{-}Obeidat},
+  title     = {Entity linking of tweets based on dominant entity candidates},
+  journal   = {Soc. Netw. Anal. Min.},
+  volume    = {8},
+  number    = {1},
+  pages     = {46:1--46:16},
+  year      = {2018},
+  timestamp = {Tue, 08 Sep 2020 01:00:00 +0200},
+  biburl    = {https://dblp.org/rec/journals/snam/FengZBFA18.bib},
+  bibsource = {dblp computer science bibliography, https://dblp.org}
+}
+
+@inproceedings{DBLP:conf/cikm/ArabzadehFZNB18,
+  author    = {Negar Arabzadeh and
+               Hossein Fani and
+               Fattane Zarrinkalam and
+               Ahmed Navivala and
+               Ebrahim Bagheri},
+  title     = {Causal Dependencies for Future Interest Prediction on Twitter},
+  booktitle = {{CIKM}},
+  pages     = {1511--1514},
+  publisher = {{ACM}},
+  year      = {2018},
+  timestamp = {Wed, 21 Nov 2018 00:00:00 +0100},
+  biburl    = {https://dblp.org/rec/conf/cikm/ArabzadehFZNB18.bib},
+  bibsource = {dblp computer science bibliography, https://dblp.org}
+}
+
+@inproceedings{DBLP:conf/cikm/KhodabakhshFZB18,
+  author    = {Maryam Khodabakhsh and
+               Hossein Fani and
+               Fattane Zarrinkalam and
+               Ebrahim Bagheri},
+  title     = {Predicting Personal Life Events from Streaming Social Content},
+  booktitle = {Proceedings of the 27th {ACM} International Conference on Information
+               and Knowledge Management, {CIKM} 2018, Torino, Italy, October 22-26,
+               2018},
+  pages     = {1751--1754},
+  publisher = {{ACM}},
+  year      = {2018},
+  timestamp = {Wed, 21 Nov 2018 00:00:00 +0100},
+  biburl    = {https://dblp.org/rec/conf/cikm/KhodabakhshFZB18.bib},
+  bibsource = {dblp computer science bibliography, https://dblp.org}
+}
+
+@inproceedings{DBLP:conf/ecir/FaniBZBA18,
+  author    = {Hossein Fani and
+               Masoud Bashari and
+               Fattane Zarrinkalam and
+               Ebrahim Bagheri and
+               Feras N. Al{-}Obeidat},
+  title     = {Stopword Detection for Streaming Content},
+  booktitle = {{ECIR}},
+  series    = {Lecture Notes in Computer Science},
+  volume    = {10772},
+  pages     = {737--743},
+  publisher = {Springer},
+  year      = {2018},
+  timestamp = {Thu, 18 Jun 2020 01:00:00 +0200},
+  biburl    = {https://dblp.org/rec/conf/ecir/FaniBZBA18.bib},
+  bibsource = {dblp computer science bibliography, https://dblp.org}
+}
+
+@inproceedings{DBLP:conf/icip/FaniMHH18,
+  author    = {Hossein Fani and
+               Amin Mirlohi and
+               Hawre Hosseini and
+               Rainer Herpers},
+  title     = {Swim Stroke Analytic: Front Crawl Pulling Pose Classification},
+  booktitle = {{ICIP}},
+  pages     = {4068--4072},
+  publisher = {{IEEE}},
+  year      = {2018},
+  timestamp = {Wed, 16 Oct 2019 14:14:52 +0200},
+  biburl    = {https://dblp.org/rec/conf/icip/FaniMHH18.bib},
+  bibsource = {dblp computer science bibliography, https://dblp.org}
+}
+
+@article{DBLP:journals/escri/FaniB17,
+  author    = {Hossein Fani and
+               Ebrahim Bagheri},
+  title     = {Community detection in social networks},
+  journal   = {Encycl. Semantic Comput. Robotic Intell.},
+  volume    = {1},
+  number    = {1},
+  pages     = {1630001:1--1630001:8},
+  year      = {2017},
+  timestamp = {Sat, 30 May 2020 01:00:00 +0200},
+  biburl    = {https://dblp.org/rec/journals/escri/FaniB17.bib},
+  bibsource = {dblp computer science bibliography, https://dblp.org}
+}
+
+@inproceedings{DBLP:conf/cikm/FaniBD17,
+  author    = {Hossein Fani and
+               Ebrahim Bagheri and
+               Weichang Du},
+  title     = {Temporally Like-minded User Community Identification through Neural
+               Embeddings},
+  booktitle = {{CIKM}},
+  pages     = {577--586},
+  publisher = {{ACM}},
+  year      = {2017},
+  timestamp = {Thu, 08 Oct 2020 12:25:34 +0200},
+  biburl    = {https://dblp.org/rec/conf/cikm/FaniBD17.bib},
+  bibsource = {dblp computer science bibliography, https://dblp.org}
+}
+
+@inproceedings{DBLP:conf/ecir/ZarrinkalamFBK17,
+  author    = {Fattane Zarrinkalam and
+               Hossein Fani and
+               Ebrahim Bagheri and
+               Mohsen Kahani},
+  title     = {Predicting Users' Future Interests on Twitter},
+  booktitle = {{ECIR}},
+  series    = {Lecture Notes in Computer Science},
+  volume    = {10193},
+  pages     = {464--476},
+  year      = {2017},
+  timestamp = {Tue, 29 Dec 2020 18:27:42 +0100},
+  biburl    = {https://dblp.org/rec/conf/ecir/ZarrinkalamFBK17.bib},
+  bibsource = {dblp computer science bibliography, https://dblp.org}
+}
+
+@inproceedings{DBLP:conf/ai/FaniZBD16,
+  author    = {Hossein Fani and
+               Fattane Zarrinkalam and
+               Ebrahim Bagheri and
+               Weichang Du},
+  title     = {Time-Sensitive Topic-Based Communities on Twitter},
+  booktitle = {{AI}},
+  series    = {Lecture Notes in Computer Science},
+  volume    = {9673},
+  pages     = {192--204},
+  publisher = {Springer},
+  year      = {2016},
+  timestamp = {Tue, 14 May 2019 10:00:39 +0200},
+  biburl    = {https://dblp.org/rec/conf/ai/FaniZBD16.bib},
+  bibsource = {dblp computer science bibliography, https://dblp.org}
+}
+
+@inproceedings{DBLP:conf/ecir/ZarrinkalamFBK16,
+  author    = {Fattane Zarrinkalam and
+               Hossein Fani and
+               Ebrahim Bagheri and
+               Mohsen Kahani},
+  title     = {Inferring Implicit Topical Interests on Twitter},
+  booktitle = {{ECIR}},
+  series    = {Lecture Notes in Computer Science},
+  volume    = {9626},
+  pages     = {479--491},
+  publisher = {Springer},
+  year      = {2016},
+  timestamp = {Sun, 25 Oct 2020 22:33:09 +0100},
+  biburl    = {https://dblp.org/rec/conf/ecir/ZarrinkalamFBK16.bib},
+  bibsource = {dblp computer science bibliography, https://dblp.org}
+}
+
+@inproceedings{DBLP:conf/wsdm/Fani16,
+  author    = {Hossein Fani},
+  title     = {Temporal Formation and Evolution of Online Communities},
+  booktitle = {Proceedings of the Ninth {ACM} International Conference on Web Search
+               and Data Mining, San Francisco, CA, USA, February 22-25, 2016},
+  pages     = {717},
+  publisher = {{ACM}},
+  year      = {2016},
+  timestamp = {Sun, 02 Jun 2019 21:11:33 +0200},
+  biburl    = {https://dblp.org/rec/conf/wsdm/Fani16.bib},
+  bibsource = {dblp computer science bibliography, https://dblp.org}
+}
+
+@inproceedings{DBLP:conf/ictai/FengFBJ15,
+  author    = {Yue Feng and
+               Hossein Fani and
+               Ebrahim Bagheri and
+               Jelena Jovanovic},
+  title     = {Lexical Semantic Relatedness for Twitter Analytics},
+  booktitle = {{IEEE} {ICTAI}},
+  pages     = {202--209},
+  publisher = {{IEEE} Computer Society},
+  year      = {2015},
+  timestamp = {Tue, 16 Feb 2021 00:00:00 +0100},
+  biburl    = {https://dblp.org/rec/conf/ictai/FengFBJ15.bib},
+  bibsource = {dblp computer science bibliography, https://dblp.org}
+}
+
+@inproceedings{DBLP:conf/seke/FaniB15,
+  author    = {Hossein Fani and
+               Ebrahim Bagheri},
+  title     = {An Ontology for Describing Security Events},
+  booktitle = {{SEKE}},
+  pages     = {455--460},
+  publisher = {{KSI} Research Inc. and Knowledge Systems Institute Graduate School},
+  year      = {2015},
+  timestamp = {Wed, 03 Feb 2021 00:00:00 +0100},
+  biburl    = {https://dblp.org/rec/conf/seke/FaniB15.bib},
+  bibsource = {dblp computer science bibliography, https://dblp.org}
+}
+
+@inproceedings{DBLP:conf/webi/ZarrinkalamFBKD15,
+  author    = {Fattane Zarrinkalam and
+               Hossein Fani and
+               Ebrahim Bagheri and
+               Mohsen Kahani and
+               Weichang Du},
+  title     = {Semantics-Enabled User Interest Detection from Twitter},
+  booktitle = {{WI-IAT}},
+  pages     = {469--476},
+  publisher = {{IEEE} Computer Society},
+  year      = {2015},
+  timestamp = {Wed, 16 Oct 2019 14:14:56 +0200},
+  biburl    = {https://dblp.org/rec/conf/webi/ZarrinkalamFBKD15.bib},
+  bibsource = {dblp computer science bibliography, https://dblp.org}
+}
+
+@article{DBLP:journals/corr/FaniZZFBD15,
+  author    = {Hossein Fani and
+               Fattane Zarrinkalam and
+               Xin Zhao and
+               Yue Feng and
+               Ebrahim Bagheri and
+               Weichang Du},
+  title     = {Temporal Identification of Latent Communities on Twitter},
+  journal   = {CoRR},
+  volume    = {abs/1509.04227},
+  year      = {2015},
+  url       = {http://arxiv.org/abs/1509.04227},
+  archivePrefix = {arXiv},
+  eprint    = {1509.04227},
+  timestamp = {Mon, 13 Aug 2018 01:00:00 +0200},
+  biburl    = {https://dblp.org/rec/journals/corr/FaniZZFBD15.bib},
+  bibsource = {dblp computer science bibliography, https://dblp.org}
+}
+@article{hardt2016equality,
+  title={Equality of opportunity in supervised learning},
+  author={Hardt, Moritz and Price, Eric and Srebro, Nati},
+  journal={Advances in neural information processing systems},
+  volume={29},
+  year={2016}
+}
+@inproceedings{DBLP:conf/kdd/GeyikAK19,
+  author    = {Sahin Cem Geyik and
+               Stuart Ambler and
+               Krishnaram Kenthapadi},
+  title     = {Fairness-Aware Ranking in Search {\&} Recommendation Systems with
+               Application to LinkedIn Talent Search},
+  booktitle = {{KDD}},
+  pages     = {2221--2231},
+  publisher = {{ACM}},
+  year      = {2019},
+  timestamp = {Tue, 16 Aug 2022 23:04:27 +0200},
+  biburl    = {https://dblp.org/rec/conf/kdd/GeyikAK19.bib},
+  bibsource = {dblp computer science bibliography, https://dblp.org}
+}
+
+
+
+ 
+@inproceedings{DBLP:conf/chi/KayMM15,
+  author    = {Matthew Kay and
+               Cynthia Matuszek and
+               Sean A. Munson},
+  title     = {Unequal Representation and Gender Stereotypes in Image Search Results
+               for Occupations},
+  booktitle = {{CHI}},
+  pages     = {3819--3828},
+  publisher = {{ACM}},
+  year      = {2015},
+  timestamp = {Fri, 12 Mar 2021 15:27:48 +0100},
+  biburl    = {https://dblp.org/rec/conf/chi/KayMM15.bib},
+  bibsource = {dblp computer science bibliography, https://dblp.org}
+}
+@inproceedings{DBLP:conf/kdd/SunGZZRHGTYHC20,
+  author    = {Jianing Sun and
+               Wei Guo and
+               Dengcheng Zhang and
+               Yingxue Zhang and
+               Florence Regol and
+               Yaochen Hu and
+               Huifeng Guo and
+               Ruiming Tang and
+               Han Yuan and
+               Xiuqiang He and
+               Mark Coates},
+  title     = {A Framework for Recommending Accurate and Diverse Items Using Bayesian
+               Graph Convolutional Neural Networks},
+  booktitle = {{KDD}},
+  pages     = {2030--2039},
+  publisher = {{ACM}},
+  year      = {2020},
+  timestamp = {Fri, 23 Dec 2022 07:47:03 +0100},
+  biburl    = {https://dblp.org/rec/conf/kdd/SunGZZRHGTYHC20.bib},
+  bibsource = {dblp computer science bibliography, https://dblp.org}
+}
+@inproceedings{DBLP:conf/kdd/Zhu0ZC21,
+  author    = {Ziwei Zhu and
+               Yun He and
+               Xing Zhao and
+               James Caverlee},
+  title     = {Popularity Bias in Dynamic Recommendation},
+  booktitle = {{KDD}},
+  pages     = {2439--2449},
+  publisher = {{ACM}},
+  year      = {2021},
+  timestamp = {Mon, 04 Jul 2022 09:54:06 +0200},
+  biburl    = {https://dblp.org/rec/conf/kdd/Zhu0ZC21.bib},
+  bibsource = {dblp computer science bibliography, https://dblp.org}
+}
+@article{DBLP:journals/ipm/YalcinB21,
+  author    = {Emre Yalcin and
+               Alper Bilge},
+  title     = {Investigating and counteracting popularity bias in group recommendations},
+  journal   = {Inf. Process. Manag.},
+  volume    = {58},
+  number    = {5},
+  pages     = {102608},
+  year      = {2021},
+  timestamp = {Thu, 12 Aug 2021 17:50:04 +0200},
+  biburl    = {https://dblp.org/rec/journals/ipm/YalcinB21.bib},
+  bibsource = {dblp computer science bibliography, https://dblp.org}
+}
+@inproceedings{DBLP:conf/kdd/HajianBC16,
+  author    = {Sara Hajian and
+               Francesco Bonchi and
+               Carlos Castillo},
+  title     = {Algorithmic Bias: From Discrimination Discovery to Fairness-aware
+               Data Mining},
+  booktitle = {{ACM}{SIGKDD}},
+  pages     = {2125--2126},
+  publisher = {{ACM}},
+  year      = {2016},
+  timestamp = {Thu, 23 Jun 2022 19:56:11 +0200},
+  biburl    = {https://dblp.org/rec/conf/kdd/HajianBC16.bib},
+  bibsource = {dblp computer science bibliography, https://dblp.org}
+}
+@inproceedings{DBLP:conf/innovations/DworkHPRZ12,
+  author    = {Cynthia Dwork and
+               Moritz Hardt and
+               Toniann Pitassi and
+               Omer Reingold and
+               Richard S. Zemel},
+  title     = {Fairness through awareness},
+  booktitle = {Innovations in Theoretical Computer Science 2012, Cambridge, MA, USA,
+               January 8-10, 2012},
+  pages     = {214--226},
+  publisher = {{ACM}},
+  year      = {2012},
+  timestamp = {Wed, 14 Nov 2018 10:56:52 +0100},
+  biburl    = {https://dblp.org/rec/conf/innovations/DworkHPRZ12.bib},
+  bibsource = {dblp computer science bibliography, https://dblp.org}
+}
+@INPROCEEDINGS{6228185,  author={Kargar, Mehdi and An, Aijun},  booktitle={2012 IEEE 28th International Conference on Data Engineering},   title={Efficient Top-k Keyword Search in Graphs with Polynomial Delay},   year={2012},  volume={},  number={},  pages={1269-1272},  doi={10.1109/ICDE.2012.124}}
+
+@article{DBLP:journals/ipm/NeshatiBH14,
+  author    = {Mahmood Neshati and
+               Hamid Beigy and
+               Djoerd Hiemstra},
+  title     = {Expert group formation using facility location analysis},
+  journal   = {Inf. Process. Manag.},
+  volume    = {50},
+  number    = {2},
+  pages     = {361--383},
+  year      = {2014},
+  timestamp = {Fri, 21 Feb 2020 13:10:37 +0100},
+  biburl    = {https://dblp.org/rec/journals/ipm/NeshatiBH14.bib},
+  bibsource = {dblp computer science bibliography, https://dblp.org}
+}
+
+
+
+@article{DBLP:journals/kais/LiSL15,
+  author    = {Cheng{-}Te Li and
+               Man{-}Kwan Shan and
+               Shou{-}De Lin},
+  title     = {On team formation with expertise query in collaborative social networks},
+  journal   = {Knowl. Inf. Syst.},
+  volume    = {42},
+  number    = {2},
+  pages     = {441--463},
+  year      = {2015},
+  timestamp = {Tue, 06 Jun 2017 22:28:53 +0200},
+  biburl    = {https://dblp.org/rec/journals/kais/LiSL15.bib},
+  bibsource = {dblp computer science bibliography, https://dblp.org}
+}
+
+@article{DBLP:journals/tem/FathianSM17,
+  author    = {Mohammad Fathian and
+               Mohamad Saei{-}Shahi and
+               Ahmad Makui},
+  title     = {A New Optimization Model for Reliable Team Formation Problem Considering
+               Experts' Collaboration Network},
+  journal   = {{IEEE} Trans. Engineering Management},
+  volume    = {64},
+  number    = {4},
+  pages     = {586--593},
+  year      = {2017},
+  timestamp = {Sat, 19 Oct 2019 19:10:23 +0200},
+  biburl    = {https://dblp.org/rec/journals/tem/FathianSM17.bib},
+  bibsource = {dblp computer science bibliography, https://dblp.org}
+}
+
+@inproceedings{DBLP:conf/www/BarnaboFLS19,
+  author    = {Giorgio Barnab{\`{o}} and
+               Adriano Fazzone and
+               Stefano Leonardi and
+               Chris Schwiegelshohn},
+  title     = {Algorithms for Fair Team Formation in Online Labour Marketplaces{\unicode{10033}}},
+  booktitle = {{WWW}},
+  pages     = {484--490},
+  publisher = {{ACM}},
+  year      = {2019},
+  timestamp = {Sun, 22 Sep 2019 18:15:38 +0200},
+  biburl    = {https://dblp.org/rec/conf/www/BarnaboFLS19.bib},
+  bibsource = {dblp computer science bibliography, https://dblp.org}
+}
+@inproceedings{DBLP:conf/cikm/RadMFKSB21,
+  author    = {Radin Hamidi Rad and
+               Aabid Mitha and
+               Hossein Fani and
+               Mehdi Kargar and
+               Jaroslaw Szlichta and
+               Ebrahim Bagheri},
+  title     = {PyTFL: {A} Python-based Neural Team Formation Toolkit},
+  booktitle = {{CIKM}},
+  pages     = {4716--4720},
+  publisher = {{ACM}},
+  year      = {2021},
+  timestamp = {Sun, 02 Oct 2022 15:57:19 +0200},
+  biburl    = {https://dblp.org/rec/conf/cikm/RadMFKSB21.bib},
+  bibsource = {dblp computer science bibliography, https://dblp.org}
+}
+@article{DBLP:journals/vldb/RahmanRTAD19,
+  author    = {Habibur Rahman and
+               Senjuti Basu Roy and
+               Saravanan Thirumuruganathan and
+               Sihem Amer{-}Yahia and
+               Gautam Das},
+  title     = {Optimized group formation for solving collaborative tasks},
+  journal   = {{VLDB} J.},
+  volume    = {28},
+  number    = {1},
+  pages     = {1--23},
+  year      = {2019},
+  timestamp = {Sat, 30 May 2020 19:50:00 +0200},
+  biburl    = {https://dblp.org/rec/journals/vldb/RahmanRTAD19.bib},
+  bibsource = {dblp computer science bibliography, https://dblp.org}
+}
+
+@article{DBLP:journals/ipm/KhanGKSZ20,
+  author    = {Abeer Khan and
+               Lukasz Golab and
+               Mehdi Kargar and
+               Jaroslaw Szlichta and
+               Morteza Zihayat},
+  title     = {Compact group discovery in attributed graphs and social networks},
+  journal   = {Inf. Process. Manag.},
+  volume    = {57},
+  number    = {2},
+  pages     = {102054},
+  year      = {2020},
+  timestamp = {Thu, 01 Oct 2020 17:52:31 +0200},
+  biburl    = {https://dblp.org/rec/journals/ipm/KhanGKSZ20.bib},
+  bibsource = {dblp computer science bibliography, https://dblp.org}
+}
+
+@inproceedings{DBLP:conf/icde/KouSSLN0M20,
+  author    = {Yue Kou and
+               Derong Shen and
+               Quinn Snell and
+               Dong Li and
+               Tiezheng Nie and
+               Ge Yu and
+               Shuai Ma},
+  title     = {Efficient Team Formation in Social Networks based on Constrained Pattern
+               Graph},
+  booktitle = {{ICDE}},
+  pages     = {889--900},
+  publisher = {{IEEE}},
+  year      = {2020},
+  timestamp = {Mon, 14 Sep 2020 15:10:40 +0200},
+  biburl    = {https://dblp.org/rec/conf/icde/KouSSLN0M20.bib},
+  bibsource = {dblp computer science bibliography, https://dblp.org}
+}
+
+@article{DBLP:journals/fdata/SapienzaGF19,
+  author    = {Anna Sapienza and
+               Palash Goyal and
+               Emilio Ferrara},
+  title     = {Deep Neural Networks for Optimal Team Composition},
+  journal   = {Frontiers Big Data},
+  volume    = {2},
+  pages     = {14},
+  year      = {2019},
+  timestamp = {Wed, 20 May 2020 16:23:36 +0200},
+  biburl    = {https://dblp.org/rec/journals/fdata/SapienzaGF19.bib},
+  bibsource = {dblp computer science bibliography, https://dblp.org}
+}
+
+
+
+@inproceedings{DBLP:conf/sigmod/AkibaIY13,
+  author    = {Takuya Akiba and
+               Yoichi Iwata and
+               Yuichi Yoshida},
+  title     = {Fast exact shortest-path distance queries on large networks by pruned
+               landmark labeling},
+  booktitle = {{ACM} {SIGMOD} },
+  pages     = {349--360},
+  publisher = {{ACM}},
+  year      = {2013},
+  timestamp = {Tue, 06 Nov 2018 11:07:38 +0100},
+  biburl    = {https://dblp.org/rec/conf/sigmod/AkibaIY13.bib},
+  bibsource = {dblp computer science bibliography, https://dblp.org}
+}
+
+
+
+@inproceedings{DBLP:conf/edbt/ZiHayatAGKS17,
+  author    = {Morteza Zihayat and
+               Aijun An and
+               Lukasz Golab and
+               Mehdi Kargar and
+               Jaroslaw Szlichta},
+  title     = {Authority-based Team Discovery in Social Networks},
+  booktitle = {{EDBT}},
+  pages     = {498--501},
+  publisher = {OpenProceedings.org},
+  year      = {2017},
+  timestamp = {Fri, 29 Jan 2021 22:08:52 +0100},
+  biburl    = {https://dblp.org/rec/conf/edbt/ZiHayatAGKS17.bib},
+  bibsource = {dblp computer science bibliography, https://dblp.org}
+}
+
+@INPROCEEDINGS{Tang:08KDD,
+    AUTHOR = "Jie Tang and Jing Zhang and Limin Yao and Juanzi Li and Li Zhang and Zhong Su",
+    TITLE = "ArnetMiner: Extraction and Mining of Academic Social Networks",
+    pages = "990-998",
+    howpublished = "\url{https://www.aminer.org/citation}",
+    YEAR = {2008},
+    BOOKTITLE = "KDD'08",
+}
+
+@misc{imdb,
+  title = {IMDB Dataset},
+  howpublished = {\url{https://www.imdb.com/interfaces/}},
+  note = {Accessed: 2022-05-14}
+}
+
+@misc{dblp,
+  title = {DBLP Dataset},
+  howpublished = {\url{https://aminer.org/citation}},
+  note = {Accessed: 2022-05-14}
+}
+@misc{uspt,
+  title = {USPT Dataset},
+  howpublished = {\url{https://patentsview.org/download/data-download-tables}},
+  note = {Accessed: 2022-05-14}
+}
+
+@misc{gith,
+    title = {GitHub Dataset},
+    howpublished = {\url{https://codelabs.developers.google.com/codelabs/bigquery-github}},
+    note = {Accessed: 2022-12-01}
+}
+
+@article{DURFEE2014200,
+title = {Using hybrid scheduling for the semi-autonomous formation of expert teams},
+journal = {Future Generation Computer Systems},
+volume = {31},
+pages = {200-212},
+year = {2014},
+note = {Special Section: Advances in Computer Supported Collaboration: Systems and Technologies},
+issn = {0167-739X},
+url = {https://www.sciencedirect.com/science/article/pii/S0167739X1300068X},
+author = {Edmund H. Durfee and James C. Boerkoel and Jason Sleight},
+keywords = {Teamwork, Scheduling, Constraint satisfaction/optimization, Collaborative systems},
+abstract = {Selecting and scheduling human experts to cooperatively solve a problem can be a highly complex task, given various constraints (such as what expertise is needed and when) and preferences (such as which expertise an expert most prefers to exercise). Computational agents can thus greatly help users form and schedule expert teams. This paper introduces a new formulation of the team formation and scheduling problem as a Hybrid Scheduling Problem (HSP) and compares the performance of an agent using the HSP formulation to a prior agent-based approach. We empirically demonstrate the promise of the HSP formulation and highlight how the application of HSP techniques to this problem has led us to identify important modifications to mechanisms that improve HSP solving. Finally, we summarize how the HSP formulation can support human-agent collaboration during the process of forming and scheduling expert teams.}
+}
+
+@article{10.14778/1978665.1978671,
+author = {Yang, De-Nian and Chen, Yi-Ling and Lee, Wang-Chien and Chen, Ming-Syan},
+title = {On Social-Temporal Group Query with Acquaintance Constraint},
+year = {2011},
+issue_date = {March 2011},
+publisher = {VLDB Endowment},
+volume = {4},
+number = {6},
+issn = {2150-8097},
+abstract = {Three essential criteria are important for activity planning, including: (1) finding a group of attendees familiar with the initiator, (2) ensuring each attendee in the group to have tight social relations with most of the members in the group, and (3) selecting an activity period available for all attendees. Therefore, this paper proposes Social-Temporal Group Query to find the activity time and attendees with the minimum total social distance to the initiator. Moreover, this query incorporates an acquaintance constraint to avoid finding a group with mutually unfamiliar attendees. Efficient processing of the social-temporal group query is very challenging. We show that the problem is NP-hard via a proof and formulate the problem with Integer Programming. We then propose two efficient algorithms, SGSelect and STGSelect, which include effective pruning techniques and employ the idea of pivot time slots to substantially reduce the running time, for finding the optimal solutions. Experimental results indicate that the proposed algorithms are much more efficient and scalable. In the comparison of solution quality, we show that STGSelect outperforms the algorithm that represents manual coordination by the initiator.},
+journal = {Proc. VLDB Endow.},
+month = {mar},
+pages = {397–408},
+numpages = {12}
+}
+
+@article{mdm,
+author = {Arkin, Esther and Hassin, Refael},
+year = {2000},
+month = {10},
+pages = {147-155},
+title = {Minimum Diameter Covering Problems},
+volume = {36},
+journal = {Networks},
+}
+
+@Inbook{Karp1972,
+author="Karp, Richard M.",
+and Thatcher, James W.
+and Bohlinger, Jean D.",
+title="Reducibility among Combinatorial Problems",
+bookTitle="Complexity of Computer Computations: Proceedings of a symposium on the Complexity of Computer Computations, held March 20--22, 1972, at the IBM Thomas J. Watson Research Center, Yorktown Heights, New York, and sponsored by the Office of Naval Research, Mathematics Program, IBM World Trade Corporation, and the IBM Research Mathematical Sciences Department",
+year="1972",
+publisher="Springer US",
+address="Boston, MA",
+pages="85--103",
+abstract="A large class of computational problems involve the determination of properties of graphs, digraphs, integers, arrays of integers, finite families of finite sets, boolean formulas and elements of other countable domains. Through simple encodings from such domains into the set of words over a finite alphabet these problems can be converted into language recognition problems, and we can inquire into their computational complexity. It is reasonable to consider such a problem satisfactorily solved when an algorithm for its solution is found which terminates within a number of steps bounded by a polynomial in the length of the input. We show that a large number of classic unsolved problems of covering, matching, packing, routing, assignment and sequencing are equivalent, in the sense that either each of them possesses a polynomial-bounded algorithm or none of them does.",
+isbn="978-1-4684-2001-2",
+}
+
+@article{DBLP:journals/tkde/KargarGSSZ22,
+  author    = {Mehdi Kargar and
+               Lukasz Golab and
+               Divesh Srivastava and
+               Jaroslaw Szlichta and
+               Morteza Zihayat},
+  title     = {Effective Keyword Search Over Weighted Graphs},
+  journal   = {{IEEE} Trans. Knowl. Data Eng.},
+  volume    = {34},
+  number    = {2},
+  pages     = {601--616},
+  year      = {2022},
+  timestamp = {Tue, 08 Feb 2022 10:41:11 +0100},
+  biburl    = {https://dblp.org/rec/journals/tkde/KargarGSSZ22.bib},
+  bibsource = {dblp computer science bibliography, https://dblp.org}
+}
+
+@article{DBLP:journals/ans/KeaneGM20,
+  author    = {Peter Keane and
+               Faisal Ghaffar and
+               David Malone},
+  title     = {Using machine learning to predict links and improve Steiner tree solutions
+               to team formation problems - a cross company study},
+  journal   = {Appl. Netw. Sci.},
+  volume    = {5},
+  number    = {1},
+  pages     = {57},
+  year      = {2020},
+  timestamp = {Fri, 09 Apr 2021 18:21:01 +0200},
+  biburl    = {https://dblp.org/rec/journals/ans/KeaneGM20.bib},
+  bibsource = {dblp computer science bibliography, https://dblp.org}
+}
+
+@article{doi:10.1146/annurev-soc-081715-074219,
+author = {Leahey, Erin},
+title = {From Sole Investigator to Team Scientist: Trends in the Practice and Study of Research Collaboration},
+journal = {Annual Review of Sociology},
+volume = {42},
+number = {1},
+pages = {81-100},
+year = {2016},
+
+,
+    abstract = { This article reviews trends in the practice and study of research collaboration, focusing on journal publications in academic science. I briefly describe the different styles and types of collaboration and then focus on the drivers of the trend toward increased collaboration and on its consequences for both individual researchers and science more generally. Scholarship on collaboration seems partial to delineating its benefits; this review highlights the increasing body of research that focuses instead on the possible costs of collaboration. The synthesis reveals several topics that are ripe for investigation, including the impact of collaboration on the contributing authors and their work, the use of multiple methods and measures, and research integrity. I applaud a few recent efforts to overcome the perennial file-drawer problem by gaining access to collaborations that do not result in publication and thus are typically removed from public review and the research analyst's eye. }
+}
+
+@article{Rosen2018433,
+	author = {Rosen, Michael A. and DiazGranados, Deborah and Dietz, Aaron S. and Benishek, Lauren E. and Thompson, David and Pronovost, Peter J. and Weaver, Sallie J.},
+	title = {Teamwork in healthcare: Key discoveries enabling safer, high-quality care},
+	year = {2018},
+	journal = {American Psychologist},
+	volume = {73},
+	number = {4},
+	pages = {433 – 450},
+	url = {https://www.scopus.com/inward/record.uri?eid=2-s2.0-85047460228&doi=10.1037%2famp0000298&partnerID=40&md5=7357e87a1ab9b87adb35e5ed1a91c9bf},
+	type = {Article},
+	publication_stage = {Final},
+	source = {Scopus},
+	note = {Cited by: 297; All Open Access, Green Open Access}
+}
+
+@article{teamscience,
+author = {Hall, Kara and Vogel, Amanda and Huang, Grace and Serrano, Katrina and Rice, Elise and Tsakraklides, Sophia and Fiore, Stephen},
+year = {2018},
+month = {05},
+pages = {532-548},
+title = {The science of team science: A review of the empirical evidence and research gaps on collaboration in science},
+volume = {73},
+journal = {American Psychologist},
+}
+
+@Article{math8101804,
+AUTHOR = {Askari, Gholamreza and Asghri, Nader and Gordji, Madjid Eshaghi and Asgari, Heshmatolah and Filipe, José António and Azar, Adel},
+TITLE = {The Impact of Teamwork on an Organization’s Performance: A Cooperative Game’s Approach},
+JOURNAL = {Mathematics},
+VOLUME = {8},
+YEAR = {2020},
+NUMBER = {10},
+ARTICLE-NUMBER = {1804},
+URL = {https://www.mdpi.com/2227-7390/8/10/1804},
+ISSN = {2227-7390},
+ABSTRACT = {In this article, we study the impact of teamwork on an organization&rsquo;s performance, considering a cooperative game&rsquo;s framework. To promote teamwork culture, performance indexes were considered both individually and collectively, and by comparing the scores that every employee earned individually and collectively, their differences became obvious. In this approach, a cooperative game&rsquo;s model was used in order to improve the organization&rsquo;s performance. The proposed model, in addition to evaluating the organization and employee&rsquo;s activities, implemented all payments, including overtime pay, rewards, etc., fairly and along with increasing performance and satisfaction. The cooperative approach created effective communications between employees and authorities and enhanced their motivation for teamwork. Moreover, results could be used for decisions related to employees (such as promotion, transition, firing, and secondment), analysis of training requirements, employees&rsquo; development, and research and plan valuation. Our findings show that the collaborative coefficient (CC) is a key factor in increasing productivity and improving the efficiency of an organization in the long run. The collaborative coefficient is a new concept in teamwork that has rarely been considered in scientific research.},
+}
+
+@inproceedings{
+
+Kairgalievna2021THEEO,
+  title={THE EFFECT OF TEAMWORK ON EMPLOYEE PRODUCTIVITY},
+  author={Almagul Kairgalievna and Nurul Mohammad Zayed},
+  year={2021}
+}
+
+@article{Hu2014MakingAD,
+  title={Making a Difference in the Teamwork: Linking Team Prosocial Motivation to Team Processes and Effectiveness},
+  author={Jia Hu and Robert C. Liden},
+  journal={Academy of Management Journal},
+  year={2014},
+  volume={58},
+  pages={1102-1127}
+}
+
+
+@article{
+
+author = {Tyler H. McCormick and Hedwig Lee and Nina Cesare and Ali Shojaie and Emma S. Spiro},
+title ={Using Twitter for Demographic and Social Science Research: Tools for Data Collection and Processing},
+journal = {Sociological Methods \& Research},
+volume = {46},
+number = {3},
+pages = {390-421},
+year = {2017},
+    note ={PMID: 29033471}
+,
+    abstract = { Despite recent and growing interest in using Twitter to examine human behavior and attitudes, there is still significant room for growth regarding the ability to leverage Twitter data for social science research. In particular, gleaning demographic information about Twitter users—a key component of much social science research—remains a challenge. This article develops an accurate and reliable data processing approach for social science researchers interested in using Twitter data to examine behaviors and attitudes, as well as the demographic characteristics of the populations expressing or engaging in them. Using information gathered from Twitter users who state an intention to not vote in the 2012 presidential election, we describe and evaluate a method for processing data to retrieve demographic information reported by users that is not encoded as text (e.g., details of images) and evaluate the reliability of these techniques. We end by assessing the challenges of this data collection strategy and discussing how large-scale social media data may benefit demographic researchers. }
+}
+
+@article{10.1145/3458754,
+author = {Gu, Yu and Tinn, Robert and Cheng, Hao and Lucas, Michael and Usuyama, Naoto and Liu, Xiaodong and Naumann, Tristan and Gao, Jianfeng and Poon, Hoifung},
+title = {Domain-Specific Language Model Pretraining for Biomedical Natural Language Processing},
+year = {2021},
+issue_date = {January 2022},
+publisher = {Association for Computing Machinery},
+address = {New York, NY, USA},
+volume = {3},
+number = {1},
+issn = {2691-1957},
+abstract = {Pretraining large neural language models, such as BERT, has led to impressive gains on many natural language processing (NLP) tasks. However, most pretraining efforts focus on general domain corpora, such as newswire and Web. A prevailing assumption is that even domain-specific pretraining can benefit by starting from general-domain language models. In this article, we challenge this assumption by showing that for domains with abundant unlabeled text, such as biomedicine, pretraining language models from scratch results in substantial gains over continual pretraining of general-domain language models. To facilitate this investigation, we compile a comprehensive biomedical NLP benchmark from publicly available datasets. Our experiments show that domain-specific pretraining serves as a solid foundation for a wide range of biomedical NLP tasks, leading to new state-of-the-art results across the board. Further, in conducting a thorough evaluation of modeling choices, both for pretraining and task-specific fine-tuning, we discover that some common practices are unnecessary with BERT models, such as using complex tagging schemes in named entity recognition. To help accelerate research in biomedical NLP, we have released our state-of-the-art pretrained and task-specific models for the community, and created a leaderboard featuring our BLURB benchmark (short for Biomedical Language Understanding &amp; Reasoning Benchmark) at .},
+journal = {ACM Trans. Comput. Healthcare},
+month = {oct},
+articleno = {2},
+numpages = {23},
+keywords = {NLP, Biomedical, domain-specific pretraining}
+}
