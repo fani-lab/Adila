@@ -27,15 +27,6 @@ cd Adila
 pip install -r requirements.txt
 ```
 
-By [``conda``](https://www.anaconda.com/products/individual):
-
-```sh
-git clone https://github.com/Fani-Lab/Adila
-cd Adila
-conda env create -f environment.yml
-conda activate adila
-```
-
 ## 2. Quickstart
 To run `Adila`, you can use [./src/main.py](./src/main.py):
 
