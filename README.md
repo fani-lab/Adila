@@ -5,16 +5,17 @@
 
 > We have studied the application of state-of-the-art [`deterministic greedy re-ranking methods`](https://dl.acm.org/doi/10.1145/3292500.3330691) to mitigate `populairty bias` based on `equality of opportunity` for state-of-the-art neural team formation methods from [`OpeNTF`](https://github.com/fani-lab/opeNTF/). 
 
-> Currently, ...
+> Currently, we are experimenting the effects of double cutoff method on the trade-off between fairness and utility
 
-> In future work, we will be studying ...
+> In future work, we will be studying pre-existing bias mitigation methods in the dataset before passing it through OpeNTF.
 
 1. [Setup](#1-setup)
 2. [Quickstart](#2-quickstart)
 3. [Pipeline](#3-pipeline)
-4. [Acknowledgement](#4-acknowledgement)
-5. [License](#5-license)  
-6. [Citation](#6-citation)
+4. [Dataset](#4-dataset)
+5. [Acknowledgement](#5-acknowledgement)
+6. [License](#6-license)  
+7. [Citation](#7-citation)
 
 ## 1. Setup
 `Adila` needs ``Python=3.8`` and others packages listed in [``requirements.txt``](requirements.txt):
@@ -50,7 +51,7 @@ python -u main.py
 
 Where the arguements are:
 
-  > `pred`: a folder that includes the prediction files of neural methods in the format of ??? 
+  > `pred`: a folder that includes the prediction files of neural methods in the format of .pred 
 
   > `fsplit`: the split.json file that indicates the index (rowid) of teams whose members are predicted in `--pred`  
 
