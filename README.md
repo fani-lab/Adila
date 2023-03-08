@@ -70,7 +70,7 @@ Where the arguements are:
 
   > `ratio`: the desired `nonpopular` ratio among members of predicted teams after mitigation process by re-ranking algorithms. E.g., 0.5.
   
-  > `reranker`: fairness-aware reranking algorithm from {det_greedy, det_cons, det_relaxed}. Eg. det_cons'.  
+  > `reranker`: fairness-aware reranking algorithm from {`det_greedy`, `det_cons`, `det_relaxed`}. Eg. `det_cons`.  
 
   > `output`: the path to the reranked predictions of members for teams, as well as, the teams' success and fairness evaluation `before` and `after` mitigation process.
 
