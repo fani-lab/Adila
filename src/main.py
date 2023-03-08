@@ -1,4 +1,4 @@
-import json, os, statistics, pandas as pd, pickle, multiprocessing, argparse
+import json, os, statistics, pandas as pd, pickle, multiprocessing, argparse, numpy as np
 from time import time, perf_counter
 from functools import partial
 from tqdm import tqdm
@@ -6,7 +6,7 @@ from scipy.sparse import csr_matrix
 import torch
 
 import reranking
-from experiment.metric import *
+from cmn.metric import *
 
 class Reranking:
     @staticmethod

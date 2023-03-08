@@ -59,7 +59,7 @@ Where the arguements are:
 
   > `fpred`: a file or folder that includes the prediction files of a neural team formation methods in the format of `torch.ndarray`. The file name(s) should be `*.pred` and the content is `[#test × #experts]` probabilities that shows the membership probability of an expert to a team in test set. For a toy example, try ```import torch; torch.load([`./output/toy.dblp.v12.json/bnn/t31.s11.m13.l[100].lr0.1.b4096.e20.s1/f0.test.pred`](./output/toy.dblp.v12.json/bnn/t31.s11.m13.l[100].lr0.1.b4096.e20.s1/f0.test.pred)))```     
 
-  > `ratios`: the desired `popular/nonpopular` ratio among members of predicted teams after mitigation process by re-ranking algorithms. The sum should be 1. For example, 0.5 0.5 means 50% popular and 50% nonpopular.
+  > `ratio`: the desired `nonpopular` ratio among members of predicted teams after mitigation process by re-ranking algorithms. E.g., 0.5.
   
   > `reranker`: fairness-aware reranking algorithm from {det_greedy, det_cons, det_relaxed}. Eg. det_cons'.  
 
