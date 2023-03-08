@@ -46,7 +46,7 @@ python -u main.py \
   -fteamsvecs ../data/preprocessed/dblp/toy.dblp.v12.json/teamsvecs.pkl \
   -fsplit ../output/toy.dblp.v12.json/splits.json \
   -fpred ../output/toy.dblp.v12.json/bnn/ \
-  -ratio 0.5 \
+  -np_ratio 0.5 \
   -reranker det_cons \
   -output ../output/toy.dblp.v12.json/
 ```
