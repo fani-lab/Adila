@@ -1,2 +1,3 @@
 output/** linguist-vendored=true
 data/** linguist-vendored=true
+misc/latex/** linguist-documentation
