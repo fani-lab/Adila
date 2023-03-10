@@ -109,7 +109,7 @@ The result of `utility` metrics `before` and `after` will be stored in `{output}
 
 ## 4. Result
 Our results show that although we improve fairness significantly, our utility metric drops extensively. Part of this phenomenon is described in [`Fairness in Ranking, Part I: Score-Based Ranking [Zehlike et al. ACM Computing Surveys'22]`](https://dl.acm.org/doi/full/10.1145/3533379). When we apply representation constraints on individual attributes, like race , popularity and gender and we want to maximize a score with respect to these constraints, utility loss can be particularly significant in historically disadvantaged intersectional groups. The following tables contain the results of our experiments on the `bnn`, `bnn_emb` and `random` baselines with `greedy`, `conservative` and `relaxed` re-ranking algorithms.
-| bnn |         |                |             |                |             |                |                      |
+| [``bnn(3.8 GB)``](https://uwin365-my.sharepoint.com/personal/ghasrlo_uwindsor_ca/_layouts/15/onedrive.aspx?ga=1&id=%2Fpersonal%2Fghasrlo%5Fuwindsor%5Fca%2FDocuments%2FAdila0%2E1%2E0%2E0%2Fimdb%2Ebnn%2Ererank) |         |                |             |                |             |                |                      |
 |:-----------------------------------------------------:|:-------:|:--------------:|:-----------:|:--------------:|:-----------:|:--------------:|:--------------------:|
 |                                                       |         |     greedy     |             |  conservative  |             |     relaxed    |                      |
 |                                                       |  before | after | $\Delta$ | after | $\Delta$ | after | $\Delta$ |
@@ -121,7 +121,7 @@ Our results show that although we improve fairness significantly, our utility me
 |                map10 &uarr;               | 0.467% |     0.115%    |   -0.352%  |     0.101%    |   -0.366%  |     0.115%    |       -0.352%       |
 |               ndlkl &darr;             |  0.2317 |     0.0276     |   -0.2041   |     0.0276     |   -0.2041   |     0.0273     |        -0.2043       |
 
-| bnn_emb |         |                |             |                |             |                |                      |
+| [``bnn_emb(3.79 GB)``](https://uwin365-my.sharepoint.com/personal/ghasrlo_uwindsor_ca/_layouts/15/onedrive.aspx?ga=1&id=%2Fpersonal%2Fghasrlo%5Fuwindsor%5Fca%2FDocuments%2FAdila0%2E1%2E0%2E0%2Fimdb%2Ebnn%2Eemb%2Ererank) |         |                |             |                |             |                |                      |
 |:----------------------------------------------------------:|:-------:|:--------------:|:-----------:|:--------------:|:-----------:|:--------------:|:--------------------:|
 |                                                            |         |     greedy     |             |  conservative  |             |     relaxed    |                      |
 |                                                            |  before | after | $\Delta$ | after | $\Delta$ | after | $\Delta$ |
@@ -133,7 +133,7 @@ Our results show that although we improve fairness significantly, our utility me
 |                  map10 &uarr;                  | 0.573% |     0.093%    |   -0.480%  |     0.111%    |   -0.461%  |     0.093%    |       -0.480%       |
 |                  ndkl &darr;                |  0.2779 |     0.0244     |   -0.2535   |     0.0244     |   -0.2535   |     0.0241     |        -0.2539       |
 
-|           random          |          |                |             |                |             |                |                      |
+|           [``random(2.41 GB)``](https://uwin365-my.sharepoint.com/personal/ghasrlo_uwindsor_ca/_layouts/15/onedrive.aspx?ga=1&id=%2Fpersonal%2Fghasrlo%5Fuwindsor%5Fca%2FDocuments%2FAdila0%2E1%2E0%2E0%2Fimdb%2Erandom%2Ererank)          |          |                |             |                |             |                |                      |
 |:-------------------------:|:--------:|:--------------:|:-----------:|:--------------:|:-----------:|:--------------:|:--------------------:|
 |                           |          |     greedy     |             |  conservative  |             |     relaxed    |                      |
 |                           |  before  | after | $\Delta$ | after | $\Delta$ | after | $\Delta$ |
