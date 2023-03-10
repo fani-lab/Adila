@@ -105,8 +105,43 @@ The result of `utility` metrics `before` and `after` will be stored in `{output}
 `Future:` We will consider other fairness metrics.
 
 ## 4. Result
-***
+Our results show that although we improve fairness significantly, our utility metric drops extensively. Part of this phenomenon is described in [`Fairness in Ranking, Part I: Score-Based Ranking [Zehlike et al. ACM Computing Surveys'22]`](https://dl.acm.org/doi/full/10.1145/3533379). When we apply representation constraints on individual attributes, like race , popularity and gender and we want to maximize a score with respect to these constraints, utility loss can be particularly significant in historically disadvantaged intersectional groups. The following tables contain the results of our experiments on the `bnn`, `bnn_emb` and `random` baselines with `greedy`, `conservative` and `relaxed` re-ranking algorithms.
+| bnn |         |                |             |                |             |                |                      |
+|:-----------------------------------------------------:|:-------:|:--------------:|:-----------:|:--------------:|:-----------:|:--------------:|:--------------------:|
+|                                                       |         |     greedy     |             |  conservative  |             |     relaxed    |                      |
+|                                                       |  before | after | $\Delta$ | after | $\Delta$ | after | $\Delta$ |
+|                ndcg2 &uarr;               | 0.695% |     0.126%    |   -0.569%  |     0.091%    |   -0.604%  |     0.146%    |       -0.550%       |
+|                ndcg5 &uarr;               | 0.767% |     0.141%    |   -0.626%  |     0.130%    |   -0.637%  |     0.130%    |       -0.637%       |
+|               ndcg10 &uarr;               | 1.058% |     0.247%    |   -0.811%  |     0.232%    |   -0.826%  |     0.246%    |       -0.812%       |
+|                map2 &uarr;                | 0.248% |     0.060%    |   -0.188%  |     0.041%    |   -0.207%  |     0.063%    |       -0.185%       |
+|                map5 &uarr;                | 0.381% |     0.083%    |   -0.298%  |     0.068%    |   -0.313%  |     0.079%    |       -0.302%       |
+|                map10 &uarr;               | 0.467% |     0.115%    |   -0.352%  |     0.101%    |   -0.366%  |     0.115%    |       -0.352%       |
+|               ndlkl &darr;             |  0.2317 |     0.0276     |   -0.2041   |     0.0276     |   -0.2041   |     0.0273     |        -0.2043       |
 
+| bnn_emb |         |                |             |                |             |                |                      |
+|:----------------------------------------------------------:|:-------:|:--------------:|:-----------:|:--------------:|:-----------:|:--------------:|:--------------------:|
+|                                                            |         |     greedy     |             |  conservative  |             |     relaxed    |                      |
+|                                                            |  before | after | $\Delta$ | after | $\Delta$ | after | $\Delta$ |
+|                  ndcg2 &uarr;                  | 0.921% |     0.087%    |   -0.834%  |     0.121%    |   -0.799%  |     0.087%    |       -0.834%       |
+|                  ndcg5 &uarr;                  | 0.927% |     0.117%    |   -0.810%  |     0.150%    |   -0.777%  |     0.117%    |       -0.810%       |
+|                  ndcg10 &uarr;                 | 1.266% |     0.223%    |   -1.043%  |     0.241%    |   -1.025%  |     0.223%    |       -1.043%       |
+|                  map2 &uarr;                  | 0.327% |     0.034%    |   -0.293%  |     0.057%    |   -0.270%  |     0.034%    |       -0.293%       |
+|                  map5 &uarr;                  | 0.469% |     0.059%    |   -0.410%  |     0.084%    |   -0.386%  |     0.059%    |       -0.410%       |
+|                  map10 &uarr;                  | 0.573% |     0.093%    |   -0.480%  |     0.111%    |   -0.461%  |     0.093%    |       -0.480%       |
+|                  ndkl &darr;                |  0.2779 |     0.0244     |   -0.2535   |     0.0244     |   -0.2535   |     0.0241     |        -0.2539       |
+
+|           random          |          |                |             |                |             |                |                      |
+|:-------------------------:|:--------:|:--------------:|:-----------:|:--------------:|:-----------:|:--------------:|:--------------------:|
+|                           |          |     greedy     |             |  conservative  |             |     relaxed    |                      |
+|                           |  before  | after | $\Delta$ | after | $\Delta$ | after | $\Delta$ |
+|  ndcg2 &uarr;  | 0.1711% |     0.136%    |   -0.035%  |     0.205%    |   0.034%   |     0.205%    |        0.034%       |
+|  ndcg5 &uarr;  | 0.1809% |     0.170%    |   -0.011%  |     0.190%    |   0.009%   |     0.190%    |        0.009%       |
+| ndcg10 &uarr;  | 0.3086% |     0.258%    |   -0.051%  |     0.283%    |   -0.026%  |     0.283%    |       -0.026%       |
+|  map2 &uarr;   | 0.0617% |     0.059%    |   -0.003%  |     0.089%    |   0.028%   |     0.089%    |        0.028%       |
+|  map5 &uarr;   | 0.0889% |     0.095%    |   0.006%   |     0.110%    |   0.021%   |     0.110%    |        0.021%       |
+|  map10 &uarr;  | 0.1244% |     0.121%    |   -0.003%  |     0.140%    |   0.016%   |     0.140%    |        0.016%       |
+| ndkl &darr; |  0.0072  |     0.0369     |    0.0296   |     0.0366     |    0.0293   |     0.0366     |        0.0294        |
+  
 ## 5. Acknowledgement
 We benefit from [``pytrec``](https://github.com/cvangysel/pytrec_eval), [``reranking``](https://github.com/yuanlonghao/reranking), and other libraries. We would like to thank the authors of these libraries and helpful resources.
   
