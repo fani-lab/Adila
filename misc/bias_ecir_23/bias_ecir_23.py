@@ -1,0 +1,21 @@
+import pickle
+with open(r'C:\Users\Administrator\Github\Fani-Lab\opentf\dev\data\preprocessed\imdb\title.basics.tsv.filtered.mt75.ts3\stats.pkl', 'rb') as f: a=pickle.load(f)
+
+import matplotlib.pyplot as plt
+fig = plt.figure(figsize=(2, 2))
+ax = fig.add_subplot(1, 1, 1)
+ax.set_xlabel('expert-idx')
+ax.set_ylabel('#teams')
+ax.grid(True, color="#93a1a1", alpha=0.3)
+# ax.spines['right'].set_color((.8, .8, .8))
+# ax.spines['top'].set_color((.8, .8, .8))
+ax.minorticks_off()
+ax.xaxis.set_tick_params(size=2, direction='in')
+ax.yaxis.set_tick_params(size=2, direction='in')
+ax.xaxis.get_label().set_size(12)
+ax.yaxis.get_label().set_size(12)
+ax.set_title('imdb', x=0.7, y=0.8, fontsize=11)
+ax.set_facecolor('whitesmoke')
+ax.scatter(*zip(*a['nteams_candidate-idx'].items()), marker='x', color='blue')
+plt.show()
+fig.savefig(r'./data/preprocessed/imdb/title.basics.tsv.filtered.mt75.ts3/nteams_candidate-idx-.png', dpi=100, bbox_inches='tight')
