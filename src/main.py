@@ -113,11 +113,12 @@ class Reranking:
         return sparse_matrix_reranked
 
     @staticmethod
-    def eval_utility(teamsvecs_members, reranked_preds, preds, splits, metrics, output, algorithm, k_max) -> None:
+    def eval_utility(teamsvecs_members, reranked_preds, fpred, preds, splits, metrics, output, algorithm, k_max) -> None:
         """
         Args:
             teamsvecs_members: teamsvecs pickle file
             reranked_preds: re-ranked teams
+            fpred: .pred filename (to see if .pred.eval.mean.csv exists)
             preds: loaded predictions from a .pred file
             splits: indices of test and train samples
             metrics: desired utility metrics
@@ -128,7 +129,11 @@ class Reranking:
         """
         # predictions = torch.load(self.predictions_address)
         y_test = teamsvecs_members[splits['test']]
-        _, df_mean_before, _, _ = calculate_metrics(y_test, preds, False, metrics) #although we already have this at test.pred.eval.mean.csv
+        try:
+            df_mean_before = pd.read_csv(f'{fpred}.eval.mean.csv', names=['mean'], header=0)#we should already have it at f*.test.pred.eval.mean.csv
+        except FileNotFoundError:
+            _, df_mean_before, _, _ = calculate_metrics(y_test, preds, False, metrics)
+            df_mean_before.to_csv(f'{fpred}.eval.mean.csv', columns=['mean'])
         df_mean_before.rename(columns={'mean': 'mean.before'}, inplace=True)
         _, df_mean_after, _, _ = calculate_metrics(y_test, reranked_preds.toarray(), False, metrics)
         df_mean_after.rename(columns={'mean': 'mean.after'}, inplace=True)
@@ -190,24 +195,23 @@ class Reranking:
             #not sure os handles file locking for append during parallel run ...
             # with open(f'{new_output}.rerank.time', 'a') as file: file.write(f'{elapsed_time} {new_output} {algorithm} {k_max}\n')
             with open(f'{output}/rerank.time', 'a') as file: file.write(f'{elapsed_time} {new_output} {algorithm} {k_max}\n')
+        try:
+            with open(f'{new_output}.{algorithm}.{k_max}.rerank.pred', 'rb') as f: reranked_preds = pickle.load(f)
+        except FileNotFoundError: reranked_preds = Reranking.reranked_preds(teamsvecs['member'], splits, reranked_idx, probs, new_output, algorithm, k_max)
 
         try:
-            print('Loading fairness evaluation results ...')
+            print('Loading fairness evaluation results before and after reranking ...')
             fairness_eval = pd.read_csv(f'{new_output}.{algorithm}.{k_max}.faireval.csv')
         except FileNotFoundError:
             print(f'Loading fairness results failed! Evaluating fairness metric {fairness_metrics} ...') #for now, it's hardcoded for 'ndkl'
             Reranking.eval_fairness(preds, labels, reranked_idx, ratios, new_output, algorithm, k_max)
 
         try:
-            with open(f'{new_output}.{algorithm}.{k_max}.rerank.pred', 'rb') as f: reranked_preds = pickle.load(f)
-        except FileNotFoundError:
-            reranked_preds = Reranking.reranked_preds(teamsvecs['member'], splits, reranked_idx, probs, new_output, algorithm, k_max)
-        try:
-            print('Loading utility metric evaluation results ...')
+            print('Loading utility metric evaluation results before and after reranking ...')
             utility_before = pd.read_csv(f'{new_output}.{algorithm}.{k_max}.utileval.csv')
         except:
             print(f' Loading utility metric results failed! Evaluating utility metric {utility_metrics} ...')
-            Reranking.eval_utility(teamsvecs['member'], reranked_preds, preds, splits, utility_metrics, new_output, algorithm, k_max=k_max)
+            Reranking.eval_utility(teamsvecs['member'], reranked_preds, fpred, preds, splits, utility_metrics, new_output, algorithm, k_max=k_max)
 
         print(f'Pipeline for the baseline {fpred} completed by {multiprocessing.current_process()}! {time() - st}')
         print('#'*100)
@@ -233,6 +237,7 @@ class Reranking:
 
 """
 A running example of arguments
+# single *.pred file
 python -u main.py 
 -fteamsvecs ../data/preprocessed/dblp/toy.dblp.v12.json/teamsvecs.pkl
 -fsplit ../output/toy.dblp.v12.json/splits.json
@@ -240,6 +245,7 @@ python -u main.py
 -reranker det_cons
 -output ../output/toy.dblp.v12.json/
 
+# root folder containing many *.pred files.
 python -u main.py 
 -fteamsvecs ../data/preprocessed/dblp/toy.dblp.v12.json/teamsvecs.pkl
 -fsplit ../output/toy.dblp.v12.json/splits.json
