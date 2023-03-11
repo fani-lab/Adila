@@ -82,9 +82,24 @@ Where the arguements are:
 `Adila` has three steps:
 
 ### 3.1. Labeling
+![plot](https://user-images.githubusercontent.com/48960316/224466505-346e0249-9f40-4c96-93a9-ab856261d146.jpg)
+
   
-Based on the distribution of experts on teams, which is power law (long tail) as shown in the figure, we label those in the `tail` as `nonpopular` and those in the `head` as popular. To find the cutoff between `head` and `tail`, we calculate the average number of teams per expert over the whole dataset. As seen in table, this number is `62.45` and the popular/nonpopular ratio is `0.426/0.574`.  The result is a Boolean value in `{popular: True, nonpopular: False}` for each expert and is save in `{output}/popularity.csv` like [`./output/toy.dblp.v12.json/bnn/t31.s11.m13.l[100].lr0.1.b4096.e20.s1/rerank/popularity.csv`](./output/toy.dblp.v12.json/bnn/t31.s11.m13.l[100].lr0.1.b4096.e20.s1/rerank/popularity.csv) 
-    
+Based on the distribution of experts on teams, which is power law (long tail) as shown in the figure, we label those in the `tail` as `nonpopular` and those in the `head` as popular. To find the cutoff between `head` and `tail`, we calculate the average number of teams per expert over the whole dataset. As seen in the table, this number is `62.45` and the popular/nonpopular ratio is `0.426/0.574`.  The result is a Boolean value in `{popular: True, nonpopular: False}` for each expert and is save in `{output}/popularity.csv` like [`./output/toy.dblp.v12.json/bnn/t31.s11.m13.l[100].lr0.1.b4096.e20.s1/rerank/popularity.csv`](./output/toy.dblp.v12.json/bnn/t31.s11.m13.l[100].lr0.1.b4096.e20.s1/rerank/popularity.csv) 
+ 
+|             imdb                       |     |          |
+|------------------------------------|:-------:|:--------:|
+|                                    |   raw   | filtered |
+| #movies                           | 507,034 |  32,059  |
+| #unique casts and crews           | 876,981 |   2,011  |
+| #unique genres                    |    28   |    23    |
+| average #casts and crews per team |   1.88  |   3.98   |
+| average #genres per team          |   1.54  |   1.76   |
+| average #movie per cast and crew  |   1.09  |   62.45  |
+| average #genre per cast and crew  |   1.59  |   10.85  |
+| #team w/ single cast and crew     | 322,918 |     0    |
+| #team w/ single genre             | 315,503 |  15,180  |
+  
 `Future:` We will consider equal area under the curve for the cutoff.
    
 ### 3.2. Reranking 
