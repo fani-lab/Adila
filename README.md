@@ -11,6 +11,7 @@
 > - Other fairness factors like demographic attributes, including age, race, and gender; 
 > - Developing machine learning-based models using Learning-to-Rank (L2R) techniques to mitigate popularity bias as opposed to deterministic greedy algorithms.
 
+
 1. [Setup](#1-setup)
 2. [Quickstart](#2-quickstart)
 3. [Pipeline](#3-pipeline)
@@ -29,6 +30,7 @@ cd Adila
 pip install -r requirements.txt
 ```
 
+
 By [``conda``](https://www.anaconda.com/products/individual):
 
 ```sh
@@ -37,6 +39,7 @@ cd Adila
 conda env create -f environment.yml
 conda activate adila
 ```
+
 
 ## 2. Quickstart
 To run `Adila`, you can use [./src/main.py](./src/main.py):
@@ -53,6 +56,7 @@ python -u main.py \
 ```
 
 Where the arguements are:
+
 
   > `fteamsvecs`: the sparse matrix representation of all teams in a pickle file, including the teams whose members are predicted in `--pred`. It should contain a dictionary of three `lil_matrix` with keys `[id]` of size `[#teams × 1]`, `[skill]` of size `[#teams × #skills]`, `[member]` of size `[#teams × #experts]`. Simply, each row of a metrix shows the occurrence vector of skills and experts in a team. For a toy example, try 
   ```
@@ -82,16 +86,31 @@ Where the arguements are:
 `Adila` has three steps:
 
 ### 3.1. Labeling
+![plot](https://user-images.githubusercontent.com/48960316/224466505-346e0249-9f40-4c96-93a9-ab856261d146.jpg)
+
   
-Based on the distribution of experts on teams, which is power law (long tail) as shown in the figure, we label those in the `tail` as `nonpopular` and those in the `head` as popular. To find the cutoff between `head` and `tail`, we calculate the average number of teams per expert over the whole dataset. As seen in table, this number is `62.45` and the popular/nonpopular ratio is `0.426/0.574`.  The result is a Boolean value in `{popular: True, nonpopular: False}` for each expert and is save in `{output}/popularity.csv` like [`./output/toy.dblp.v12.json/bnn/t31.s11.m13.l[100].lr0.1.b4096.e20.s1/rerank/popularity.csv`](./output/toy.dblp.v12.json/bnn/t31.s11.m13.l[100].lr0.1.b4096.e20.s1/rerank/popularity.csv) 
-    
+Based on the distribution of experts on teams, which is power law (long tail) as shown in the figure, we label those in the `tail` as `nonpopular` and those in the `head` as popular. To find the cutoff between `head` and `tail`, we calculate the average number of teams per expert over the whole dataset. As seen in the table, this number is `62.45` and the popular/nonpopular ratio is `0.426/0.574`.  The result is a Boolean value in `{popular: True, nonpopular: False}` for each expert and is save in `{output}/popularity.csv` like [`./output/toy.dblp.v12.json/bnn/t31.s11.m13.l[100].lr0.1.b4096.e20.s1/rerank/popularity.csv`](./output/toy.dblp.v12.json/bnn/t31.s11.m13.l[100].lr0.1.b4096.e20.s1/rerank/popularity.csv) 
+ 
+|             imdb                       |     |          |
+|------------------------------------|:-------:|:--------:|
+|                                    |   raw   | filtered |
+| #movies                           | 507,034 |  32,059  |
+| #unique casts and crews           | 876,981 |   2,011  |
+| #unique genres                    |    28   |    23    |
+| average #casts and crews per team |   1.88  |   3.98   |
+| average #genres per team          |   1.54  |   1.76   |
+| average #movie per cast and crew  |   1.09  |   62.45  |
+| average #genre per cast and crew  |   1.59  |   10.85  |
+| #team w/ single cast and crew     | 322,918 |     0    |
+| #team w/ single genre             | 315,503 |  15,180  |
+  
 `Future:` We will consider equal area under the curve for the cutoff.
    
 ### 3.2. Reranking 
   
 We apply rerankers from [`deterministic greedy re-ranking methods [Geyik et al. KDD'19]`](https://dl.acm.org/doi/10.1145/3292500.3330691), including `{'det_greedy', 'det_cons', 'det_relaxed'}` to mitigate `populairty bias`. The reranker needs a cutoff `k_max` which is set to `10` by default. 
 
-The result of predictions after reranking is saved in `{output}/rerank/{fpred}.rerank.{reranker}.{k_max}` like ***.
+The result of predictions after reranking is saved in `{output}/rerank/{fpred}.{reranker}.{k_max}.rerank.pred` like [`./output/toy.dblp.v12.json/bnn/t31.s11.m13.l[100].lr0.1.b4096.e20.s1/rerank/f0.test.pred.det_cons.10.rerank.pred`](./output/toy.dblp.v12.json/bnn/t31.s11.m13.l[100].lr0.1.b4096.e20.s1/rerank/f0.test.pred.det_cons.10.rerank.pred) .
 
 ### 3.3. Evaluations 
   
@@ -101,15 +120,15 @@ We evaluate `fairness` and `utility` metrics `before` and `after` applying reran
     
 **`RQ2:`** Do state-of-the-art deterministic greedy re-ranking algorithms improve the fairness of neural team formation models while maintaining their accuracy? To this end, we measure the `fairness` and `utility` metrics `before` and `after` applying rerankers.
     
-The result of `fairness` metrics `before` and `after` will be stored in `{output}.{algorithm}.{k_max}.{faireval}.csv` like ***.
+The result of `fairness` metrics `before` and `after` will be stored in `{output}.{algorithm}.{k_max}.{faireval}.csv` like [`./output/toy.dblp.v12.json/bnn/t31.s11.m13.l[100].lr0.1.b4096.e20.s1/rerank/f2.test.pred.det_cons.10.faireval.csv`](./output/toy.dblp.v12.json/bnn/t31.s11.m13.l[100].lr0.1.b4096.e20.s1/rerank/f2.test.pred.det_cons.10.faireval.csv) .
     
-The result of `utility` metrics `before` and `after` will be stored in `{output}.{algorithm}.{k_max}.{utileval}.csv` like ***.
+The result of `utility` metrics `before` and `after` will be stored in `{output}.{algorithm}.{k_max}.{utileval}.csv` like [`./output/toy.dblp.v12.json/bnn/t31.s11.m13.l[100].lr0.1.b4096.e20.s1/rerank/f1.test.pred.det_cons.10.utileval.csv`](./output/toy.dblp.v12.json/bnn/t31.s11.m13.l[100].lr0.1.b4096.e20.s1/rerank/f1.test.pred.det_cons.10.utileval.csv).
    
 `Future:` We will consider other fairness metrics.
 
 ## 4. Result
 Our results show that although we improve fairness significantly, our utility metric drops extensively. Part of this phenomenon is described in [`Fairness in Ranking, Part I: Score-Based Ranking [Zehlike et al. ACM Computing Surveys'22]`](https://dl.acm.org/doi/full/10.1145/3533379). When we apply representation constraints on individual attributes, like race , popularity and gender and we want to maximize a score with respect to these constraints, utility loss can be particularly significant in historically disadvantaged intersectional groups. The following tables contain the results of our experiments on the `bnn`, `bnn_emb` and `random` baselines with `greedy`, `conservative` and `relaxed` re-ranking algorithms.
-| bnn |         |                |             |                |             |                |                      |
+| [``bnn(3.8 GB)``](https://uwin365-my.sharepoint.com/:f:/g/personal/ghasrlo_uwindsor_ca/Ej41Qn2GHytKhKpbyuiwLCABgUFOll74nBndOxQbDnLVMA?e=WtzNpd) |         |                |             |                |             |                |                      |
 |:-----------------------------------------------------:|:-------:|:--------------:|:-----------:|:--------------:|:-----------:|:--------------:|:--------------------:|
 |                                                       |         |     greedy     |             |  conservative  |             |     relaxed    |                      |
 |                                                       |  before | after | $\Delta$ | after | $\Delta$ | after | $\Delta$ |
@@ -121,7 +140,7 @@ Our results show that although we improve fairness significantly, our utility me
 |                map10 &uarr;               | 0.467% |     0.115%    |   -0.352%  |     0.101%    |   -0.366%  |     0.115%    |       -0.352%       |
 |               ndlkl &darr;             |  0.2317 |     0.0276     |   -0.2041   |     0.0276     |   -0.2041   |     0.0273     |        -0.2043       |
 
-| bnn_emb |         |                |             |                |             |                |                      |
+| [``bnn_emb(3.79 GB)``](https://uwin365-my.sharepoint.com/:f:/g/personal/ghasrlo_uwindsor_ca/El75TMyU4D1Dt39_yLacGxYBSF2a4ntnyiZ7vq4rLy8dCg?e=skz450) |         |                |             |                |             |                |                      |
 |:----------------------------------------------------------:|:-------:|:--------------:|:-----------:|:--------------:|:-----------:|:--------------:|:--------------------:|
 |                                                            |         |     greedy     |             |  conservative  |             |     relaxed    |                      |
 |                                                            |  before | after | $\Delta$ | after | $\Delta$ | after | $\Delta$ |
@@ -133,7 +152,7 @@ Our results show that although we improve fairness significantly, our utility me
 |                  map10 &uarr;                  | 0.573% |     0.093%    |   -0.480%  |     0.111%    |   -0.461%  |     0.093%    |       -0.480%       |
 |                  ndkl &darr;                |  0.2779 |     0.0244     |   -0.2535   |     0.0244     |   -0.2535   |     0.0241     |        -0.2539       |
 
-|           random          |          |                |             |                |             |                |                      |
+|           [``random(2.41 GB)``](https://uwin365-my.sharepoint.com/:f:/g/personal/ghasrlo_uwindsor_ca/EkTgR0AjvIpNvz0Vsu-JwwoBMxl4kJsZxJBUI0zdQUxcTw?e=VYC66y)          |          |                |             |                |             |                |                      |
 |:-------------------------:|:--------:|:--------------:|:-----------:|:--------------:|:-----------:|:--------------:|:--------------------:|
 |                           |          |     greedy     |             |  conservative  |             |     relaxed    |                      |
 |                           |  before  | after | $\Delta$ | after | $\Delta$ | after | $\Delta$ |
@@ -145,6 +164,7 @@ Our results show that although we improve fairness significantly, our utility me
 |  map10 &uarr;  | 0.1244% |     0.121%    |   -0.003%  |     0.140%    |   0.016%   |     0.140%    |        0.016%       |
 | ndkl &darr; |  0.0072  |     0.0369     |    0.0296   |     0.0366     |    0.0293   |     0.0366     |        0.0294        |
   
+
 ## 5. Acknowledgement
 We benefit from [``pytrec``](https://github.com/cvangysel/pytrec_eval), [``reranking``](https://github.com/yuanlonghao/reranking), and other libraries. We would like to thank the authors of these libraries and helpful resources.
   
@@ -167,4 +187,5 @@ Hamed Loghmani<sup>1</sup>, [Hossein Fani](https://hosseinfani.github.io/)<sup>1
   bibsource = {dblp computer science bibliography, https://dblp.org}
 }
 ```
+
 
