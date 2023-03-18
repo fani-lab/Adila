@@ -78,6 +78,7 @@ class Reranking:
         for i, team in enumerate(tqdm(preds)):
             member_popularity_probs = [(m, labels[m], float(team[m])) for m in range(len(team))]
             member_popularity_probs.sort(key=lambda x: x[2], reverse=True)
+            #IMPORTANT: the ratios keys should match the labels!
             dic_before['ndkl'].append(reranking.ndkl([label for _, label, _ in member_popularity_probs], ratios))
             dic_after['ndkl'].append(reranking.ndkl([labels[int(m)] for m in reranked_idx[i]], ratios))
 
@@ -179,8 +180,8 @@ class Reranking:
         except (FileNotFoundError, EOFError):
             print(f'Loading popularity labels failed! Generating popularity labels at {output}stats.pkl ...')
             stats, labels = Reranking.get_stats(teamsvecs['member'], coefficient=1, output=output)
-        if not np_ratio: ratios = {'p': 1 - stats['np_ratio'], 'np': stats['np_ratio']}
-        else: ratios = {'p': 1 - np_ratio, 'np': np_ratio}
+        if not np_ratio: ratios = {True: 1 - stats['np_ratio'], False: stats['np_ratio']}
+        else: ratios = {True: 1 - np_ratio, False: np_ratio}
         assert np.sum(list(ratios.values())) == 1.0
 
         new_output = f'{output}/{os.path.split(fpred)[-1]}'
@@ -283,7 +284,7 @@ if __name__ == "__main__":
         pairs = []
         for i, row in files.iterrows():
             output = f"{row['.']}/{row['..']}/{row['domain']}/{row['baseline']}/{row['setting']}/"
-            pairs.append((f'{output}/{row["rfile"]}', f'{output}/rerank/'))
+            pairs.append((f'{output}{row["rfile"]}', f'{output}rerank/'))
 
         if args.mode == 0: # sequential run
             for fpred, output in pairs: Reranking.run(fpred=fpred,
