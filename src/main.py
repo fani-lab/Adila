@@ -284,7 +284,7 @@ if __name__ == "__main__":
         pairs = []
         for i, row in files.iterrows():
             output = f"{row['.']}/{row['..']}/{row['domain']}/{row['baseline']}/{row['setting']}/"
-            pairs.append((f'{output}/{row["rfile"]}', f'{output}/rerank/'))
+            pairs.append((f'{output}{row["rfile"]}', f'{output}rerank/'))
 
         if args.mode == 0: # sequential run
             for fpred, output in pairs: Reranking.run(fpred=fpred,
