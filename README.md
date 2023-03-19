@@ -84,9 +84,7 @@ Where the arguements are:
 ### 3.1. Labeling
   
 Based on the distribution of experts on teams, which is power law (long tail) as shown in the figure, we label those in the `tail` as `nonpopular` and those in the `head` as popular. 
-
-<p align="center"><img src='./misc/bias_ecir_23/latex/figures/nteams_candidate-idx.pdf' width="250" ></p>
-
+<p align="center"><img src='./misc/bias_ecir_23/latex/figures/nteams_candidate-idx_.png' width="250" ></p>
 To find the cutoff between `head` and `tail`, we calculate the average number of teams per expert over the whole dataset. As seen in the table, this number is `62.45` and the popular/nonpopular ratio is `0.426/0.574`.  The result is a Boolean value in `{popular: True, nonpopular: False}` for each expert and is save in `{output}/popularity.csv` like [`./output/toy.dblp.v12.json/bnn/t31.s11.m13.l[100].lr0.1.b4096.e20.s1/rerank/popularity.csv`](./output/toy.dblp.v12.json/bnn/t31.s11.m13.l[100].lr0.1.b4096.e20.s1/rerank/popularity.csv) 
  
 |             imdb                       |     |          |
