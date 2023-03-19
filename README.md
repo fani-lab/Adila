@@ -68,24 +68,44 @@ Where the arguements are:
   torch.load(./output/toy.dblp.v12.json/bnn/t31.s11.m13.l[100].lr0.1.b4096.e20.s1/f0.test.pred)
   ```     
 
-  > `ratio`: the desired `nonpopular` ratio among members of predicted teams after mitigation process by re-ranking algorithms. E.g., 0.5.
+  > `np_ratio`: the desired `nonpopular` ratio among members of predicted teams after mitigation process by re-ranking algorithms. E.g., 0.5.
   
   > `reranker`: fairness-aware reranking algorithm from {`det_greedy`, `det_cons`, `det_relaxed`}. Eg. `det_cons`.  
 
   > `output`: the path to the reranked predictions of members for teams, as well as, the teams' success and fairness evaluation `before` and `after` mitigation process.
 
 ## 3. Pipeline
+
+`Adila` needs preprocessed information about the teams in the form of sparse matrix representation (`-fteamsvecs`) and neural team formation prediction file(s) (`-fpred`), obtained from [`OpeNTF`](https://github.com/fani-lab/OpeNTF/tree/main):
+
+```bash
+├── data
+│   └── preprocessed
+│       └── dblp
+│           └── toy.dblp.v12.json
+│               └── teamsvecs.pkl     #sparse matrix representation of teams
+├── output
+    └── toy.dblp.v12.json
+        ├── bnn
+        │   └── t31.s11.m13.l[100].lr0.1.b4096.e20.s1
+        │       ├── f0.test.pred
+        │       ├── f1.test.pred
+        │       ├── f2.test.pred
+        └── splits.json #rowids of team instances in n-fold train-valid splits, and a final test split
+```
+
+Then, it go thourgh the pipeline as shown in the figure:
+
 ![generic_pipeline](https://user-images.githubusercontent.com/48960316/224231949-76c48893-795e-467e-b511-e72685119c03.jpg)
 
-
-
-`Adila` has three steps:
+As seen, `Adila` has three main steps:
 
 ### 3.1. Labeling
-![plot](https://user-images.githubusercontent.com/48960316/224466505-346e0249-9f40-4c96-93a9-ab856261d146.jpg)
 
-  
-Based on the distribution of experts on teams, which is power law (long tail) as shown in the figure, we label those in the `tail` as `nonpopular` and those in the `head` as popular. To find the cutoff between `head` and `tail`, we calculate the average number of teams per expert over the whole dataset. As seen in the table, this number is `62.45` and the popular/nonpopular ratio is `0.426/0.574`.  The result is a Boolean value in `{popular: True, nonpopular: False}` for each expert and is save in `{output}/popularity.csv` like [`./output/toy.dblp.v12.json/bnn/t31.s11.m13.l[100].lr0.1.b4096.e20.s1/rerank/popularity.csv`](./output/toy.dblp.v12.json/bnn/t31.s11.m13.l[100].lr0.1.b4096.e20.s1/rerank/popularity.csv) 
+Based on the distribution of experts on teams, which is power law (long tail) as shown in the figure, we label those in the `tail` as `nonpopular` and those in the `head` as popular. 
+<p align="center"><img src='./misc/bias_ecir_23/latex/figures/nteams_candidate-idx_.png' width="250" ></p>
+
+To find the cutoff between `head` and `tail`, we calculate the average number of teams per expert over the whole dataset. As seen in the table, this number is `62.45` and the popular/nonpopular ratio is `0.426/0.574`.  The result is a Boolean value in `{popular: True, nonpopular: False}` for each expert and is save in `{output}/popularity.csv` like [`./output/toy.dblp.v12.json/bnn/t31.s11.m13.l[100].lr0.1.b4096.e20.s1/rerank/popularity.csv`](./output/toy.dblp.v12.json/bnn/t31.s11.m13.l[100].lr0.1.b4096.e20.s1/rerank/popularity.csv) 
  
 |             imdb                       |     |          |
 |------------------------------------|:-------:|:--------:|
@@ -121,6 +141,35 @@ The result of `fairness` metrics `before` and `after` will be stored in `{output
 The result of `utility` metrics `before` and `after` will be stored in `{output}.{algorithm}.{k_max}.{utileval}.csv` like [`./output/toy.dblp.v12.json/bnn/t31.s11.m13.l[100].lr0.1.b4096.e20.s1/rerank/f1.test.pred.det_cons.10.utileval.csv`](./output/toy.dblp.v12.json/bnn/t31.s11.m13.l[100].lr0.1.b4096.e20.s1/rerank/f1.test.pred.det_cons.10.utileval.csv).
    
 `Future:` We will consider other fairness metrics.
+
+After successful run of all steps, [`./output`](./output) contains:
+
+```bash
+├── output
+    └── toy.dblp.v12.json
+        ├── bnn
+        │   └── t31.s11.m13.l[100].lr0.1.b4096.e20.s1
+        │       ├── f0.test.pred
+        │       ├── f1.test.pred
+        │       ├── f2.test.pred
+        │       └── rerank
+        │           ├── f0.test.pred.det_cons.10.faireval.csv
+        │           ├── f0.test.pred.det_cons.10.utileval.csv
+        │           ├── f0.test.pred.det_cons.10.rerank.csv
+        │           ├── f0.test.pred.det_cons.10.rerank.pred
+        │           ├── f1.test.pred.det_cons.10.faireval.csv
+        │           ├── f1.test.pred.det_cons.10.utileval.csv
+        │           ├── f1.test.pred.det_cons.10.rerank.csv
+        │           ├── f1.test.pred.det_cons.10.rerank.pred
+        │           ├── f2.test.pred.det_cons.10.faireval.csv
+        │           ├── f2.test.pred.det_cons.10.utileval.csv
+        │           ├── f2.test.pred.det_cons.10.rerank.csv
+        │           ├── f2.test.pred.det_cons.10.rerank.pred
+        │           ├── popularity.csv
+        │           ├── rerank.time
+        │           └── stats.pkl
+        └── splits.json
+```
 
 ## 4. Result
 Our results show that although we improve fairness significantly, our utility metric drops extensively. Part of this phenomenon is described in [`Fairness in Ranking, Part I: Score-Based Ranking [Zehlike et al. ACM Computing Surveys'22]`](https://dl.acm.org/doi/full/10.1145/3533379). When we apply representation constraints on individual attributes, like race , popularity and gender and we want to maximize a score with respect to these constraints, utility loss can be particularly significant in historically disadvantaged intersectional groups. The following tables contain the results of our experiments on the `bnn`, `bnn_emb` and `random` baselines with `greedy`, `conservative` and `relaxed` re-ranking algorithms.
