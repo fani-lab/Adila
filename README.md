@@ -39,7 +39,7 @@ conda activate adila
 ```
 
 ## 2. Quickstart
-To run `Adila`, you can use [./src/main.py](./src/main.py):
+To run `Adila`, you can use [`./src/main.py`](./src/main.py):
 
 ```bash
 cd src
