@@ -85,13 +85,13 @@ Where the arguements are:
 │           └── toy.dblp.v12.json
 │               └── teamsvecs.pkl     #sparse matrix representation of teams
 ├── output
-│   └── toy.dblp.v12.json
-│       ├── bnn
-│       │   └── t31.s11.m13.l[100].lr0.1.b4096.e20.s1
-│       │       ├── f0.test.pred
-│       │       ├── f1.test.pred
-│       │       ├── f2.test.pred
-│       └── splits.json #rowids of team instances in n-fold train-valid splits, and a final test split
+    └── toy.dblp.v12.json
+        ├── bnn
+        │   └── t31.s11.m13.l[100].lr0.1.b4096.e20.s1
+        │       ├── f0.test.pred
+        │       ├── f1.test.pred
+        │       ├── f2.test.pred
+        └── splits.json #rowids of team instances in n-fold train-valid splits, and a final test split
 ```
 
 Then, it go thourgh the pipeline as shown in the figure:
@@ -146,29 +146,29 @@ After successful run of all steps, [`./output`](./output) contains:
 
 ```bash
 ├── output
-│   └── toy.dblp.v12.json
-│       ├── bnn
-│       │   └── t31.s11.m13.l[100].lr0.1.b4096.e20.s1
-│       │       ├── f0.test.pred
-│       │       ├── f1.test.pred
-│       │       ├── f2.test.pred
-│       │       └── rerank
-│       │           ├── f0.test.pred.det_cons.10.faireval.csv
-│       │           ├── f0.test.pred.det_cons.10.rerank.csv
-│       │           ├── f0.test.pred.det_cons.10.rerank.pred
-│       │           ├── f0.test.pred.det_cons.10.utileval.csv
-│       │           ├── f1.test.pred.det_cons.10.faireval.csv
-│       │           ├── f1.test.pred.det_cons.10.rerank.csv
-│       │           ├── f1.test.pred.det_cons.10.rerank.pred
-│       │           ├── f1.test.pred.det_cons.10.utileval.csv
-│       │           ├── f2.test.pred.det_cons.10.faireval.csv
-│       │           ├── f2.test.pred.det_cons.10.rerank.csv
-│       │           ├── f2.test.pred.det_cons.10.rerank.pred
-│       │           ├── f2.test.pred.det_cons.10.utileval.csv
-│       │           ├── popularity.csv
-│       │           ├── rerank.time
-│       │           └── stats.pkl
-│       └── splits.json
+    └── toy.dblp.v12.json
+        ├── bnn
+        │   └── t31.s11.m13.l[100].lr0.1.b4096.e20.s1
+        │       ├── f0.test.pred
+        │       ├── f1.test.pred
+        │       ├── f2.test.pred
+        │       └── rerank
+        │           ├── f0.test.pred.det_cons.10.faireval.csv
+        │           ├── f0.test.pred.det_cons.10.utileval.csv
+        │           ├── f0.test.pred.det_cons.10.rerank.csv
+        │           ├── f0.test.pred.det_cons.10.rerank.pred
+        │           ├── f1.test.pred.det_cons.10.faireval.csv
+        │           ├── f1.test.pred.det_cons.10.utileval.csv
+        │           ├── f1.test.pred.det_cons.10.rerank.csv
+        │           ├── f1.test.pred.det_cons.10.rerank.pred
+        │           ├── f2.test.pred.det_cons.10.faireval.csv
+        │           ├── f2.test.pred.det_cons.10.utileval.csv
+        │           ├── f2.test.pred.det_cons.10.rerank.csv
+        │           ├── f2.test.pred.det_cons.10.rerank.pred
+        │           ├── popularity.csv
+        │           ├── rerank.time
+        │           └── stats.pkl
+        └── splits.json
 ```
 
 ## 4. Result
