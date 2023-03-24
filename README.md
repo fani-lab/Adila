@@ -11,13 +11,16 @@
 > - Other fairness factors like demographic attributes, including age, race, and gender; 
 > - Developing machine learning-based models using Learning-to-Rank (L2R) techniques to mitigate popularity bias as opposed to deterministic greedy algorithms.
 
-1. [Setup](#1-setup)
-2. [Quickstart](#2-quickstart)
-3. [Pipeline](#3-pipeline)
-4. [Result](#4-result)
-5. [Acknowledgement](#5-acknowledgement)
-6. [License](#6-license)  
-7. [Citation](#7-citation)
+- [1. Setup](#1-setup)
+- [2. Quickstart](#2-quickstart)
+- [3. Pipeline](#3-pipeline)
+  * [3.1. Labeling](#31-labeling)
+  * [3.2. Reranking](#32-reranking)
+  * [3.3. Evaluations](#33-evaluations)
+- [4. Result](#4-result)
+- [5. Acknowledgement](#5-acknowledgement)
+- [6. License](#6-license)
+- [7. Citation](#7-citation)
 
 ## 1. Setup
 `Adila` needs ``Python=3.8`` and others packages listed in [``requirements.txt``](requirements.txt):
