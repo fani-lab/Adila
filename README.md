@@ -11,14 +11,16 @@
 > - Other fairness factors like demographic attributes, including age, race, and gender; 
 > - Developing machine learning-based models using Learning-to-Rank (L2R) techniques to mitigate popularity bias as opposed to deterministic greedy algorithms.
 
-
-1. [Setup](#1-setup)
-2. [Quickstart](#2-quickstart)
-3. [Pipeline](#3-pipeline)
-4. [Result](#4-result)
-5. [Acknowledgement](#5-acknowledgement)
-6. [License](#6-license)  
-7. [Citation](#7-citation)
+- [1. Setup](#1-setup)
+- [2. Quickstart](#2-quickstart)
+- [3. Pipeline](#3-pipeline)
+  * [3.1. Labeling](#31-labeling)
+  * [3.2. Reranking](#32-reranking)
+  * [3.3. Evaluations](#33-evaluations)
+- [4. Result](#4-result)
+- [5. Acknowledgement](#5-acknowledgement)
+- [6. License](#6-license)
+- [7. Citation](#7-citation)
 
 ## 1. Setup
 `Adila` needs ``Python=3.8`` and others packages listed in [``requirements.txt``](requirements.txt):
@@ -30,7 +32,6 @@ cd Adila
 pip install -r requirements.txt
 ```
 
-
 By [``conda``](https://www.anaconda.com/products/individual):
 
 ```sh
@@ -39,7 +40,6 @@ cd Adila
 conda env create -f environment.yml
 conda activate adila
 ```
-
 
 ## 2. Quickstart
 To run `Adila`, you can use [`./src/main.py`](./src/main.py):
@@ -56,7 +56,6 @@ python -u main.py \
 ```
 
 Where the arguements are:
-
 
   > `fteamsvecs`: the sparse matrix representation of all teams in a pickle file, including the teams whose members are predicted in `--pred`. It should contain a dictionary of three `lil_matrix` with keys `[id]` of size `[#teams × 1]`, `[skill]` of size `[#teams × #skills]`, `[member]` of size `[#teams × #experts]`. Simply, each row of a metrix shows the occurrence vector of skills and experts in a team. For a toy example, try 
   ```
@@ -213,7 +212,6 @@ Our results show that although we improve fairness significantly, our utility me
 |  map10 &uarr;  | 0.1244% |     0.121%    |   -0.003%  |     0.140%    |   0.016%   |     0.140%    |        0.016%       |
 | ndkl &darr; |  0.0072  |     0.0369     |    0.0296   |     0.0366     |    0.0293   |     0.0366     |        0.0294        |
   
-
 ## 5. Acknowledgement
 We benefit from [``pytrec``](https://github.com/cvangysel/pytrec_eval), [``reranking``](https://github.com/yuanlonghao/reranking), and other libraries. We would like to thank the authors of these libraries and helpful resources.
   
@@ -236,5 +234,4 @@ Hamed Loghmani<sup>1</sup>, [Hossein Fani](https://hosseinfani.github.io/)<sup>1
   bibsource = {dblp computer science bibliography, https://dblp.org}
 }
 ```
-
 
