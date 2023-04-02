@@ -78,7 +78,8 @@ Where the arguements are:
   > `output`: the path to the reranked predictions of members for teams, as well as, the teams' success and fairness evaluation `before` and `after` mitigation process.
 
 ## 3. Pipeline
-
+<p align="center"><img src='./misc/flow.png' width="1000" ></p>
+ 
 `Adila` needs preprocessed information about the teams in the form of sparse matrix representation (`-fteamsvecs`) and neural team formation prediction file(s) (`-fpred`), obtained from [`OpeNTF`](https://github.com/fani-lab/OpeNTF/tree/main):
 
 ```bash
@@ -97,11 +98,7 @@ Where the arguements are:
         └── splits.json #rowids of team instances in n-fold train-valid splits, and a final test split
 ```
 
-Then, it go thourgh the pipeline as shown in the figure:
-
-![generic_pipeline](https://user-images.githubusercontent.com/48960316/224231949-76c48893-795e-467e-b511-e72685119c03.jpg)
-
-As seen, `Adila` has three main steps:
+`Adila` has three main steps:
 
 ### 3.1. Labeling
 
