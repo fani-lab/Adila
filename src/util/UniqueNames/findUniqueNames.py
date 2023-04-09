@@ -4,6 +4,7 @@ OVERVIEW:
 1. Find unique names in the dblp
 2. Record Unique Names somewhere (csv, pkl, dict, etc)
 3. Map unique name to gender 
+4. Label DBLP Dataset with gender and discard entries that could not find gender for 
 
 GENDER VALUES:
 true: male
@@ -82,6 +83,7 @@ class UniqueName:
         
         return -1
 
+    # Swaps Order based on index (used to deal with cases like "CestaAmedeo")
     def swapNames(self, test_str, switchInd):
         for i in range(switchInd, -1, -1):
             if(test_str[i] == ' '):
@@ -92,7 +94,10 @@ class UniqueName:
         return newStr
 
 
-    # If we find a name with case 1: 
+    # Goes through DBLP and either...
+    # a) Modifies the name entry for "firstName lastName"
+    # b) Entry will be discarded due to a name that cannot be parsed properly for first name
+    # c) The name will remain unchanged
     def DBLP_filterNames(self, jsonFile, outputFile, errorFile) -> None:
         processedCount = 0
         firstOutput = False
@@ -140,6 +145,7 @@ class UniqueName:
         errorFile.write(']')
             
 
+    # Scans through the result file and updates the dataframe with the appropriate gender for each unique name
     def addGenderResultsFromFile(self, folderOfResults, numOfEntries):
         x = 0 
         for i in range(0, numOfEntries-1000, 1000):   
@@ -154,10 +160,16 @@ class UniqueName:
 
 
 
+    # Private method used in makeParallelAPIReqs
     def exception_handler(request, exception):
         print("Request failed")
         
-    # [a,b)
+
+    # Using the grequests library, each name from the dataframe will make a request for the gender information
+    # NOTE: Please specify a range to make the API requests
+    # For my machine, I had no problems using a range of 1000 for every call
+    # The range is [a,b) -> inclusive a, exclusive b
+
     def makeParallelAPIReqs(self, apiKeyDirectory, a, b):
         key = ""
         rawOutput = open(f'src/util/UniqueNames/Results/apiOutput_{a}_to_{b}.txt', 'w')
@@ -180,32 +192,95 @@ class UniqueName:
             print(f"{result.status_code} -> {result.url}")
             rawOutput.write(f"{result.text}\n")
 
+
+
+    # Export to Pickle
     def exportResults_toPickle(self, directory):
         self.df.to_pickle(path=directory)
     
+    # Export to CSV
     def exportResults_toCSV(self, directory):
         self.df.to_csv(directory)
     
+    # Import from Pickle
+    # (this is the best option to ensure the indexing and values remain in same position)
     def importResults(self, directory):
         self.df = pd.read_pickle(directory)
     
+    # Import from CSV
+    # NOTE: THIS ONLY WORKS FOR CSV WITH NO GENDER/PROBABILITY RESULTS AS OF NOW
     def importResults_csv(self, directory):
         self.df = pd.read_csv(directory)
         names = []
         for name in self.df['name']: names.append(name)
 
         namesNP = np.unique(ar=np.array(names))
+
         self.df = pd.DataFrame(None, index=namesNP, columns=[self.attribute, 'Probability'])
 
 
+    # Prints the dataframe
     def printResults(self, head=None):
         if(head):
             print(self.df.head(head))
         else:
             print(self.df)
     
+    # Labels the dataframe 
+    def labelDataset_gender(self, datasetDirectory, newDatasetDirectory):
+        newDataset = open(newDatasetDirectory, 'w')
+
+        firstOutput = True
+        
+        checked = 0
+        success = 0
+
+        for line in open(datasetDirectory, 'r'):
+
+            # A flag value that goes to TRUE if one of the author's gender could not be found
+            failed = False
+            if line[0] == '[': 
+                newDataset.write('[' + '\n')
+                continue
+            if line[0] == ']': 
+                newDataset.write('[' + '\n')
+                continue
+            
+            if(line[0] == ','):
+                line = line[1:]
+            
+            row = json.loads(line)
+            for i in range(0, len(row['authors'])):
+                name = self.extractFirstName(row['authors'][i]['name'])
+                if(name.lower() in self.df.index): 
+                    name = name.lower()
+                    
+                info = self.getDataFromName(name)
+                if(info == None):
+                    failed = True
+                else:
+                    row['authors'][i]['gender'] = {'value': info[0], 'probability': info[1]} 
+                
+
+            if(not failed): 
+                if(not firstOutput): newDataset.write(',')
+                firstOutput = False 
+                newDataset.write(str(json.dumps(row)) + '\n')
+                success += 1
+
+            checked += 1
+            print(f"---\nSuccess: {success}\nChecked: {checked}")
+        newDataset.close()
+
+
     def getDataFromName(self, name):
-        return (self.df.loc[name, self.attribute], self.df.loc[name, "Probability"])
+        try:
+            if(self.df.loc[name,self.attribute] == True or self.df.loc[name,self.attribute] == False):
+                return (self.df.loc[name, self.attribute], self.df.loc[name, "Probability"])
+            
+            return None
+        except KeyError:
+            return None
     
     def confirmSortedAndUnique(self):
         print(f"UNIQUE: {self.df.index.is_unique}")
@@ -213,7 +288,6 @@ class UniqueName:
 
     def getCount(self):
         print(f"Number of unique names: {self.df.shape[0]}")
-
 
 
 def extractData():
@@ -225,7 +299,6 @@ def extractData():
         print(f"Working on {i} to {i+1000}")
         uniqueNames.makeParallelAPIReqs(apiKeyDirectory="src/util/UniqueNames/secretKey.txt", a=i, b=(i+1000))
 
-
     # Add Remainings
     uniqueNames.makeParallelAPIReqs(apiKeyDirectory="src/util/UniqueNames/secretKey.txt", a=274000, b=275860)
 
@@ -236,9 +309,23 @@ def extractData():
     uniqueNames.exportResults_toCSV(directory='src/util/UniqueNames/uniqueNames_populated.csv')
     uniqueNames.exportResults_toPickle(directory='src/util/UniqueNames/uniqueNames_populated.pkl')
 
+
+
+
 if __name__ == "__main__":
     uniqueNames = UniqueName(attribute='Gender')
+    '''
+    ORDER TO RUN FUNCTIONS: 
+    1. uniqueNames.DBLP_filterNames()
+    2. uniqueNames.searchDBLP()
+    3. extractData()
+    4. labelDataset_gender()
+    5. uniqueNames.exportResults_toPickle()
+    6. uniqueNames.exportResults_toCSV()
+    
+    *You can use uniqueNames.exportResults_toPickle() & uniqueNames.importResults() between these steps to run the program in stages*
 
+    '''
     
 
     # uniqueNames.DBLP_filterNames(jsonFile='../dblp.v12.json', 
@@ -256,18 +343,20 @@ if __name__ == "__main__":
 
     # extractData()
 
-    '''
-    USE THE POPULATED DATAFRAME:
-    '''
 
-    uniqueNames.importResults('src/util/UniqueNames/uniqueNames_populated.pkl')
+
+    # uniqueNames.importResults('src/util/UniqueNames/uniqueNames_populated.pkl')
+
+    # uniqueNames.importResults_csv('src/util/UniqueNames/uniqueNames_populated.csv')
+
 
     # Test with some names:
-    print(uniqueNames.getDataFromName('justin'))
-    print(uniqueNames.getDataFromName('Suibo'))
-    print(uniqueNames.getDataFromName('Hamed'))
-    print(uniqueNames.getDataFromName('Julia'))
+    # print(uniqueNames.getDataFromName('Pranava'))
+    # print(uniqueNames.getDataFromName('Suibo'))
+    # print(uniqueNames.getDataFromName('Hamed'))
+    # print(uniqueNames.getDataFromName('Julia'))
 
+    # uniqueNames.labelDataset_gender(datasetDirectory='src/util/UniqueNames/dblp_correctNames.json', newDatasetDirectory='src/util/UniqueNames/dblp_labelledGender.json')
 
     # uniqueNames.confirmSortedAndUnique()
 
