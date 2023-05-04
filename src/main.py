@@ -1,7 +1,10 @@
 import json, os, statistics, pandas as pd, pickle, multiprocessing, argparse, numpy as np
 from time import time, perf_counter
 from functools import partial
+
+import pandas
 from tqdm import tqdm
+from random import randrange
 from scipy.sparse import csr_matrix
 import torch
 
@@ -10,16 +13,18 @@ from cmn.metric import *
 
 class Reranking:
     @staticmethod
-    def get_stats(teamsvecs_members, coefficient: float, output: str) -> tuple:
+    def get_stats(teamsvecs, coefficient: float, output: str, eq_op: bool = False) -> tuple:
         """
         Args:
             teamsvecs_members: teamsvecs pickle file
             coefficient: coefficient to calculate a threshold for popularity (e.g. if 0.5, threshold = 0.5 * average number of teams for a specific member)
             output: address of the output directory
+            eq_op: a flag to turn equality of opportunity criteria on or off(default = False)
         Returns:
              tuple (dict, list)
 
         """
+        teamids, skillvecs, teamsvecs_members = teamsvecs['id'], teamsvecs['skill'], teamsvecs['member']
         stats = {}
         stats['*nmembers'] = teamsvecs_members.shape[1]
         col_sums = teamsvecs_members.sum(axis=0)
@@ -32,10 +37,35 @@ class Reranking:
         stats['np_ratio'] = labels.count(False) / stats['*nmembers']
         with open(f'{output}stats.pkl', 'wb') as f: pickle.dump(stats, f)
         pd.DataFrame(data=labels, columns=['popularity']).to_csv(f'{output}popularity.csv', index_label='memberidx')
-        return stats, labels
+        popularity = pd.read_csv(f'{output}popularity.csv')
+
+        if eq_op:
+            skill_member = skillvecs.transpose() @ teamsvecs_members
+            ratios = list()
+            print("Generating Ratios")
+            for i in tqdm(range(skillvecs.shape[0])):
+                skill_indexes = skillvecs[i].nonzero()[1].tolist()
+                members = [skill_member[idx].nonzero()[1] for idx in skill_indexes]
+                intersect = set(members[0]).union(*members)
+                # to avoid empty set
+                if len(intersect) == 0:
+                    intersect = [randrange(0, teamsvecs_members.shape[1]) for i in range(5)]
+
+                labels_ = [popularity.loc[popularity['memberidx'] == member, 'popularity'].tolist()[0] for member in
+                          intersect]
+                ratios.append(labels_.count(False) / len(intersect))
+
+            with open('ratios.pkl', 'wb') as file:
+                pickle.dump(ratios, file)
+
+            return stats, labels, ratios
+        else:
+            # None is to unify the number of returned arguments by the function to avoid complications in run function
+            return stats, labels, None
+
 
     @staticmethod
-    def rerank(preds, labels, output, ratios, algorithm: str = 'det_greedy', k_max=5) -> tuple:
+    def rerank(preds, labels, output, ratios, algorithm: str = 'det_greedy', k_max: int = None, eq_op: bool = False) -> tuple:
         """
         Args:
             preds: loaded predictions from a .pred file
@@ -44,26 +74,42 @@ class Reranking:
             ratios: desired ratio of popular/non-popular items in the output
             algorithm: the chosen algorithm for reranking in {'det_greedy', 'det_cons', 'det_relaxed'}
             k_max: maximum number of returned team members by reranker
+            cutoff: to resize the list of experts before giving it to the re-ranker
         Returns:
             tuple (list, list)
         """
         idx, probs = list(), list()
         start_time = perf_counter()
-        for team in tqdm(preds):
-            member_popularity_probs = [(m, labels[m], float(team[m])) for m in range(len(team))]
-            member_popularity_probs.sort(key=lambda x: x[2], reverse=True) #sort based on probs
-            #TODO: e.g., please comment the semantics of the output indexes by an example
-            #in the output list, we may have an index for a member outside the top k_max list that brought up by the reranker and comes to the top k_max
-            reranked_idx = reranking.rerank([label for _, label, _ in member_popularity_probs], ratios, k_max=k_max, algorithm=algorithm)
-            reranked_probs = [member_popularity_probs[m][2] for m in reranked_idx]
-            idx.append(reranked_idx)
-            probs.append(reranked_probs)
-        finish_time = perf_counter()
-        pd.DataFrame({'reranked_idx': idx, 'reranked_probs': probs}).to_csv(f'{output}.{algorithm}.{k_max}.rerank.csv', index=False)
+        if eq_op:
+            for i, team in enumerate(tqdm(preds)):
+                member_popularity_probs = [(m, labels[m], float(team[m])) for m in range(len(team))]
+                member_popularity_probs.sort(key=lambda x: x[2], reverse=True) #sort based on probs
+
+                r =  {True: 1 - ratios[i], False: ratios[i]}
+                reranked_idx = reranking.rerank([label for _, label, _ in member_popularity_probs], r, k_max=k_max, algorithm=algorithm)
+                reranked_probs = [member_popularity_probs[m][2] for m in reranked_idx]
+                idx.append(reranked_idx)
+                probs.append(reranked_probs)
+            finish_time = perf_counter()
+            pd.DataFrame({'reranked_idx': idx, 'reranked_probs': probs}).to_csv(f'{output}.{algorithm}.{k_max}.rerank.csv', index=False)
+        else:
+            for team in tqdm(preds):
+                member_popularity_probs = [(m, labels[m], float(team[m])) for m in range(len(team))]
+                member_popularity_probs.sort(key=lambda x: x[2], reverse=True)  # sort based on probs
+                # TODO: e.g., please comment the semantics of the output indexes by an example
+                # in the output list, we may have an index for a member outside the top k_max list that brought up by the reranker and comes to the top k_max
+                reranked_idx = reranking.rerank([label for _, label, _ in member_popularity_probs], ratios, k_max=k_max, algorithm=algorithm)
+                reranked_probs = [member_popularity_probs[m][2] for m in reranked_idx]
+                idx.append(reranked_idx)
+                probs.append(reranked_probs)
+            finish_time = perf_counter()
+            pd.DataFrame({'reranked_idx': idx, 'reranked_probs': probs}).to_csv(
+                f'{output}.{algorithm}.{k_max}.rerank.csv', index=False)
+
         return idx, probs, (finish_time - start_time)
 
     @staticmethod
-    def eval_fairness(preds, labels, reranked_idx, ratios, output, algorithm, k_max) -> dict:
+    def eval_fairness(preds, labels, reranked_idx, ratios, output, algorithm, k_max, eq_op: bool = False) -> pandas.DataFrame:
         """
         Args:
             preds: loaded predictions from a .pred file
@@ -76,11 +122,15 @@ class Reranking:
         """
         dic_before = {'ndkl':[]}; dic_after={'ndkl':[]}
         for i, team in enumerate(tqdm(preds)):
+            if eq_op:
+                r = {True: 1 - ratios[i], False: ratios[i]}
+            else:
+                r = ratios
             member_popularity_probs = [(m, labels[m], float(team[m])) for m in range(len(team))]
             member_popularity_probs.sort(key=lambda x: x[2], reverse=True)
             #IMPORTANT: the ratios keys should match the labels!
-            dic_before['ndkl'].append(reranking.ndkl([label for _, label, _ in member_popularity_probs], ratios))
-            dic_after['ndkl'].append(reranking.ndkl([labels[int(m)] for m in reranked_idx[i]], ratios))
+            dic_before['ndkl'].append(reranking.ndkl([label for _, label, _ in member_popularity_probs], r))
+            dic_after['ndkl'].append(reranking.ndkl([labels[int(m)] for m in reranked_idx[i]], r))
 
         df_before = pd.DataFrame(dic_before).mean(axis=0).to_frame('mean.before')
         df_after = pd.DataFrame(dic_after).mean(axis=0).to_frame('mean.after')
@@ -107,7 +157,6 @@ class Reranking:
             for j, reranked_member in enumerate(reranked_team):
                 rows.append(i)
                 cols.append(reranked_member)
-                #value.append(y_test[i, reranked_member])
                 value.append(reranked_probs[i][j])
         sparse_matrix_reranked = csr_matrix((value, (rows, cols)), shape=y_test.shape)
         with open(f'{output}.{algorithm}.{k_max}.rerank.pred', 'wb') as f: pickle.dump(sparse_matrix_reranked, f)
@@ -149,7 +198,7 @@ class Reranking:
         return statistics.mean([df.loc[df['metric'] == metric, 'mean'].tolist()[0] for df in utilityevals])
 
     @staticmethod
-    def run(fpred, output, fteamsvecs, fsplits, np_ratio, algorithm='det_cons', k_max=None, fairness_metrics={'ndkl'}, utility_metrics={'map_cut_2,5,10'}) -> None:
+    def run(fpred, output, fteamsvecs, fsplits, np_ratio, algorithm='det_cons', k_max=None, fairness_metrics={'ndkl'}, utility_metrics={'map_cut_2,5,10'}, eq_op: bool = False) -> None:
         """
         Args:
             fpred: address of the .pred file
@@ -177,22 +226,28 @@ class Reranking:
             print('Loading popularity labels ...')
             with open(f'{output}stats.pkl', 'rb') as f: stats = pickle.load(f)
             labels = pd.read_csv(f'{output}popularity.csv')['popularity'].to_list()
+            with open(f'{output}ratios.pkl', 'rb') as f: ratios = pickle.load(f)
         except (FileNotFoundError, EOFError):
             print(f'Loading popularity labels failed! Generating popularity labels at {output}stats.pkl ...')
-            stats, labels = Reranking.get_stats(teamsvecs['member'], coefficient=1, output=output)
-        if not np_ratio: ratios = {True: 1 - stats['np_ratio'], False: stats['np_ratio']}
-        else: ratios = {True: 1 - np_ratio, False: np_ratio}
-        assert np.sum(list(ratios.values())) == 1.0
+            stats, labels, ratios = Reranking.get_stats(teamsvecs, coefficient=1, output=output, eq_op=eq_op)
+
+        #creating a static ratio in case eq_op is turned off
+        if not eq_op:
+            if not np_ratio: ratios = {True: 1 - stats['np_ratio'], False: stats['np_ratio']}
+            else: ratios = {True: 1 - np_ratio, False: np_ratio}
+            assert np.sum(list(ratios.values())) == 1.0
+        else:
+            pass
 
         new_output = f'{output}/{os.path.split(fpred)[-1]}'
 
         try:
             print('Loading reranking results ...')
-            df = pd.read_csv(f'{new_output}.{algorithm}.{k_max}.rerank.csv', converters={'reranked_idx': eval, 'reranked_probs': eval})
+            df = pd.read_csv(f'{new_output}.{algorithm}.{k_max}..rerank.csv', converters={'reranked_idx': eval, 'reranked_probs': eval})
             reranked_idx, probs = df['reranked_idx'].to_list(), df['reranked_probs'].to_list()
         except FileNotFoundError:
             print(f'Loading re-ranking results failed! Reranking the predictions based on {algorithm} for top-{k_max} ...')
-            reranked_idx, probs, elapsed_time = Reranking.rerank(preds, labels, new_output, ratios, algorithm, k_max)
+            reranked_idx, probs, elapsed_time = Reranking.rerank(preds, labels, new_output, ratios, algorithm, k_max, eq_op)
             #not sure os handles file locking for append during parallel run ...
             # with open(f'{new_output}.rerank.time', 'a') as file: file.write(f'{elapsed_time} {new_output} {algorithm} {k_max}\n')
             with open(f'{output}/rerank.time', 'a') as file: file.write(f'{elapsed_time} {new_output} {algorithm} {k_max}\n')
@@ -229,8 +284,10 @@ class Reranking:
         fairness.add_argument('-np_ratio', '--np_ratio', type=float, default=None, required=False, help='desired ratio of non-popular experts after reranking; if None, based on distribution in dataset; default: None; Eg. 0.5')
         dataset.add_argument('-fairness_metrics', '--fairness_metrics', nargs='+', type=set, default={'ndkl'}, required=False, help='list of fairness metrics; default: ndkl')
         dataset.add_argument('-reranker', '--reranker', type=str, required=True, help='reranking algorithm from {det_greedy, det_cons, det_relaxed}; required; Eg. det_cons')
-        dataset.add_argument('-k_max', '--k_max', type=int, default=10, required=False, help='cutoff for the reranking algorithms; default: 10')
+        dataset.add_argument('-k_max', '--k_max', type=int, default=None, required=False, help='cutoff for the reranking algorithms; default: None')
+        dataset.add_argument('-cutoff', '--cutoff', type=int, default=None, required=False, help='cutoff before passing to the reranking algorithms (we try to limit the reach of reranking algorithm to irrelevant samples; default: None')
         dataset.add_argument('-utility_metrics', '--utility_metrics', nargs='+', type=set, default={'map_cut_2,5,10'}, required=False, help='list of utility metric in the form of pytrec_eval; default: map_cut_2,5,10')
+        dataset.add_argument('-eq_op', '--eq_op', type=bool, default=False, required=False,help='eq_op: a flag to turn equality of opportunity criteria on or off; default: False')
 
         mode = parser.add_argument_group('mode')
         mode.add_argument('-mode', type=int, default=1, choices=[0, 1], help='0 for sequential run and 1 for parallel; default: 1')
@@ -270,6 +327,7 @@ if __name__ == "__main__":
                       algorithm=args.reranker,
                       k_max=args.k_max,
                       fairness_metrics=args.fairness_metrics,
+                      eq_op=args.eq_op,
                       utility_metrics=args.utility_metrics)
         exit(0)
 
@@ -295,6 +353,7 @@ if __name__ == "__main__":
                                                       algorithm=args.reranker,
                                                       k_max=args.k_max,
                                                       fairness_metrics=args.fairness_metrics,
+                                                      eq_op=args.eq_op,
                                                       utility_metrics=args.utility_metrics)
         elif args.mode == 1: # parallel run
             print(f'Parallel run started ...')
@@ -306,5 +365,6 @@ if __name__ == "__main__":
                                          algorithm=args.reranker,
                                          k_max=args.k_max,
                                          fairness_metrics=args.fairness_metrics,
-                                         utility_metrics=args.utility_metrics
+                                         utility_metrics=args.utility_metrics,
+                                         eq_op=args.eq_op
                                          ), pairs)
