@@ -464,9 +464,12 @@ class LabelDataset:
     # returns None if gender could not be found
     def getDataFromName(self, name):
         try:
-            if(self.df.loc[name,self.attribute] == True or self.df.loc[name,self.attribute] == False):
-                return (self.df.loc[name, self.attribute], self.df.loc[name, "Probability"])
-            
+            if(self.df.loc[name,self.attribute] == True):
+                return ('M', self.df.loc[name, "Probability"])
+            elif(self.df.loc[name,self.attribute] == False):
+                return ('F', self.df.loc[name, "Probability"])
+
+
             return None
         except KeyError:
             return None
@@ -563,8 +566,14 @@ def runDBLP(labelDBLP: LabelDataset):
 
 
 if __name__ == "__main__":
-    runDBLP(LabelDataset(attribute='Gender'))
-    runIMDB(LabelDataset(attribute='Gender'))
+    # runDBLP(LabelDataset(attribute='Gender'))
+    # runIMDB(LabelDataset(attribute='Gender'))
     
+    ld_dblp = LabelDataset(attribute='Gender')
+    ld_imdb = LabelDataset(attribute='Gender')
+
+    ld_dblp.importResults("src/util/UniqueNames/uniqueNames_filtered.pkl")
+    
+    print(ld_dblp.getDataFromName('Luis'))
 
 
