@@ -1,4 +1,8 @@
+from collections import Counter
+
 import matplotlib.pyplot as plt
+import pandas as pd
+import scipy.sparse
 import seaborn as sns
 import statistics
 from scipy import interpolate
@@ -111,3 +115,40 @@ def area_under_curve(data_x: list, data_y: list, xlabel: str, ylabel: str):
     # Displays graph
     plt.show()
 
+def gender_distribution_plot(teamsvecs: scipy.sparse.lil_matrix, index_gender: pd.DataFrame, plot_title: str):
+    """
+    Args:
+        teamsvecs: sparse matrix of teamsvecs
+        index_gender: mapping from indexes to genders as pandas dataframe
+        plot_title: title for the plot
+    """
+    index_female = index_gender.loc[index_gender['gender'] == 'F', 'Unnamed: 0'].tolist()
+    index_male = index_gender.loc[index_gender['gender'] == 'M', 'Unnamed: 0'].tolist()
+
+    nteams_id_male = teamsvecs['member'][:, index_male].sum(axis=0).tolist()[0]
+    nteams_id_female = teamsvecs['member'][:, index_female].sum(axis=0).tolist()[0]
+
+    stats = dict()
+    nmembers_nteams_male = Counter(nteams_id_male.A1.astype(int))
+    nmembers_nteams_female = Counter(nteams_id_female.A1.astype(int))
+    stats['male'] = {k: v for k, v in sorted(nmembers_nteams_male.items(), key=lambda item: item[1], reverse=True)}
+    stats['female'] = {k: v for k, v in sorted(nmembers_nteams_female.items(), key=lambda item: item[1], reverse=True)}
+
+    fig = plt.figure(figsize=(2, 2))
+    plt.rcParams.update({'font.family': 'Consolas'})
+    ax = fig.add_subplot(1, 1, 1)
+    for k, v in stats.items():
+        marker_markeredgecolor = ('x', 'b') if k == 'male' else ('o', 'r')
+        ax.plot(*zip(*stats[k].items()), marker=marker_markeredgecolor[0], label=k.lower(), linestyle='None', markeredgecolor=marker_markeredgecolor[1], markerfacecolor='none')
+
+    ax.set_xlabel('#teams')
+    ax.set_ylabel('#members')
+    ax.grid(True, color="#93a1a1", alpha=0.3)
+    ax.minorticks_off()
+    ax.xaxis.get_label().set_size(12)
+    ax.yaxis.get_label().set_size(12)
+    plt.legend(fontsize='small')
+    ax.set_title(plot_title, fontsize=11)
+    ax.set_facecolor('whitesmoke')
+    fig.savefig(f'{plot_title}_nmembers_nteams.pdf', dpi=200, bbox_inches='tight')
+    plt.show()
