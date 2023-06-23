@@ -16,8 +16,9 @@
 - [2. Quickstart](#2-quickstart)
 - [3. Pipeline](#3-pipeline)
   * [3.1. Labeling](#31-labeling)
-  * [3.2. Reranking](#32-reranking)
-  * [3.3. Evaluations](#33-evaluations)
+  * [3.2. Gender Distribution](#32-gender)
+  * [3.3. Reranking](#33-reranking)
+  * [3.4. Evaluations](#34-evaluations)
 - [4. Result](#4-result)
 - [5. Acknowledgement](#5-acknowledgement)
 - [6. License](#6-license)
@@ -122,14 +123,21 @@ To find the cutoff between `head` and `tail`, we calculate the average number of
 | #team w/ single genre             | 315,503 |  15,180  |
   
 `Future:` We will consider equal area under the curve for the cutoff.
-   
-### 3.2. Reranking 
+
+### 3.2. Gender
+The following figures will demonstrate the gender distributions in `imdb` and `dblp` datasets.
+<p align="center">
+ <img src='./misc/imdb_nmembers_nteams_regular_edited.png' width="250" >
+ <img src='./misc/dblp_nmembers_nteams_regular_edited.png' width="250" >
+</p>
+
+### 3.3. Reranking 
   
 We apply rerankers from [`deterministic greedy re-ranking methods [Geyik et al. KDD'19]`](https://dl.acm.org/doi/10.1145/3292500.3330691), including `{'det_greedy', 'det_cons', 'det_relaxed'}` to mitigate `populairty bias`. The reranker needs a cutoff `k_max` which is set to `10` by default. 
 
 The result of predictions after reranking is saved in `{output}/rerank/{fpred}.{reranker}.{k_max}.rerank.pred` like [`./output/toy.dblp.v12.json/bnn/t31.s11.m13.l[100].lr0.1.b4096.e20.s1/rerank/f0.test.pred.det_cons.10.rerank.pred`](./output/toy.dblp.v12.json/bnn/t31.s11.m13.l[100].lr0.1.b4096.e20.s1/rerank/f0.test.pred.det_cons.10.rerank.pred) .
 
-### 3.3. Evaluations 
+### 3.4. Evaluations 
   
 We evaluate `fairness` and `utility` metrics `before` and `after` applying rerankers on team predictions to answer two research questions (RQs):
     
