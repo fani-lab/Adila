@@ -1,12 +1,13 @@
+import statistics
+import scipy.sparse
+import numpy as np
+import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
+from scipy import interpolate
 from collections import Counter
 
-import matplotlib.pyplot as plt
-import pandas as pd
-import scipy.sparse
-import seaborn as sns
-import statistics
-from scipy import interpolate
-import numpy as np
+
 
 def bubble_plot(fairness: list, utility: list, runtime: list, figsize: list = [14, 8], xlabel: str = "Fairness Metric", ylabel: str = "Utility Metric", save: bool = False):
     """
@@ -114,6 +115,7 @@ def area_under_curve(data_x: list, data_y: list, xlabel: str, ylabel: str):
     plt.grid()
     # Displays graph
     plt.show()
+
 
 def gender_distribution_plot(teamsvecs: scipy.sparse.lil_matrix, index_gender: pd.DataFrame, plot_title: str):
     """
