@@ -217,7 +217,19 @@ Our results show that although we improve fairness significantly, our utility me
 |  map5 &uarr;   | 0.0889% |     0.095%    |   0.006%   |     0.110%    |   0.021%   |     0.110%    |        0.021%       |
 |  map10 &uarr;  | 0.1244% |     0.121%    |   -0.003%  |     0.140%    |   0.016%   |     0.140%    |        0.016%       |
 | ndkl &darr; |  0.0072  |     0.0369     |    0.0296   |     0.0366     |    0.0293   |     0.0366     |        0.0294        |
-  
+
+The files containing the rest of our experiment results with various notions, datasets ,and algorithms are as follows:
+
+|   | file |
+|---|------|
+| 1 |  [Demographic Parity.Popularity.Conservative.DBLP](https://uwin365.sharepoint.com/:u:/s/cshfrg-FairTeamFormation/EdAP6vdC5DhFri_3_-Km9XkBBlQQxHM90lPdjpB6wMLnfA?e=cJez2A)    |
+| 2 |    [Demographic Parity.Popularity.Greedy.DBLP](https://uwin365.sharepoint.com/:u:/s/cshfrg-FairTeamFormation/EYsfhT46eDhLhv-TknKBxXgBhehSy-0aZM9KVSLS2g_eZw?e=K22gNK)    |
+| 3 |   [Demographic Parity.Popularity.Relaxed.DBLP](https://uwin365.sharepoint.com/:u:/s/cshfrg-FairTeamFormation/EQOOClnM_h9Nlv7R35qnZ3EBP_2OeSQlzMGwcYLakrGmoA?e=Z98DXr)     |
+| 4 |   [Equality of Opportunity.Popularity.Greedy.IMDB](https://uwin365.sharepoint.com/:u:/s/cshfrg-FairTeamFormation/EcG2O9_G1BdMvq5a4DPxSKQBZyZnRd_ClsZL_WEp471NCw?e=vf4oV6)     |
+| 5 |   [Equality of Opportunity.Popularity.Greedy_Conservative.IMDB](https://uwin365.sharepoint.com/:u:/s/cshfrg-FairTeamFormation/EfleYepwdkJFg01oWc4v4BkBty5oslXOOjhbqkIS4nGUaA?e=fuaXEQ)     |
+| 6 |    [Equality of Opportunity.Popularity.Greedy_Relaxed.IMDB](https://uwin365.sharepoint.com/:u:/s/cshfrg-FairTeamFormation/EaCptkFA-WhJs9Dn7BT2FEIBDALS633h92NRMgU7ODIUZA?e=By2tf3)    |
+
+
 ## 5. Acknowledgement
 We benefit from [``pytrec``](https://github.com/cvangysel/pytrec_eval), [``reranking``](https://github.com/yuanlonghao/reranking), and other libraries. We would like to thank the authors of these libraries and helpful resources.
   
