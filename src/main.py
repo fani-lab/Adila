@@ -9,11 +9,11 @@ from scipy.sparse import csr_matrix
 import torch
 
 import reranking
-from cmn.metric import *
+from .cmn.metric import *
 
 class Reranking:
     @staticmethod
-    def get_stats(teamsvecs, coefficient: float, output: str, eq_op: bool = False) -> tuple:
+    def get_stats(teamsvecs, coefficient: float, output: str, eq_op: bool = False, att='popularity') -> tuple:
         """
         Args:
             teamsvecs_members: teamsvecs pickle file
@@ -36,8 +36,12 @@ class Reranking:
         labels = [True if threshold <= nteam_member else False for nteam_member in col_sums.getA1() ] #rowid maps to columnid in teamvecs['member']
         stats['np_ratio'] = labels.count(False) / stats['*nmembers']
         with open(f'{output}stats.pkl', 'wb') as f: pickle.dump(stats, f)
-        pd.DataFrame(data=labels, columns=['popularity']).to_csv(f'{output}popularity.csv', index_label='memberidx')
-        popularity = pd.read_csv(f'{output}popularity.csv')
+
+        if att == 'popularity':
+            pd.DataFrame(data=labels, columns=['popularity']).to_csv(f'{output}popularity.csv', index_label='memberidx')
+            attribute = pd.read_csv(f'{output}popularity.csv')
+        elif att == 'gender':
+            attribute = pd.read_csv(f'{output}gender.csv')
 
         if eq_op:
             skill_member = skillvecs.transpose() @ teamsvecs_members
@@ -51,7 +55,7 @@ class Reranking:
                 if len(intersect) == 0:
                     intersect = [randrange(0, teamsvecs_members.shape[1]) for i in range(5)]
 
-                labels_ = [popularity.loc[popularity['memberidx'] == member, 'popularity'].tolist()[0] for member in
+                labels_ = [attribute.loc[attribute['memberidx'] == member, 'popularity'].tolist()[0] for member in
                           intersect]
                 ratios.append(labels_.count(False) / len(intersect))
 
@@ -65,7 +69,7 @@ class Reranking:
 
 
     @staticmethod
-    def rerank(preds, labels, output, ratios, algorithm: str = 'det_greedy', k_max: int = None, eq_op: bool = False) -> tuple:
+    def rerank(preds, labels, output, ratios, algorithm: str = 'det_greedy', k_max: int = None, eq_op: bool = False, att='popularity') -> tuple:
         """
         Args:
             preds: loaded predictions from a .pred file
@@ -75,6 +79,7 @@ class Reranking:
             algorithm: the chosen algorithm for reranking in {'det_greedy', 'det_cons', 'det_relaxed'}
             k_max: maximum number of returned team members by reranker
             cutoff: to resize the list of experts before giving it to the re-ranker
+            att: sensitive attribute for reranking
         Returns:
             tuple (list, list)
         """
@@ -91,7 +96,7 @@ class Reranking:
                 idx.append(reranked_idx)
                 probs.append(reranked_probs)
             finish_time = perf_counter()
-            pd.DataFrame({'reranked_idx': idx, 'reranked_probs': probs}).to_csv(f'{output}.{algorithm}.{k_max}.rerank.csv', index=False)
+            pd.DataFrame({'reranked_idx': idx, 'reranked_probs': probs}).to_csv(f'{output}.{algorithm}.{k_max}.{att}.rerank.csv', index=False)
         else:
             for team in tqdm(preds):
                 member_popularity_probs = [(m, labels[m], float(team[m])) for m in range(len(team))]
@@ -104,12 +109,12 @@ class Reranking:
                 probs.append(reranked_probs)
             finish_time = perf_counter()
             pd.DataFrame({'reranked_idx': idx, 'reranked_probs': probs}).to_csv(
-                f'{output}.{algorithm}.{k_max}.rerank.csv', index=False)
+                f'{output}.{algorithm}.{k_max}.{att}.rerank.csv', index=False)
 
         return idx, probs, (finish_time - start_time)
 
     @staticmethod
-    def eval_fairness(preds, labels, reranked_idx, ratios, output, algorithm, k_max, eq_op: bool = False) -> pandas.DataFrame:
+    def eval_fairness(preds, labels, reranked_idx, ratios, output, algorithm, k_max, eq_op: bool = False, att='popularity') -> pandas.DataFrame:
         """
         Args:
             preds: loaded predictions from a .pred file
@@ -135,11 +140,11 @@ class Reranking:
         df_before = pd.DataFrame(dic_before).mean(axis=0).to_frame('mean.before')
         df_after = pd.DataFrame(dic_after).mean(axis=0).to_frame('mean.after')
         df = pd.concat([df_before, df_after], axis=1)
-        df.to_csv(f'{output}.{algorithm}.{k_max}.faireval.csv', index_label='metric')
+        df.to_csv(f'{output}.{algorithm}.{k_max}.{att}.faireval.csv', index_label='metric')
         return df
 
     @staticmethod
-    def reranked_preds(teamsvecs_members, splits, reranked_idx, reranked_probs, output, algorithm, k_max) -> csr_matrix:
+    def reranked_preds(teamsvecs_members, splits, reranked_idx, reranked_probs, output, algorithm, k_max, att='popularity') -> csr_matrix:
         """
         Args:
             teamsvecs_members: teamsvecs pickle file
@@ -159,11 +164,11 @@ class Reranking:
                 cols.append(reranked_member)
                 value.append(reranked_probs[i][j])
         sparse_matrix_reranked = csr_matrix((value, (rows, cols)), shape=y_test.shape)
-        with open(f'{output}.{algorithm}.{k_max}.rerank.pred', 'wb') as f: pickle.dump(sparse_matrix_reranked, f)
+        with open(f'{output}.{algorithm}.{k_max}.{att}.rerank.pred', 'wb') as f: pickle.dump(sparse_matrix_reranked, f)
         return sparse_matrix_reranked
 
     @staticmethod
-    def eval_utility(teamsvecs_members, reranked_preds, fpred, preds, splits, metrics, output, algorithm, k_max) -> None:
+    def eval_utility(teamsvecs_members, reranked_preds, fpred, preds, splits, metrics, output, algorithm, k_max, att='popularity') -> None:
         """
         Args:
             teamsvecs_members: teamsvecs pickle file
@@ -187,7 +192,7 @@ class Reranking:
         df_mean_before.rename(columns={'mean': 'mean.before'}, inplace=True)
         _, df_mean_after, _, _ = calculate_metrics(y_test, reranked_preds.toarray(), False, metrics)
         df_mean_after.rename(columns={'mean': 'mean.after'}, inplace=True)
-        pd.concat([df_mean_before, df_mean_after], axis=1).to_csv(f'{output}.{algorithm}.{k_max}.utileval.csv', index_label='metric')
+        pd.concat([df_mean_before, df_mean_after], axis=1).to_csv(f'{output}.{algorithm}.{k_max}.{att}.utileval.csv', index_label='metric')
 
     @staticmethod
     def fairness_average(fairevals: list) -> tuple:
@@ -198,7 +203,7 @@ class Reranking:
         return statistics.mean([df.loc[df['metric'] == metric, 'mean'].tolist()[0] for df in utilityevals])
 
     @staticmethod
-    def run(fpred, output, fteamsvecs, fsplits, np_ratio, algorithm='det_cons', k_max=None, fairness_metrics={'ndkl'}, utility_metrics={'map_cut_2,5,10'}, eq_op: bool = False) -> None:
+    def run(fpred, output, teamsvecs, splits, np_ratio, algorithm='det_cons', k_max=None, fairness_metrics={'ndkl'}, utility_metrics={'map_cut_2,5,10'}, eq_op: bool = False, att='popularity') -> None:
         """
         Args:
             fpred: address of the .pred file
@@ -218,18 +223,18 @@ class Reranking:
         print(f'Reranking for the baseline {fpred} ...')
         st = time()
         if not os.path.isdir(output): os.makedirs(output)
-        with open(fteamsvecs, 'rb') as f: teamsvecs = pickle.load(f)
-        with open(fsplits, 'r') as f: splits = json.load(f)
+       # with open(fteamsvecs, 'rb') as f: teamsvecs = pickle.load(f)
+       # with open(fsplits, 'r') as f: splits = json.load(f)
         preds = torch.load(fpred)
 
         try:
-            print('Loading popularity labels ...')
+            print('Loading attribute labels ...')
             with open(f'{output}stats.pkl', 'rb') as f: stats = pickle.load(f)
             labels = pd.read_csv(f'{output}popularity.csv')['popularity'].to_list()
             with open(f'{output}ratios.pkl', 'rb') as f: ratios = pickle.load(f)
         except (FileNotFoundError, EOFError):
-            print(f'Loading popularity labels failed! Generating popularity labels at {output}stats.pkl ...')
-            stats, labels, ratios = Reranking.get_stats(teamsvecs, coefficient=1, output=output, eq_op=eq_op)
+            print(f'Loading attribute labels failed! Generating popularity labels at {output}stats.pkl ...')
+            stats, labels, ratios = Reranking.get_stats(teamsvecs, coefficient=1, output=output, eq_op=eq_op, att=att)
 
         #creating a static ratio in case eq_op is turned off
         if not eq_op:
@@ -243,24 +248,24 @@ class Reranking:
 
         try:
             print('Loading reranking results ...')
-            df = pd.read_csv(f'{new_output}.{algorithm}.{k_max}.rerank.csv', converters={'reranked_idx': eval, 'reranked_probs': eval})
+            df = pd.read_csv(f'{new_output}.{algorithm}.{k_max}.{att}.rerank.csv', converters={'reranked_idx': eval, 'reranked_probs': eval})
             reranked_idx, probs = df['reranked_idx'].to_list(), df['reranked_probs'].to_list()
         except FileNotFoundError:
             print(f'Loading re-ranking results failed! Reranking the predictions based on {algorithm} for top-{k_max} ...')
-            reranked_idx, probs, elapsed_time = Reranking.rerank(preds, labels, new_output, ratios, algorithm, k_max, eq_op)
+            reranked_idx, probs, elapsed_time = Reranking.rerank(preds, labels, new_output, ratios, algorithm, k_max, eq_op, att)
             #not sure os handles file locking for append during parallel run ...
             # with open(f'{new_output}.rerank.time', 'a') as file: file.write(f'{elapsed_time} {new_output} {algorithm} {k_max}\n')
             with open(f'{output}/rerank.time', 'a') as file: file.write(f'{elapsed_time} {new_output} {algorithm} {k_max}\n')
         try:
-            with open(f'{new_output}.{algorithm}.{k_max}.rerank.pred', 'rb') as f: reranked_preds = pickle.load(f)
-        except FileNotFoundError: reranked_preds = Reranking.reranked_preds(teamsvecs['member'], splits, reranked_idx, probs, new_output, algorithm, k_max)
+            with open(f'{new_output}.{algorithm}.{k_max}.{att}.rerank.pred', 'rb') as f: reranked_preds = pickle.load(f)
+        except FileNotFoundError: reranked_preds = Reranking.reranked_preds(teamsvecs['member'], splits, reranked_idx, probs, new_output, algorithm, k_max, att)
 
         try:
             print('Loading fairness evaluation results before and after reranking ...')
-            fairness_eval = pd.read_csv(f'{new_output}.{algorithm}.{k_max}.faireval.csv')
+            fairness_eval = pd.read_csv(f'{new_output}.{algorithm}.{k_max}.{att}.faireval.csv')
         except FileNotFoundError:
             print(f'Loading fairness results failed! Evaluating fairness metric {fairness_metrics} ...') #for now, it's hardcoded for 'ndkl'
-            Reranking.eval_fairness(preds, labels, reranked_idx, ratios, new_output, algorithm, k_max, eq_op)
+            Reranking.eval_fairness(preds, labels, reranked_idx, ratios, new_output, algorithm, k_max, eq_op, att)
 
         try:
             print('Loading utility metric evaluation results before and after reranking ...')
@@ -321,8 +326,8 @@ if __name__ == "__main__":
     if os.path.isfile(args.fpred):
         Reranking.run(fpred=args.fpred,
                       output=args.output,
-                      fteamsvecs=args.fteamsvecs,
-                      fsplits=args.fsplits,
+                      teamsvecs=args.teamsvecs,
+                      splits=args.splits,
                       np_ratio=args.np_ratio,
                       algorithm=args.reranker,
                       k_max=args.k_max,
@@ -347,8 +352,8 @@ if __name__ == "__main__":
         if args.mode == 0: # sequential run
             for fpred, output in pairs: Reranking.run(fpred=fpred,
                                                       output=output,
-                                                      fteamsvecs=args.fteamsvecs,
-                                                      fsplits=args.fsplits,
+                                                      teamsvecs=args.teamsvecs,
+                                                      splits=args.splits,
                                                       np_ratio=args.np_ratio,
                                                       algorithm=args.reranker,
                                                       k_max=args.k_max,
@@ -359,8 +364,8 @@ if __name__ == "__main__":
             print(f'Parallel run started ...')
             with multiprocessing.Pool(multiprocessing.cpu_count() if args.core < 0 else args.core) as executor:
                 executor.starmap(partial(Reranking.run,
-                                         fteamsvecs=args.fteamsvecs,
-                                         fsplits=args.fsplits,
+                                         teamsvecs=args.teamsvecs,
+                                         splits=args.splits,
                                          np_ratio=args.np_ratio,
                                          algorithm=args.reranker,
                                          k_max=args.k_max,

@@ -8,7 +8,6 @@ from scipy import interpolate
 from collections import Counter
 
 
-
 def bubble_plot(fairness: list, utility: list, runtime: list, figsize: list = [14, 8], xlabel: str = "Fairness Metric", ylabel: str = "Utility Metric", save: bool = False):
     """
     Args:
