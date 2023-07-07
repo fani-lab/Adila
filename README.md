@@ -226,9 +226,11 @@ The files containing the rest of our experiment results with various notions, da
 | 2 |    [Demographic Parity.Popularity.Greedy.DBLP](https://uwin365.sharepoint.com/:u:/s/cshfrg-FairTeamFormation/EYsfhT46eDhLhv-TknKBxXgBhehSy-0aZM9KVSLS2g_eZw?e=K22gNK)    |
 | 3 |   [Demographic Parity.Popularity.Relaxed.DBLP](https://uwin365.sharepoint.com/:u:/s/cshfrg-FairTeamFormation/EQOOClnM_h9Nlv7R35qnZ3EBP_2OeSQlzMGwcYLakrGmoA?e=Z98DXr)     |
 | 4 |   [Equality of Opportunity.Popularity.Greedy.IMDB](https://uwin365.sharepoint.com/:u:/s/cshfrg-FairTeamFormation/EcG2O9_G1BdMvq5a4DPxSKQBZyZnRd_ClsZL_WEp471NCw?e=vf4oV6)     |
-| 5 |   [Equality of Opportunity.Popularity.Greedy_Conservative.IMDB](https://uwin365.sharepoint.com/:u:/s/cshfrg-FairTeamFormation/EfleYepwdkJFg01oWc4v4BkBty5oslXOOjhbqkIS4nGUaA?e=fuaXEQ)     |
-| 6 |    [Equality of Opportunity.Popularity.Greedy_Relaxed.IMDB](https://uwin365.sharepoint.com/:u:/s/cshfrg-FairTeamFormation/EaCptkFA-WhJs9Dn7BT2FEIBDALS633h92NRMgU7ODIUZA?e=By2tf3)    |
-
+| 5 |   [Equality of Opportunity.Popularity.Conservative.IMDB](https://uwin365.sharepoint.com/:u:/s/cshfrg-FairTeamFormation/EfleYepwdkJFg01oWc4v4BkBty5oslXOOjhbqkIS4nGUaA?e=fuaXEQ)     |
+| 6 |    [Equality of Opportunity.Popularity.Relaxed.IMDB](https://uwin365.sharepoint.com/:u:/s/cshfrg-FairTeamFormation/EaCptkFA-WhJs9Dn7BT2FEIBDALS633h92NRMgU7ODIUZA?e=By2tf3)    |
+| 7 |    [Equality of Opportunity.Popularity.Greedy.DBLP](https://uwin365.sharepoint.com/:u:/s/cshfrg-FairTeamFormation/ESgfU0Fh7pNKu7puaAEZhZYBq1WGZqrUJte4cYXF9-MVSQ?e=fDLBFI)    |
+| 8 |    [Equality of Opportunity.Popularity.Relaxed.DBLP](https://uwin365.sharepoint.com/:u:/s/cshfrg-FairTeamFormation/EWqcV2vMV0NPq2mnoRHSn8ABi2ex1-KTe4Gja5dibsT0Hw?e=ZXnWfd)    |
+| 9 |    [Equality of Opportunity.Popularity.Conservative.DBLP](https://uwin365.sharepoint.com/:u:/s/cshfrg-FairTeamFormation/ER7epKNxKxNFs-mPlJRuWi4B3C8IfnQLiQ72N-TXRdOdUQ?e=tIam6x)    |
 
 ## 5. Acknowledgement
 We benefit from [``pytrec``](https://github.com/cvangysel/pytrec_eval), [``reranking``](https://github.com/yuanlonghao/reranking), and other libraries. We would like to thank the authors of these libraries and helpful resources.
