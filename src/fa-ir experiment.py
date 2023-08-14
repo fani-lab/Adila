@@ -1,6 +1,7 @@
 import pickle
 import torch
 import os, json
+import reranking
 from tqdm import tqdm
 import fairsearchcore as fsc
 from fairsearchcore.models import FairScoreDoc
@@ -24,10 +25,13 @@ stats, labels, ratios = Reranking.get_stats(teamsvecs, coefficient=1, output=out
 fair_docs = list()
 r = {True: 1 - stats['np_ratio'], False: stats['np_ratio']}
 
+dic_before = {'ndkl':[]}; dic_after={'ndkl':[]}
+
 # Converting our teams into lists of FairScoreDoc
 for team in tqdm(preds):
     member_popularity_probs = [(m, labels[m], float(team[m])) for m in range(len(team))]
     member_popularity_probs.sort(key=lambda x: x[2], reverse=True)
+    dic_before['ndkl'].append(reranking.ndkl([label for _, label, _ in member_popularity_probs], r))
     fair_docs.append([FairScoreDoc(m[0], m[2], m[1]) for m in member_popularity_probs])
 
 k = 50 # number of topK elements returned (value should be between 10 and 400)
@@ -49,10 +53,11 @@ analytical_ = fair.compute_fail_probability(mtable)
 fair_teams = list()
 
 # Check to see if a team needs reranking to become fair or not.
-for team in fair_docs:
+for i, team in enumerate(fair_docs):
     print(fair.is_fair(team[:k]))
     if fair.is_fair(team[:k]):
         fair_teams.append(team[:k])
     else:
         reranked = fair.re_rank(team)
         fair_teams.append(reranked)
+    print(dic_before['ndkl'][i])
