@@ -46,5 +46,13 @@ mtable = fair.create_adjusted_mtable()
 # again, analytically calculate the fail probability
 analytical_ = fair.compute_fail_probability(mtable)
 
+fair_teams = list()
+
+# Check to see if a team needs reranking to become fair or not.
 for team in fair_docs:
     print(fair.is_fair(team[:k]))
+    if fair.is_fair(team[:k]):
+        fair_teams.append(team[:k])
+    else:
+        reranked = fair.re_rank(team)
+        fair_teams.append(reranked)
