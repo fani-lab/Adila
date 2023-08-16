@@ -64,3 +64,13 @@ for i, team in enumerate(fair_docs):
         fair_teams.append(reranked)
         print(dic_before['ndkl'][i])
 print('Done !')
+
+
+print('Creating inputs for sparse matrix creation...')
+idx, probs = [x.id for x in fair_teams], [x.score for x in fair_teams]
+print('Done !')
+
+sparse = Reranking.reranked_preds(teamsvecs['member'], splits, idx, probs, output, 'fa-ir', 50)
+new_output = f'{output}/{os.path.split(fpred)[-1]}'
+
+Reranking.eval_utility(teamsvecs['member'], sparse, fpred, preds, splits, {'map_cut_2,5,10'}, new_output, 'fa-ir', 50)
