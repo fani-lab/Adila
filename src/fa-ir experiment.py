@@ -12,7 +12,7 @@ from main import Reranking
 output = '../output/imdb/bnn'
 fteamsvecs = '../output/imdb/teamsvecs.pkl'
 fsplits = '../output/imdb/splits.json'
-fpred = '../output/imdb/bnn/t32059.s23.m2011.l[100].lr0.1.b4096.e20.nns3.nsuniform/f0.test.pred'
+fpred = '../output/imdb/bnn/t32059.s23.m2011.l[100].lr0.1.b4096.e20.nns3.nsunigram_b/f1.test.pred'
 
 print('#' * 100)
 if not os.path.isdir(output): os.makedirs(output)
@@ -53,11 +53,14 @@ analytical_ = fair.compute_fail_probability(mtable)
 fair_teams = list()
 
 # Check to see if a team needs reranking to become fair or not.
+print('Analyzing fairness and reranking if necessary...')
 for i, team in enumerate(fair_docs):
-    print(fair.is_fair(team[:k]))
+
     if fair.is_fair(team[:k]):
         fair_teams.append(team[:k])
     else:
+        print(fair.is_fair(team[:k]))
         reranked = fair.re_rank(team)
         fair_teams.append(reranked)
-    print(dic_before['ndkl'][i])
+        print(dic_before['ndkl'][i])
+print('Done !')
