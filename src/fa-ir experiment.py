@@ -9,10 +9,10 @@ from fairsearchcore.models import FairScoreDoc
 from main import Reranking
 
 
-output = '../output/imdb/bnn'
+output = '../output/imdb/bnn/fa-ir'
 fteamsvecs = '../output/imdb/teamsvecs.pkl'
 fsplits = '../output/imdb/splits.json'
-fpred = '../output/imdb/bnn/t32059.s23.m2011.l[100].lr0.1.b4096.e20.nns3.nsunigram_b/f1.test.pred'
+fpred = '../output/imdb/bnn/t32059.s23.m2011.l[100].lr0.1.b4096.e20.nns3.nsunigram_b/f3.test.pred'
 
 print('#' * 100)
 if not os.path.isdir(output): os.makedirs(output)
@@ -32,11 +32,11 @@ for team in tqdm(preds):
     member_popularity_probs = [(m, labels[m], float(team[m])) for m in range(len(team))]
     member_popularity_probs.sort(key=lambda x: x[2], reverse=True)
     dic_before['ndkl'].append(reranking.ndkl([label for _, label, _ in member_popularity_probs], r))
-    fair_docs.append([FairScoreDoc(m[0], m[2], m[1]) for m in member_popularity_probs])
+    fair_docs.append([FairScoreDoc(m[0], m[2], not m[1]) for m in member_popularity_probs])
 
-k = 50 # number of topK elements returned (value should be between 10 and 400)
+k = 100 # number of topK elements returned (value should be between 10 and 400)
 p = stats['np_ratio'] # proportion of protected candidates in the topK elements (value should be between 0.02 and 0.98)
-alpha = 0.1 # significance level (value should be between 0.01 and 0.15)
+alpha = 0.08 # significance level (value should be between 0.01 and 0.15)
 
 
 # create the Fair object
@@ -51,26 +51,31 @@ mtable = fair.create_adjusted_mtable()
 analytical_ = fair.compute_fail_probability(mtable)
 
 fair_teams = list()
-
+labels_ = [not value for value in labels]
 # Check to see if a team needs reranking to become fair or not.
 print('Analyzing fairness and reranking if necessary...')
 for i, team in enumerate(fair_docs):
 
     if fair.is_fair(team[:k]):
         fair_teams.append(team[:k])
+        #dic_after['ndkl'].append(reranking.ndkl([label for _, label, _ in member_popularity_probs], r))
     else:
         print(fair.is_fair(team[:k]))
         reranked = fair.re_rank(team)
-        fair_teams.append(reranked)
-        print(dic_before['ndkl'][i])
+        fair_teams.append(reranked[:k])
+        #print(dic_before['ndkl'][i])
 print('Done !')
 
 
 print('Creating inputs for sparse matrix creation...')
-idx, probs = [x.id for x in fair_teams], [x.score for x in fair_teams]
+idx, probs, protected = list(), list(), list()
+for fair_team in fair_teams:
+    idx.append([x.id for x in fair_team])
+    probs.append([x.score for x in fair_team])
+    protected.append([x.is_protected for x in fair_team])
 print('Done !')
 
-sparse = Reranking.reranked_preds(teamsvecs['member'], splits, idx, probs, output, 'fa-ir', 50)
+sparse = Reranking.reranked_preds(teamsvecs['member'], splits, idx, probs, output, 'fa-ir', k)
 new_output = f'{output}/{os.path.split(fpred)[-1]}'
-
-Reranking.eval_utility(teamsvecs['member'], sparse, fpred, preds, splits, {'map_cut_2,5,10'}, new_output, 'fa-ir', 50)
+Reranking.eval_fairness(preds, labels_, idx, r, new_output, 'fa-ir', k)
+Reranking.eval_utility(teamsvecs['member'], sparse, fpred, preds, splits, {'map_cut_2,5,10', 'ndcg_cut_2,5,10'}, new_output, 'fa-ir', k)
