@@ -9,10 +9,10 @@ from fairsearchcore.models import FairScoreDoc
 from main import Reranking
 
 
-output = '../output/imdb/bnn/fa-ir'
+output = '../output/imdb/bnn_emb/fa-ir'
 fteamsvecs = '../output/imdb/teamsvecs.pkl'
 fsplits = '../output/imdb/splits.json'
-fpred = '../output/imdb/bnn/t32059.s23.m2011.l[100].lr0.1.b4096.e20.nns3.nsunigram_b/f3.test.pred'
+fpred = '../output/imdb/bnn_emb/t32059.s100.m2011.l[100].lr0.1.b4096.e20.nns3.nsunigram_b/f2.test.pred'
 
 print('#' * 100)
 if not os.path.isdir(output): os.makedirs(output)
@@ -23,7 +23,7 @@ preds = torch.load(fpred)
 
 stats, labels, ratios = Reranking.get_stats(teamsvecs, coefficient=1, output=output, eq_op=False)
 fair_docs = list()
-r = {True: 1 - stats['np_ratio'], False: stats['np_ratio']}
+r = {False: 1 - stats['np_ratio'], True: stats['np_ratio']}
 
 dic_before = {'ndkl':[]}; dic_after={'ndkl':[]}
 
