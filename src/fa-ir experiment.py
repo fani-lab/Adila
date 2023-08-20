@@ -12,7 +12,7 @@ from main import Reranking
 output = '../output/imdb/bnn_emb/fa-ir'
 fteamsvecs = '../output/imdb/teamsvecs.pkl'
 fsplits = '../output/imdb/splits.json'
-fpred = '../output/imdb/bnn_emb/t32059.s100.m2011.l[100].lr0.1.b4096.e20.nns3.nsunigram_b/f2.test.pred'
+fpred = '../output/imdb/bnn/t32059.s100.m2011.l[100].lr0.1.b4096.e20.nns3.nsunigram_b/f0.test.pred'
 
 print('#' * 100)
 if not os.path.isdir(output): os.makedirs(output)
@@ -36,7 +36,7 @@ for team in tqdm(preds):
 
 k = 100 # number of topK elements returned (value should be between 10 and 400)
 p = stats['np_ratio'] # proportion of protected candidates in the topK elements (value should be between 0.02 and 0.98)
-alpha = 0.08 # significance level (value should be between 0.01 and 0.15)
+alpha = 0.05 # significance level (value should be between 0.01 and 0.15)
 
 
 # create the Fair object
@@ -75,7 +75,7 @@ for fair_team in fair_teams:
     protected.append([x.is_protected for x in fair_team])
 print('Done !')
 
-sparse = Reranking.reranked_preds(teamsvecs['member'], splits, idx, probs, output, 'fa-ir', k)
+sparse = Reranking.reranked_preds(teamsvecs['member'], splits, idx, probs, output, f'fa-ir.{alpha}', k)
 new_output = f'{output}/{os.path.split(fpred)[-1]}'
-Reranking.eval_fairness(preds, labels_, idx, r, new_output, 'fa-ir', k)
-Reranking.eval_utility(teamsvecs['member'], sparse, fpred, preds, splits, {'map_cut_2,5,10', 'ndcg_cut_2,5,10'}, new_output, 'fa-ir', k)
+Reranking.eval_fairness(preds, labels_, idx, r, new_output, f'fa-ir.{alpha}', k)
+Reranking.eval_utility(teamsvecs['member'], sparse, fpred, preds, splits, {'map_cut_2,5,10', 'ndcg_cut_2,5,10'}, new_output, f'fa-ir.{alpha}', k)
