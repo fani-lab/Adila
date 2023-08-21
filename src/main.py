@@ -67,7 +67,7 @@ class Reranking:
 
 
     @staticmethod
-    def rerank(preds, labels, output, ratios, algorithm: str = 'det_greedy', k_max: int = None, eq_op: bool = False, alpha: float = 0.05) -> tuple:
+    def rerank(preds, labels, output, ratios, algorithm: str = 'det_greedy', k_max: int = None, eq_op: bool = False, alpha: float = 0.1) -> tuple:
         """
         Args:
             preds: loaded predictions from a .pred file
@@ -160,7 +160,11 @@ class Reranking:
         Returns:
             dict: ndkl metric before and after re-ranking
         """
-        #TODO add the required changes for fa*ir
+
+        # because the mapping between popular/nonpopular and protected/nonprotected is reversed
+        if algorithm == 'fa-ir':
+            labels = [not value for value in labels]
+
         dic_before = {'ndkl':[]}; dic_after={'ndkl':[]}
         for i, team in enumerate(tqdm(preds)):
             if eq_op:
@@ -192,7 +196,6 @@ class Reranking:
         Returns:
             csr_matrix
         """
-        #TODO add the required changes for fa*ir
         y_test = teamsvecs_members[splits['test']]
         rows, cols, value = list(), list(), list()
         for i, reranked_team in enumerate(tqdm(reranked_idx)):
@@ -240,7 +243,7 @@ class Reranking:
         return statistics.mean([df.loc[df['metric'] == metric, 'mean'].tolist()[0] for df in utilityevals])
 
     @staticmethod
-    def run(fpred, output, fteamsvecs, fsplits, np_ratio, algorithm='det_cons', k_max=None, fairness_metrics={'ndkl'}, utility_metrics={'map_cut_2,5,10'}, eq_op: bool = False) -> None:
+    def run(fpred, output, fteamsvecs, fsplits, np_ratio, algorithm='det_cons', k_max=None, fairness_metrics={'ndkl'}, utility_metrics={'map_cut_2,5,10', 'ndcg_cut_2,5,10'}, eq_op: bool = False, alpha: float = 0.1) -> None:
         """
         Args:
             fpred: address of the .pred file
@@ -289,7 +292,7 @@ class Reranking:
             reranked_idx, probs = df['reranked_idx'].to_list(), df['reranked_probs'].to_list()
         except FileNotFoundError:
             print(f'Loading re-ranking results failed! Reranking the predictions based on {algorithm} for top-{k_max} ...')
-            reranked_idx, probs, elapsed_time = Reranking.rerank(preds, labels, new_output, ratios, algorithm, k_max, eq_op)
+            reranked_idx, probs, elapsed_time = Reranking.rerank(preds, labels, new_output, ratios, algorithm, k_max, eq_op, alpha)
             #not sure os handles file locking for append during parallel run ...
             # with open(f'{new_output}.rerank.time', 'a') as file: file.write(f'{elapsed_time} {new_output} {algorithm} {k_max}\n')
             with open(f'{output}/rerank.time', 'a') as file: file.write(f'{elapsed_time} {new_output} {algorithm} {k_max}\n')
@@ -324,12 +327,13 @@ class Reranking:
 
         fairness = parser.add_argument_group('fairness')
         fairness.add_argument('-np_ratio', '--np_ratio', type=float, default=None, required=False, help='desired ratio of non-popular experts after reranking; if None, based on distribution in dataset; default: None; Eg. 0.5')
-        dataset.add_argument('-fairness_metrics', '--fairness_metrics', nargs='+', type=set, default={'ndkl'}, required=False, help='list of fairness metrics; default: ndkl')
-        dataset.add_argument('-reranker', '--reranker', type=str, required=True, help='reranking algorithm from {det_greedy, det_cons, det_relaxed}; required; Eg. det_cons')
-        dataset.add_argument('-k_max', '--k_max', type=int, default=None, required=False, help='cutoff for the reranking algorithms; default: None')
-        dataset.add_argument('-cutoff', '--cutoff', type=int, default=None, required=False, help='cutoff before passing to the reranking algorithms (we try to limit the reach of reranking algorithm to irrelevant samples; default: None')
-        dataset.add_argument('-utility_metrics', '--utility_metrics', nargs='+', type=set, default={'map_cut_2,5,10'}, required=False, help='list of utility metric in the form of pytrec_eval; default: map_cut_2,5,10')
-        dataset.add_argument('-eq_op', '--eq_op', type=bool, default=False, required=False,help='eq_op: a flag to turn equality of opportunity criteria on or off; default: False')
+        fairness.add_argument('-fairness_metrics', '--fairness_metrics', nargs='+', type=set, default={'ndkl'}, required=False, help='list of fairness metrics; default: ndkl')
+        fairness.add_argument('-reranker', '--reranker', type=str, required=True, help='reranking algorithm from {det_greedy, det_cons, det_relaxed}; required; Eg. det_cons')
+        fairness.add_argument('-k_max', '--k_max', type=int, default=None, required=False, help='cutoff for the reranking algorithms; default: None')
+        fairness.add_argument('-cutoff', '--cutoff', type=int, default=None, required=False, help='cutoff before passing to the reranking algorithms (we try to limit the reach of reranking algorithm to irrelevant samples; default: None')
+        fairness.add_argument('-utility_metrics', '--utility_metrics', nargs='+', type=set, default={'map_cut_2,5,10'}, required=False, help='list of utility metric in the form of pytrec_eval; default: map_cut_2,5,10')
+        fairness.add_argument('-eq_op', '--eq_op', type=bool, default=False, required=False,help='eq_op: a flag to turn equality of opportunity criteria on or off; default: False')
+        fairness.add_argument('-alpha', '--alpha', type=float, default=0.1, required=False,help='alpha: the significance value for fa*ir algortihm. Default value is 0.1')
 
         mode = parser.add_argument_group('mode')
         mode.add_argument('-mode', type=int, default=1, choices=[0, 1], help='0 for sequential run and 1 for parallel; default: 1')
