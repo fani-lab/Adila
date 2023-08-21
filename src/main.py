@@ -3,6 +3,8 @@ from time import time, perf_counter
 from functools import partial
 
 import pandas
+import fairsearchcore as fsc
+from fairsearchcore.models import FairScoreDoc
 from tqdm import tqdm
 from random import randrange
 from scipy.sparse import csr_matrix
@@ -65,7 +67,7 @@ class Reranking:
 
 
     @staticmethod
-    def rerank(preds, labels, output, ratios, algorithm: str = 'det_greedy', k_max: int = None, eq_op: bool = False) -> tuple:
+    def rerank(preds, labels, output, ratios, algorithm: str = 'det_greedy', k_max: int = None, eq_op: bool = False, alpha: float = 0.05) -> tuple:
         """
         Args:
             preds: loaded predictions from a .pred file
@@ -75,36 +77,74 @@ class Reranking:
             algorithm: the chosen algorithm for reranking in {'det_greedy', 'det_cons', 'det_relaxed'}
             k_max: maximum number of returned team members by reranker
             cutoff: to resize the list of experts before giving it to the re-ranker
+            alpha: significance value for fa*ir algorithm
         Returns:
             tuple (list, list)
         """
         idx, probs = list(), list()
-        start_time = perf_counter()
-        if eq_op:
-            for i, team in enumerate(tqdm(preds)):
-                member_popularity_probs = [(m, labels[m], float(team[m])) for m in range(len(team))]
-                member_popularity_probs.sort(key=lambda x: x[2], reverse=True) #sort based on probs
-
-                r =  {True: 1 - ratios[i], False: ratios[i]}
-                reranked_idx = reranking.rerank([label for _, label, _ in member_popularity_probs], r, k_max=k_max, algorithm=algorithm)
-                reranked_probs = [member_popularity_probs[m][2] for m in reranked_idx]
-                idx.append(reranked_idx)
-                probs.append(reranked_probs)
-            finish_time = perf_counter()
-            pd.DataFrame({'reranked_idx': idx, 'reranked_probs': probs}).to_csv(f'{output}.{algorithm}.{k_max}.rerank.csv', index=False)
-        else:
+        if algorithm == 'fa-ir':
+            fair_docs = list()
+            # converting teams to fairdocs
             for team in tqdm(preds):
                 member_popularity_probs = [(m, labels[m], float(team[m])) for m in range(len(team))]
-                member_popularity_probs.sort(key=lambda x: x[2], reverse=True)  # sort based on probs
-                # TODO: e.g., please comment the semantics of the output indexes by an example
-                # in the output list, we may have an index for a member outside the top k_max list that brought up by the reranker and comes to the top k_max
-                reranked_idx = reranking.rerank([label for _, label, _ in member_popularity_probs], ratios, k_max=k_max, algorithm=algorithm)
-                reranked_probs = [member_popularity_probs[m][2] for m in reranked_idx]
-                idx.append(reranked_idx)
-                probs.append(reranked_probs)
-            finish_time = perf_counter()
-            pd.DataFrame({'reranked_idx': idx, 'reranked_probs': probs}).to_csv(
-                f'{output}.{algorithm}.{k_max}.rerank.csv', index=False)
+                member_popularity_probs.sort(key=lambda x: x[2], reverse=True)
+                # The usage of not operator is because we mapped popular as True and non-popular as False.
+                # Non-popular is our protected group and vice versa. So we need to use not in FairScoreDocs
+                fair_docs.append([FairScoreDoc(m[0], m[2], not m[1]) for m in member_popularity_probs])
+
+            if eq_op:
+                start_time = perf_counter()
+                finish_time = perf_counter()
+            else:
+                fair = fsc.Fair(k_max, ratios[False], alpha)
+                fair_teams = list()
+                start_time = perf_counter()
+                # Check to see if a team needs reranking to become fair or not.
+                for i, team in enumerate(fair_docs):
+                    if fair.is_fair(team[:k_max]):
+                        fair_teams.append(team[:k_max])
+                    else:
+                        reranked = fair.re_rank(team)
+                        fair_teams.append(reranked[:k_max])
+                finish_time = perf_counter()
+                idx, probs, protected = list(), list(), list()
+
+                # Creating required values to return from fairdoc objects
+                for fair_team in fair_teams:
+                    idx.append([x.id for x in fair_team])
+                    probs.append([x.score for x in fair_team])
+
+
+        elif algorithm in ['det_greedy', 'det_relaxed', 'det_cons']:
+            if eq_op:
+                start_time = perf_counter()
+                for i, team in enumerate(tqdm(preds)):
+                    member_popularity_probs = [(m, labels[m], float(team[m])) for m in range(len(team))]
+                    member_popularity_probs.sort(key=lambda x: x[2], reverse=True) #sort based on probs
+
+                    r =  {True: 1 - ratios[i], False: ratios[i]}
+                    reranked_idx = reranking.rerank([label for _, label, _ in member_popularity_probs], r, k_max=k_max, algorithm=algorithm)
+                    reranked_probs = [member_popularity_probs[m][2] for m in reranked_idx]
+                    idx.append(reranked_idx)
+                    probs.append(reranked_probs)
+                finish_time = perf_counter()
+                pd.DataFrame({'reranked_idx': idx, 'reranked_probs': probs}).to_csv(f'{output}.{algorithm}.{k_max}.rerank.csv', index=False)
+            else:
+                start_time = perf_counter()
+                for team in tqdm(preds):
+                    member_popularity_probs = [(m, labels[m], float(team[m])) for m in range(len(team))]
+                    member_popularity_probs.sort(key=lambda x: x[2], reverse=True)  # sort based on probs
+                    # TODO: e.g., please comment the semantics of the output indexes by an example
+                    # in the output list, we may have an index for a member outside the top k_max list that brought up by the reranker and comes to the top k_max
+                    reranked_idx = reranking.rerank([label for _, label, _ in member_popularity_probs], ratios, k_max=k_max, algorithm=algorithm)
+                    reranked_probs = [member_popularity_probs[m][2] for m in reranked_idx]
+                    idx.append(reranked_idx)
+                    probs.append(reranked_probs)
+                finish_time = perf_counter()
+                pd.DataFrame({'reranked_idx': idx, 'reranked_probs': probs}).to_csv(
+                    f'{output}.{algorithm}.{k_max}.rerank.csv', index=False)
+        else:
+            raise ValueError('chosen reranking algorithm is not valid')
 
         return idx, probs, (finish_time - start_time)
 
@@ -120,6 +160,7 @@ class Reranking:
         Returns:
             dict: ndkl metric before and after re-ranking
         """
+        #TODO add the required changes for fa*ir
         dic_before = {'ndkl':[]}; dic_after={'ndkl':[]}
         for i, team in enumerate(tqdm(preds)):
             if eq_op:
@@ -151,6 +192,7 @@ class Reranking:
         Returns:
             csr_matrix
         """
+        #TODO add the required changes for fa*ir
         y_test = teamsvecs_members[splits['test']]
         rows, cols, value = list(), list(), list()
         for i, reranked_team in enumerate(tqdm(reranked_idx)):
