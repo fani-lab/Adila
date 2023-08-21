@@ -74,7 +74,7 @@ class Reranking:
             labels: popularity labels
             output: address of the output directory
             ratios: desired ratio of popular/non-popular items in the output
-            algorithm: the chosen algorithm for reranking in {'det_greedy', 'det_cons', 'det_relaxed'}
+            algorithm: ranker algorithm of choice among {'det_greedy', 'det_cons', 'det_relaxed', 'fa-ir'}
             k_max: maximum number of returned team members by reranker
             cutoff: to resize the list of experts before giving it to the re-ranker
             alpha: significance value for fa*ir algorithm
@@ -251,7 +251,7 @@ class Reranking:
             fteamsvecs: address of teamsvecs file
             fsplits: address of splits.json file
             ratio: desired ratio of non-popular experts in the output
-            algorithm: ranker algorithm of choice among {'det_greedy', 'det_cons', 'det_relaxed'}
+            algorithm: ranker algorithm of choice among {'det_greedy', 'det_cons', 'det_relaxed', 'fa-ir'}
             k_max:
             fairness_metrics: desired fairness metric
             utility_metrics: desired utility metric
