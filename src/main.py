@@ -149,7 +149,11 @@ class Reranking:
         return idx, probs, (finish_time - start_time)
 
     @staticmethod
-    def eval_fairness(preds, labels, reranked_idx, ratios, output, algorithm, k_max, eq_op: bool = False, metrics: list = ['ndkl',]) -> pandas.DataFrame:
+    def calculate_prob(atr: bool, team: list) -> float:
+        return team.count(atr) / len(team)
+
+    @staticmethod
+    def eval_fairness(preds, labels, reranked_idx, ratios, output, algorithm, k_max, eq_op: bool = False, metrics: list = ['skew',]) -> pandas.DataFrame:
         """
         Args:
             preds: loaded predictions from a .pred file
@@ -162,23 +166,35 @@ class Reranking:
         """
 
         # because the mapping between popular/nonpopular and protected/nonprotected is reversed
+        # TODO saving part need to become consistent
         if algorithm == 'fa-ir':
             labels = [not value for value in labels]
         dic_before, dic_after = dict(), dict()
+
         if 'ndkl' in metrics:
             dic_before['ndkl'], dic_after['ndkl'] = list(), list()
             for i, team in enumerate(tqdm(preds)):
+                # defining the threshold for the times we have or don't have cutoff
+                threshold = len(preds) if k_max is None else k_max
+
                 if eq_op:
                     r = {True: 1 - ratios[i], False: ratios[i]}
                 else:
                     r = ratios
-                member_popularity_probs = [(m, labels[m], float(team[m])) for m in range(k_max)]
+                member_popularity_probs = [(m, labels[m], float(team[m])) for m in range(len(team))]
                 member_popularity_probs.sort(key=lambda x: x[2], reverse=True)
                 #IMPORTANT: the ratios keys should match the labels!
-                dic_before['ndkl'].append(reranking.ndkl([label for _, label, _ in member_popularity_probs], r))
+                dic_before['ndkl'].append(reranking.ndkl([label for _, label, _ in member_popularity_probs[:threshold]], r))
                 dic_after['ndkl'].append(reranking.ndkl([labels[int(m)] for m in reranked_idx[i]], r))
+                df_before = pd.DataFrame(dic_before).mean(axis=0).to_frame('mean.before')
+                df_after = pd.DataFrame(dic_after).mean(axis=0).to_frame('mean.after')
+                df = pd.concat([df_before, df_after], axis=1)
+                df.to_csv(f'{output}.{algorithm}.{k_max}.faireval.csv', index_label='metric')
+                return df
         if 'skew' in metrics:
-            dic_before['skew'], dic_after['skew'] = list(), list()
+            # defining the threshold for the times we have or don't have cutoff
+            threshold = len(preds) if k_max is None else k_max
+            dic_before['skew'], dic_after['skew'] = {'protected': [], 'nonprotected': []}, {'protected': [], 'nonprotected': []}
             for i, team in enumerate(tqdm(preds)):
                 if eq_op:
                     r = {True: 1 - ratios[i], False: ratios[i]}
@@ -186,12 +202,20 @@ class Reranking:
                     r = ratios
                 member_popularity_probs = [(m, labels[m], float(team[m])) for m in range(len(team))]
                 member_popularity_probs.sort(key=lambda x: x[2], reverse=True)
-
-        df_before = pd.DataFrame(dic_before).mean(axis=0).to_frame('mean.before')
-        df_after = pd.DataFrame(dic_after).mean(axis=0).to_frame('mean.after')
-        df = pd.concat([df_before, df_after], axis=1)
-        df.to_csv(f'{output}.{algorithm}.{k_max}.faireval.csv', index_label='metric')
-        return df
+                dic_before['skew']['protected'].append(reranking.skew(Reranking.calculate_prob(False, [label for _, label, _ in member_popularity_probs[: threshold]]), r[False]))
+                dic_before['skew']['nonprotected'].append(reranking.skew(Reranking.calculate_prob(True, [label for _, label, _ in member_popularity_probs[: threshold]]), r[True]))
+                dic_after['skew']['protected'].append(reranking.skew(Reranking.calculate_prob(False, [labels[int(m)] for m in reranked_idx[i]]), r[False]))
+                dic_after['skew']['nonprotected'].append(reranking.skew(Reranking.calculate_prob(True, [labels[int(m)] for m in reranked_idx[i]]), r[True]))
+            df_before = pd.DataFrame(dic_before['skew']).mean(axis=0).to_frame('mean.before')
+            df_after = pd.DataFrame(dic_after['skew']).mean(axis=0).to_frame('mean.after')
+            df = pd.concat([df_before, df_after], axis=1)
+            df.to_csv(f'{output}.{algorithm}.{k_max}.faireval.csv')
+            return df
+        # df_before = pd.DataFrame(dic_before).mean(axis=0).to_frame('mean.before')
+        # df_after = pd.DataFrame(dic_after).mean(axis=0).to_frame('mean.after')
+        # df = pd.concat([df_before, df_after], axis=1)
+        # df.to_csv(f'{output}.{algorithm}.{k_max}.faireval.csv', index_label='metric')
+        # return df
 
     @staticmethod
     def reranked_preds(teamsvecs_members, splits, reranked_idx, reranked_probs, output, algorithm, k_max) -> csr_matrix:
