@@ -93,9 +93,18 @@ class Reranking:
                 fair_docs.append([FairScoreDoc(m[0], m[2], not m[1]) for m in member_popularity_probs])
 
             if eq_op:
+                fair_teams = list()
                 start_time = perf_counter()
+                for i, team in enumerate(fair_docs):
+                    r = {True: 1 - ratios[i], False: ratios[i]}
+                    # it is inside the loop because ratio varies for every team in equality of opportunity
+                    fair = fsc.Fair(k_max, r[False], alpha)
+                    if fair.is_fair(team[:k_max]):
+                        fair_teams.append(team[:k_max])
+                    else:
+                        reranked = fair.re_rank(team)
+                        fair_teams.append(reranked[:k_max])
                 finish_time = perf_counter()
-                #TODO implement eq_op for fa*ir
             else:
                 fair = fsc.Fair(k_max, ratios[False], alpha)
                 fair_teams = list()
@@ -108,13 +117,14 @@ class Reranking:
                         reranked = fair.re_rank(team)
                         fair_teams.append(reranked[:k_max])
                 finish_time = perf_counter()
-                idx, probs, protected = list(), list(), list()
 
-                # Creating required values to return from fairdoc objects
-                for fair_team in fair_teams:
-                    idx.append([x.id for x in fair_team])
-                    probs.append([x.score for x in fair_team])
+            idx, probs, protected = list(), list(), list()
 
+            # Creating required values to return from fairdoc objects
+            for fair_team in fair_teams:
+                idx.append([x.id for x in fair_team])
+                probs.append([x.score for x in fair_team])
+            pd.DataFrame({'reranked_idx': idx, 'reranked_probs': probs}).to_csv(f'{output}.{algorithm}.{k_max}.rerank.csv', index=False)
 
         elif algorithm in ['det_greedy', 'det_relaxed', 'det_cons']:
             if eq_op:
@@ -142,8 +152,7 @@ class Reranking:
                     idx.append(reranked_idx)
                     probs.append(reranked_probs)
                 finish_time = perf_counter()
-                pd.DataFrame({'reranked_idx': idx, 'reranked_probs': probs}).to_csv(
-                    f'{output}.{algorithm}.{k_max}.rerank.csv', index=False)
+                pd.DataFrame({'reranked_idx': idx, 'reranked_probs': probs}).to_csv(f'{output}.{algorithm}.{k_max}.rerank.csv', index=False)
         else:
             raise ValueError('chosen reranking algorithm is not valid')
 
