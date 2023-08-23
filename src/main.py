@@ -95,6 +95,7 @@ class Reranking:
             if eq_op:
                 start_time = perf_counter()
                 finish_time = perf_counter()
+                #TODO implement eq_op for fa*ir
             else:
                 fair = fsc.Fair(k_max, ratios[False], alpha)
                 fair_teams = list()
@@ -166,7 +167,8 @@ class Reranking:
         """
 
         # because the mapping between popular/nonpopular and protected/nonprotected is reversed
-        # TODO saving part need to become consistent
+        # TODO saving part need to become consistent (needs discussion with the supervisor)
+        # TODO also check if we need more specific file names ( with fairness criteria for example)
         if algorithm == 'fa-ir':
             labels = [not value for value in labels]
         dic_before, dic_after = dict(), dict()
@@ -189,8 +191,7 @@ class Reranking:
                 df_before = pd.DataFrame(dic_before).mean(axis=0).to_frame('mean.before')
                 df_after = pd.DataFrame(dic_after).mean(axis=0).to_frame('mean.after')
                 df = pd.concat([df_before, df_after], axis=1)
-                df.to_csv(f'{output}.{algorithm}.{k_max}.faireval.csv', index_label='metric')
-                return df
+                df.to_csv(f'{output}.{algorithm}.{k_max}.ndkl.faireval.csv', index_label='metric')
         if 'skew' in metrics:
             # defining the threshold for the times we have or don't have cutoff
             threshold = len(preds) if k_max is None else k_max
@@ -209,8 +210,8 @@ class Reranking:
             df_before = pd.DataFrame(dic_before['skew']).mean(axis=0).to_frame('mean.before')
             df_after = pd.DataFrame(dic_after['skew']).mean(axis=0).to_frame('mean.after')
             df = pd.concat([df_before, df_after], axis=1)
-            df.to_csv(f'{output}.{algorithm}.{k_max}.faireval.csv')
-            return df
+            df.to_csv(f'{output}.{algorithm}.{k_max}.skew.faireval.csv')
+
         # df_before = pd.DataFrame(dic_before).mean(axis=0).to_frame('mean.before')
         # df_after = pd.DataFrame(dic_after).mean(axis=0).to_frame('mean.after')
         # df = pd.concat([df_before, df_after], axis=1)
