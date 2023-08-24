@@ -178,6 +178,7 @@ class Reranking:
         # because the mapping between popular/nonpopular and protected/nonprotected is reversed
         # TODO saving part need to become consistent (needs discussion with the supervisor)
         # TODO also check if we need more specific file names ( with fairness criteria for example)
+        # use argument instead of this line
         if algorithm == 'fa-ir':
             labels = [not value for value in labels]
         dic_before, dic_after = dict(), dict()
