@@ -197,10 +197,10 @@ class Reranking:
                 #IMPORTANT: the ratios keys should match the labels!
                 dic_before['ndkl'].append(reranking.ndkl([label for _, label, _ in member_popularity_probs[:threshold]], r))
                 dic_after['ndkl'].append(reranking.ndkl([labels[int(m)] for m in reranked_idx[i]], r))
-                df_before = pd.DataFrame(dic_before).mean(axis=0).to_frame('mean.before')
-                df_after = pd.DataFrame(dic_after).mean(axis=0).to_frame('mean.after')
-                df = pd.concat([df_before, df_after], axis=1)
-                df.to_csv(f'{output}.{algorithm}.{k_max}.ndkl.faireval.csv', index_label='metric')
+            df_before = pd.DataFrame(dic_before).mean(axis=0).to_frame('mean.before')
+            df_after = pd.DataFrame(dic_after).mean(axis=0).to_frame('mean.after')
+            df = pd.concat([df_before, df_after], axis=1)
+            df.to_csv(f'{output}.{algorithm}.{k_max}.ndkl.faireval.csv', index_label='metric')
         if 'skew' in metrics:
             # defining the threshold for the times we have or don't have cutoff
             threshold = len(preds) if k_max is None else k_max
