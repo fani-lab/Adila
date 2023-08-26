@@ -176,11 +176,10 @@ class Reranking:
         """
 
         # because the mapping between popular/nonpopular and protected/nonprotected is reversed
-        # TODO saving part need to become consistent (needs discussion with the supervisor)
         # TODO also check if we need more specific file names ( with fairness criteria for example)
         # use argument instead of this line
-        if algorithm == 'fa-ir':
-            labels = [not value for value in labels]
+        # if algorithm == 'fa-ir':
+        #     labels = [not value for value in labels]
         dic_before, dic_after = dict(), dict()
 
         if 'ndkl' in metrics:
@@ -222,11 +221,6 @@ class Reranking:
             df = pd.concat([df_before, df_after], axis=1)
             df.to_csv(f'{output}.{algorithm}.{k_max}.skew.faireval.csv')
 
-        # df_before = pd.DataFrame(dic_before).mean(axis=0).to_frame('mean.before')
-        # df_after = pd.DataFrame(dic_after).mean(axis=0).to_frame('mean.after')
-        # df = pd.concat([df_before, df_after], axis=1)
-        # df.to_csv(f'{output}.{algorithm}.{k_max}.faireval.csv', index_label='metric')
-        # return df
 
     @staticmethod
     def reranked_preds(teamsvecs_members, splits, reranked_idx, reranked_probs, output, algorithm, k_max) -> csr_matrix:
@@ -267,7 +261,6 @@ class Reranking:
         Returns:
             None
         """
-        # predictions = torch.load(self.predictions_address)
         y_test = teamsvecs_members[splits['test']]
         try:
             df_mean_before = pd.read_csv(f'{fpred}.eval.mean.csv', names=['mean'], header=0)#we should already have it at f*.test.pred.eval.mean.csv
@@ -349,7 +342,11 @@ class Reranking:
             print('Loading fairness evaluation results before and after reranking ...')
             fairness_eval = pd.read_csv(f'{new_output}.{algorithm}.{k_max}.faireval.csv')
         except FileNotFoundError:
-            print(f'Loading fairness results failed! Evaluating fairness metric {fairness_metrics} ...') #for now, it's hardcoded for 'ndkl'
+            print(f'Loading fairness results failed! Evaluating fairness metric {fairness_metrics} ...')
+
+            if algorithm == 'fa-ir':
+                labels = [not value for value in labels]
+
             Reranking.eval_fairness(preds, labels, reranked_idx, ratios, new_output, algorithm, k_max, eq_op)
 
         try:
