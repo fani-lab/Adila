@@ -67,7 +67,7 @@ class Reranking:
 
 
     @staticmethod
-    def rerank(preds, labels, output, ratios, algorithm: str = 'det_greedy', k_max: int = None, eq_op: bool = False, alpha: float = 0.1) -> tuple:
+    def rerank(preds, labels, output, ratios, algorithm: str = 'det_greedy', k_max: int = None, eq_op: bool = False, alpha: float = 0.05) -> tuple:
         """
         Args:
             preds: loaded predictions from a .pred file
@@ -163,7 +163,7 @@ class Reranking:
         return team.count(atr) / len(team)
 
     @staticmethod
-    def eval_fairness(preds, labels, reranked_idx, ratios, output, algorithm, k_max, eq_op: bool = False, metrics: list = ['skew',]) -> pandas.DataFrame:
+    def eval_fairness(preds, labels, reranked_idx, ratios, output, algorithm, k_max, eq_op: bool = False, metrics: list = ['skew', 'ndkl']) -> pandas.DataFrame:
         """
         Args:
             preds: loaded predictions from a .pred file
@@ -281,7 +281,7 @@ class Reranking:
         return statistics.mean([df.loc[df['metric'] == metric, 'mean'].tolist()[0] for df in utilityevals])
 
     @staticmethod
-    def run(fpred, output, fteamsvecs, fsplits, np_ratio, algorithm='det_cons', k_max=None, fairness_metrics={'ndkl'}, utility_metrics={'map_cut_2,5,10', 'ndcg_cut_2,5,10'}, eq_op: bool = False, alpha: float = 0.1) -> None:
+    def run(fpred, output, fteamsvecs, fsplits, np_ratio, algorithm='det_cons', k_max=None, fairness_metrics={'ndkl', 'skew'}, utility_metrics={'map_cut_2,5,10', 'ndcg_cut_2,5,10'}, eq_op: bool = False, alpha: float = 0.1) -> None:
         """
         Args:
             fpred: address of the .pred file
@@ -343,11 +343,7 @@ class Reranking:
             fairness_eval = pd.read_csv(f'{new_output}.{algorithm}.{k_max}.faireval.csv')
         except FileNotFoundError:
             print(f'Loading fairness results failed! Evaluating fairness metric {fairness_metrics} ...')
-
-            if algorithm == 'fa-ir':
-                labels = [not value for value in labels]
-
-            Reranking.eval_fairness(preds, labels, reranked_idx, ratios, new_output, algorithm, k_max, eq_op)
+            Reranking.eval_fairness(preds, labels, reranked_idx, ratios, new_output, algorithm, k_max, eq_op, fairness_metrics)
 
         try:
             print('Loading utility metric evaluation results before and after reranking ...')
@@ -369,13 +365,12 @@ class Reranking:
 
         fairness = parser.add_argument_group('fairness')
         fairness.add_argument('-np_ratio', '--np_ratio', type=float, default=None, required=False, help='desired ratio of non-popular experts after reranking; if None, based on distribution in dataset; default: None; Eg. 0.5')
-        fairness.add_argument('-fairness_metrics', '--fairness_metrics', nargs='+', type=set, default={'ndkl'}, required=False, help='list of fairness metrics; default: ndkl')
-        fairness.add_argument('-reranker', '--reranker', type=str, required=True, help='reranking algorithm from {det_greedy, det_cons, det_relaxed}; required; Eg. det_cons')
+        fairness.add_argument('-fairness_metrics', '--fairness_metrics', nargs='+', type=set, default={'ndkl', 'skew'}, required=False, help='list of fairness metrics; default: ndkl')
+        fairness.add_argument('-algorithm', '--algorithm', type=str, required=True, help='reranking algorithm from {fa-ir, det_greedy, det_cons, det_relaxed}; required; Eg. det_cons')
         fairness.add_argument('-k_max', '--k_max', type=int, default=None, required=False, help='cutoff for the reranking algorithms; default: None')
-        fairness.add_argument('-cutoff', '--cutoff', type=int, default=None, required=False, help='cutoff before passing to the reranking algorithms (we try to limit the reach of reranking algorithm to irrelevant samples; default: None')
-        fairness.add_argument('-utility_metrics', '--utility_metrics', nargs='+', type=set, default={'map_cut_2,5,10'}, required=False, help='list of utility metric in the form of pytrec_eval; default: map_cut_2,5,10')
+        fairness.add_argument('-utility_metrics', '--utility_metrics', nargs='+', type=set, default={'map_cut_2,5,10', 'ndcg_cut_2,5,10'}, required=False, help='list of utility metric in the form of pytrec_eval; default: map_cut_2,5,10')
         fairness.add_argument('-eq_op', '--eq_op', type=bool, default=False, required=False,help='eq_op: a flag to turn equality of opportunity criteria on or off; default: False')
-        fairness.add_argument('-alpha', '--alpha', type=float, default=0.1, required=False,help='alpha: the significance value for fa*ir algortihm. Default value is 0.1')
+        fairness.add_argument('-alpha', '--alpha', type=float, default=0.05, required=False,help='alpha: the significance value for fa*ir algortihm. Default value is 0.1')
 
         mode = parser.add_argument_group('mode')
         mode.add_argument('-mode', type=int, default=1, choices=[0, 1], help='0 for sequential run and 1 for parallel; default: 1')
@@ -388,7 +383,7 @@ python -u main.py
 -fteamsvecs ../data/preprocessed/dblp/toy.dblp.v12.json/teamsvecs.pkl
 -fsplit ../output/toy.dblp.v12.json/splits.json
 -fpred ../output/toy.dblp.v12.json/bnn/t31.s11.m13.l[100].lr0.1.b4096.e20.s1/f0.test.pred 
--reranker det_cons
+-algorithm det_cons
 -output ../output/toy.dblp.v12.json/
 
 # root folder containing many *.pred files.
@@ -396,7 +391,7 @@ python -u main.py
 -fteamsvecs ../data/preprocessed/dblp/toy.dblp.v12.json/teamsvecs.pkl
 -fsplit ../output/toy.dblp.v12.json/splits.json
 -fpred ../output/toy.dblp.v12.json/
--reranker det_cons
+-algorithm det_cons
 -output ../output/toy.dblp.v12.json/
 """
 
@@ -438,11 +433,12 @@ if __name__ == "__main__":
                                                       fteamsvecs=args.fteamsvecs,
                                                       fsplits=args.fsplits,
                                                       np_ratio=args.np_ratio,
-                                                      algorithm=args.reranker,
+                                                      algorithm=args.algorithm,
                                                       k_max=args.k_max,
                                                       fairness_metrics=args.fairness_metrics,
                                                       eq_op=args.eq_op,
-                                                      utility_metrics=args.utility_metrics)
+                                                      utility_metrics=args.utility_metrics,
+                                                      alpha=args.alpha)
         elif args.mode == 1: # parallel run
             print(f'Parallel run started ...')
             with multiprocessing.Pool(multiprocessing.cpu_count() if args.core < 0 else args.core) as executor:
@@ -450,9 +446,9 @@ if __name__ == "__main__":
                                          fteamsvecs=args.fteamsvecs,
                                          fsplits=args.fsplits,
                                          np_ratio=args.np_ratio,
-                                         algorithm=args.reranker,
+                                         algorithm=args.algorithm,
                                          k_max=args.k_max,
                                          fairness_metrics=args.fairness_metrics,
                                          utility_metrics=args.utility_metrics,
-                                         eq_op=args.eq_op
-                                         ), pairs)
+                                         eq_op=args.eq_op,
+                                         alpha=args.alpha), pairs)
