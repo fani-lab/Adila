@@ -95,7 +95,7 @@ class Reranking:
             if eq_op:
                 fair_teams = list()
                 start_time = perf_counter()
-                for i, team in enumerate(fair_docs):
+                for i, team in enumerate(tqdm(fair_docs)):
                     r = {True: 1 - ratios[i], False: ratios[i]}
                     # it is inside the loop because ratio varies for every team in equality of opportunity
                     fair = fsc.Fair(k_max, r[False], alpha)
@@ -110,7 +110,7 @@ class Reranking:
                 fair_teams = list()
                 start_time = perf_counter()
                 # Check to see if a team needs reranking to become fair or not.
-                for i, team in enumerate(fair_docs):
+                for i, team in enumerate(tqdm(fair_docs)):
                     if fair.is_fair(team[:k_max]):
                         fair_teams.append(team[:k_max])
                     else:
@@ -309,7 +309,7 @@ class Reranking:
             print('Loading popularity labels ...')
             with open(f'{output}stats.pkl', 'rb') as f: stats = pickle.load(f)
             labels = pd.read_csv(f'{output}popularity.csv')['popularity'].to_list()
-            with open(f'{output}ratios.pkl', 'rb') as f: ratios = pickle.load(f)
+            with open(f'ratios.pkl', 'rb') as f: ratios = pickle.load(f)
         except (FileNotFoundError, EOFError):
             print(f'Loading popularity labels failed! Generating popularity labels at {output}stats.pkl ...')
             stats, labels, ratios = Reranking.get_stats(teamsvecs, coefficient=1, output=output, eq_op=eq_op)
