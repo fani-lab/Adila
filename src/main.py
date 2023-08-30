@@ -14,8 +14,23 @@ import reranking
 from cmn.metric import *
 
 class Reranking:
+
     @staticmethod
-    def get_stats(teamsvecs, coefficient: float, output: str, eq_op: bool = False) -> tuple:
+    def gender_process(output: str):
+        ig = pd.read_csv(f'{output}gender.csv')
+        ig.fillna('M', inplace=True)
+        index_female = ig.loc[ig['gender'] == 'F', 'Unnamed: 0'].tolist()
+        index_male = ig.loc[ig['gender'] == 'M', 'Unnamed: 0'].tolist()
+        ig.replace(to_replace='M', value=True, inplace=True)
+        ig.replace(to_replace='F', value=False, inplace=True)
+        gender_ratio = len(index_female) / (len(index_female) + len(index_male))
+        ig = ig.rename(columns={'Unnamed: 0': 'memberidx'})
+        ig.sort_values(by='memberidx', inplace=True)
+        return ig, gender_ratio
+
+
+    @staticmethod
+    def get_stats(teamsvecs, coefficient: float, output: str, eq_op: bool = False, att='gender') -> tuple:
         """
         Args:
             teamsvecs_members: teamsvecs pickle file
@@ -35,11 +50,16 @@ class Reranking:
         stats['*avg_nteams_member'] = col_sums.mean()
         threshold = coefficient * stats['*avg_nteams_member']
 
-        labels = [True if threshold <= nteam_member else False for nteam_member in col_sums.getA1() ] #rowid maps to columnid in teamvecs['member']
-        stats['np_ratio'] = labels.count(False) / stats['*nmembers']
-        with open(f'{output}stats.pkl', 'wb') as f: pickle.dump(stats, f)
-        pd.DataFrame(data=labels, columns=['popularity']).to_csv(f'{output}popularity.csv', index_label='memberidx')
-        popularity = pd.read_csv(f'{output}popularity.csv')
+        if att == 'popularity':
+            labels = [True if threshold <= nteam_member else False for nteam_member in col_sums.getA1() ] #rowid maps to columnid in teamvecs['member']
+            stats['np_ratio'] = labels.count(False) / stats['*nmembers']
+            with open(f'{output}stats.pkl', 'wb') as f: pickle.dump(stats, f)
+            pd.DataFrame(data=labels, columns=['popularity']).to_csv(f'{output}popularity.csv', index_label='memberidx')
+            sensitive_att = pd.read_csv(f'{output}popularity.csv')
+
+        elif att == 'gender':
+            sensitive_att, stats['np_ratio'] = Reranking.gender_process(output)
+            labels = sensitive_att['gender'].tolist()
 
         if eq_op:
             skill_member = skillvecs.transpose() @ teamsvecs_members
@@ -53,8 +73,15 @@ class Reranking:
                 if len(intersect) == 0:
                     intersect = [randrange(0, teamsvecs_members.shape[1]) for i in range(5)]
 
-                labels_ = [popularity.loc[popularity['memberidx'] == member, 'popularity'].tolist()[0] for member in
-                          intersect]
+                if att == 'popularity':
+                    labels_ = [sensitive_att.loc[sensitive_att['memberidx'] == member, 'popularity'].tolist()[0] for member in
+                              intersect]
+                elif att == 'gender':
+                    labels_ = [sensitive_att.loc[sensitive_att['memberidx'] == member, 'gender'].tolist()[0] for member in
+                               intersect]
+                else:
+                    raise ValueError('chosen sensitive attribute is not valid')
+
                 ratios.append(labels_.count(False) / len(intersect))
 
             with open('ratios.pkl', 'wb') as file:
@@ -281,7 +308,7 @@ class Reranking:
         return statistics.mean([df.loc[df['metric'] == metric, 'mean'].tolist()[0] for df in utilityevals])
 
     @staticmethod
-    def run(fpred, output, fteamsvecs, fsplits, np_ratio, algorithm='det_cons', k_max=None, fairness_metrics={'ndkl', 'skew'}, utility_metrics={'map_cut_2,5,10', 'ndcg_cut_2,5,10'}, eq_op: bool = False, alpha: float = 0.1) -> None:
+    def run(fpred, output, fteamsvecs, fsplits, np_ratio, algorithm='det_cons', k_max=None, fairness_metrics={'ndkl', 'skew'}, utility_metrics={'map_cut_2,5,10', 'ndcg_cut_2,5,10'}, eq_op: bool = False, alpha: float = 0.1, att='popularity') -> None:
         """
         Args:
             fpred: address of the .pred file
@@ -308,11 +335,11 @@ class Reranking:
         try:
             print('Loading popularity labels ...')
             with open(f'{output}stats.pkl', 'rb') as f: stats = pickle.load(f)
-            labels = pd.read_csv(f'{output}popularity.csv')['popularity'].to_list()
+            labels = pd.read_csv(f'{output}{att}.csv')[att].to_list()
             with open(f'ratios.pkl', 'rb') as f: ratios = pickle.load(f)
         except (FileNotFoundError, EOFError):
             print(f'Loading popularity labels failed! Generating popularity labels at {output}stats.pkl ...')
-            stats, labels, ratios = Reranking.get_stats(teamsvecs, coefficient=1, output=output, eq_op=eq_op)
+            stats, labels, ratios = Reranking.get_stats(teamsvecs, coefficient=1, output=output, eq_op=eq_op, att=att)
 
         #creating a static ratio in case eq_op is turned off
         if not eq_op:
@@ -329,7 +356,7 @@ class Reranking:
             df = pd.read_csv(f'{new_output}.{algorithm}.{k_max}.rerank.csv', converters={'reranked_idx': eval, 'reranked_probs': eval})
             reranked_idx, probs = df['reranked_idx'].to_list(), df['reranked_probs'].to_list()
         except FileNotFoundError:
-            print(f'Loading re-ranking results failed! Reranking the predictions based on {algorithm} for top-{k_max} ...')
+            print(f'Loading re-ranking results failed! Reranking the predictions based on {att} with {algorithm} for top-{k_max} ...')
             reranked_idx, probs, elapsed_time = Reranking.rerank(preds, labels, new_output, ratios, algorithm, k_max, eq_op, alpha)
             #not sure os handles file locking for append during parallel run ...
             # with open(f'{new_output}.rerank.time', 'a') as file: file.write(f'{elapsed_time} {new_output} {algorithm} {k_max}\n')
@@ -371,6 +398,7 @@ class Reranking:
         fairness.add_argument('-utility_metrics', '--utility_metrics', nargs='+', type=set, default={'map_cut_2,5,10', 'ndcg_cut_2,5,10'}, required=False, help='list of utility metric in the form of pytrec_eval; default: map_cut_2,5,10')
         fairness.add_argument('-eq_op', '--eq_op', type=bool, default=False, required=False,help='eq_op: a flag to turn equality of opportunity criteria on or off; default: False')
         fairness.add_argument('-alpha', '--alpha', type=float, default=0.05, required=False,help='alpha: the significance value for fa*ir algortihm. Default value is 0.1')
+        fairness.add_argument('-att', '--att', type=str, default='popularity', required=True,help='alpha: the significance value for fa*ir algortihm. Default value is 0.1')
 
         mode = parser.add_argument_group('mode')
         mode.add_argument('-mode', type=int, default=1, choices=[0, 1], help='0 for sequential run and 1 for parallel; default: 1')
@@ -411,7 +439,9 @@ if __name__ == "__main__":
                       k_max=args.k_max,
                       fairness_metrics=args.fairness_metrics,
                       eq_op=args.eq_op,
-                      utility_metrics=args.utility_metrics)
+                      utility_metrics=args.utility_metrics,
+                      alpha=args.alpha,
+                      att=args.att)
         exit(0)
 
     if os.path.isdir(args.fpred):
@@ -438,7 +468,8 @@ if __name__ == "__main__":
                                                       fairness_metrics=args.fairness_metrics,
                                                       eq_op=args.eq_op,
                                                       utility_metrics=args.utility_metrics,
-                                                      alpha=args.alpha)
+                                                      alpha=args.alpha,
+                                                      att=args.att)
         elif args.mode == 1: # parallel run
             print(f'Parallel run started ...')
             with multiprocessing.Pool(multiprocessing.cpu_count() if args.core < 0 else args.core) as executor:
@@ -451,4 +482,5 @@ if __name__ == "__main__":
                                          fairness_metrics=args.fairness_metrics,
                                          utility_metrics=args.utility_metrics,
                                          eq_op=args.eq_op,
-                                         alpha=args.alpha), pairs)
+                                         alpha=args.alpha,
+                                         att=args.att), pairs)
