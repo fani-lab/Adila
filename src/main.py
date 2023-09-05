@@ -336,7 +336,8 @@ class Reranking:
             print('Loading popularity labels ...')
             with open(f'{output}stats.pkl', 'rb') as f: stats = pickle.load(f)
             labels = pd.read_csv(f'{output}{att}.csv')[att].to_list()
-            with open(f'ratios.pkl', 'rb') as f: ratios = pickle.load(f)
+            if eq_op:
+                with open(f'ratios.pkl', 'rb') as f: ratios = pickle.load(f)
         except (FileNotFoundError, EOFError):
             print(f'Loading popularity labels failed! Generating popularity labels at {output}stats.pkl ...')
             stats, labels, ratios = Reranking.get_stats(teamsvecs, coefficient=1, output=output, eq_op=eq_op, att=att)
