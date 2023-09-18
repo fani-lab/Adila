@@ -100,6 +100,77 @@ class MappingGender:
         
         self.df = pd.DataFrame.from_dict(data, orient="index", columns=["rawIndex", "gender", "probability"])
 
+    # Generates the dataframe mapping for IMDB dataset
+    def findGenderValues_IMDB_v2(self, imdb_titleBasics_dir : str):
+        f = open(imdb_titleBasics_dir, 'r')
+        f.readline()
+        line = f.readline()
+
+        # Variables to form dataframe:
+        indexes = []
+
+        keysNotFound = set(self.opeNTF_out['i2c'].keys())
+
+        data = {
+            "gender" : []
+        }
+
+    
+        while(line != ''):
+            lineArr = line.split('\t')
+            print(lineArr[0])
+            if(lineArr[0] in self.memberId_2_i): 
+                indexes.append(self.memberId_2_i[lineArr[0]])
+                keysNotFound.remove(self.memberId_2_i[lineArr[0]])
+                if(lineArr[2] == 'M'): 
+                    data['gender'].append(True)
+                else:
+                    data['gender'].append(False)
+                
+            line = f.readline()    
+
+        # Find Keys that were not found in the file:
+        for key in list(keysNotFound):
+            indexes.append(key)
+            data['gender'].append(True)
+
+        self.df = pd.DataFrame(data, indexes)
+
+    
+    def findGenderResults_DBLP_v2(self, dblp_json_dir :str):
+        f = open(dblp_json_dir, 'r')
+        f.readline()
+        line = f.readline()
+        
+        keysNotFound = set(self.opeNTF_out['i2c'].keys())
+        data = {}
+        i = 0
+        while(line != ']'):
+            print(f"Processing {i}...")
+            i += 1
+            # if(i > 100000): break
+            if(line[0] == ','): line = line[1:]
+            row = json.loads(line)
+
+            for author in row["authors"]:
+                if(author["id"] not in self.memberId_2_i): continue
+                if(author["id"] not in data):
+                    if(self.memberId_2_i[author["id"]] in keysNotFound):
+                        keysNotFound.remove(self.memberId_2_i[author["id"]])
+                    if(author["gender"]["value"] == 'M'):
+                        data[self.memberId_2_i[author["id"]]] = [True]
+                    else:
+                        data[self.memberId_2_i[author["id"]]] = [False]
+
+            line = f.readline()    
+
+        for key in keysNotFound:
+            data[key] = [True]
+        
+        self.df = pd.DataFrame.from_dict(data, orient="index", columns=["gender"])
+
+
+
 
     def exportResults_toPickle(self, directory):
         self.df.to_pickle(path=directory)
@@ -118,7 +189,7 @@ class MappingGender:
 
 # imdbMapGender.createMemberID_2_i_IMDB()
 
-# imdbMapGender.findGenderValues_IMDB('../name.basics_labelled_MF.tsv')
+# imdbMapGender.findGenderValues_IMDB_v2('../name.basics_labelled_MF.tsv')
 
 # imdbMapGender.exportResults_toCSV('data/preprocessed/imdb/i2gender.csv')
 
@@ -129,7 +200,7 @@ dblpMapGender = MappingGender('data/preprocessed/dblp/dblp.v12.json/indexes.pkl'
 
 dblpMapGender.createMemberID_2_i_DBLP()
 
-dblpMapGender.findGenderResults_DBLP('../dblp_labelledGender_updated.json')
+dblpMapGender.findGenderResults_DBLP_v2('../dblp_labelledGender_updated.json')
 
 dblpMapGender.exportResults_toCSV('data/preprocessed/dblp/i2gender.csv')
 
