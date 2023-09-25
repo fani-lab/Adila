@@ -19,10 +19,8 @@ class Reranking:
     def gender_process(output: str):
         ig = pd.read_csv(f'{output}gender.csv')
         ig.fillna('M', inplace=True)
-        index_female = ig.loc[ig['gender'] == 'F', 'Unnamed: 0'].tolist()
-        index_male = ig.loc[ig['gender'] == 'M', 'Unnamed: 0'].tolist()
-        ig.replace(to_replace='M', value=True, inplace=True)
-        ig.replace(to_replace='F', value=False, inplace=True)
+        index_female = ig.loc[ig['gender'] == False, 'Unnamed: 0'].tolist()
+        index_male = ig.loc[ig['gender'] == True, 'Unnamed: 0'].tolist()
         gender_ratio = len(index_female) / (len(index_female) + len(index_male))
         ig = ig.rename(columns={'Unnamed: 0': 'memberidx'})
         ig.sort_values(by='memberidx', inplace=True)
@@ -59,6 +57,7 @@ class Reranking:
 
         elif att == 'gender':
             sensitive_att, stats['np_ratio'] = Reranking.gender_process(output)
+            with open(f'{output}stats.pkl', 'wb') as f: pickle.dump(stats, f)
             labels = sensitive_att['gender'].tolist()
 
         if eq_op:
@@ -74,11 +73,16 @@ class Reranking:
                     intersect = [randrange(0, teamsvecs_members.shape[1]) for i in range(5)]
 
                 if att == 'popularity':
-                    labels_ = [sensitive_att.loc[sensitive_att['memberidx'] == member, 'popularity'].tolist()[0] for member in
-                              intersect]
+                    # Create a dictionary mapping 'memberidx' to 'popularity'
+                    member_gender_dict = dict(zip(sensitive_att['memberidx'], sensitive_att['popularity']))
+                    labels_ = [member_gender_dict.get(member, None) for member in intersect]
+
                 elif att == 'gender':
-                    labels_ = [sensitive_att.loc[sensitive_att['memberidx'] == member, 'gender'].tolist()[0] for member in
-                               intersect]
+                    # Create a dictionary mapping 'memberidx' to 'gender'
+                    member_gender_dict = dict(zip(sensitive_att['memberidx'], sensitive_att['gender']))
+                    # Retrieve 'gender' values for members in 'intersect'
+                    labels_ = [member_gender_dict.get(member, None) for member in intersect]
+
                 else:
                     raise ValueError('chosen sensitive attribute is not valid')
 
@@ -308,7 +312,7 @@ class Reranking:
         return statistics.mean([df.loc[df['metric'] == metric, 'mean'].tolist()[0] for df in utilityevals])
 
     @staticmethod
-    def run(fpred, output, fteamsvecs, fsplits, np_ratio, algorithm='det_cons', k_max=None, fairness_metrics={'ndkl', 'skew'}, utility_metrics={'map_cut_2,5,10', 'ndcg_cut_2,5,10'}, eq_op: bool = False, alpha: float = 0.1, att='popularity') -> None:
+    def run(fpred, output, fteamsvecs, fsplits, np_ratio, algorithm='det_cons', k_max=None, fairness_metrics={'ndkl', 'skew'}, utility_metrics={'ndcg_cut_20,50,100'}, eq_op: bool = False, alpha: float = 0.1, att='popularity') -> None:
         """
         Args:
             fpred: address of the .pred file
@@ -396,7 +400,7 @@ class Reranking:
         fairness.add_argument('-fairness_metrics', '--fairness_metrics', nargs='+', type=set, default={'ndkl', 'skew'}, required=False, help='list of fairness metrics; default: ndkl')
         fairness.add_argument('-algorithm', '--algorithm', type=str, required=True, help='reranking algorithm from {fa-ir, det_greedy, det_cons, det_relaxed}; required; Eg. det_cons')
         fairness.add_argument('-k_max', '--k_max', type=int, default=None, required=False, help='cutoff for the reranking algorithms; default: None')
-        fairness.add_argument('-utility_metrics', '--utility_metrics', nargs='+', type=set, default={'map_cut_2,5,10', 'ndcg_cut_2,5,10'}, required=False, help='list of utility metric in the form of pytrec_eval; default: map_cut_2,5,10')
+        fairness.add_argument('-utility_metrics', '--utility_metrics', nargs='+', type=set, default={'ndcg_cut_2,5,10,20,50,100', 'map_cut_2,5,10,20,50,100'}, required=False, help='list of utility metric in the form of pytrec_eval; default: map_cut_2,5,10')
         fairness.add_argument('-eq_op', '--eq_op', type=bool, default=False, required=False,help='eq_op: a flag to turn equality of opportunity criteria on or off; default: False')
         fairness.add_argument('-alpha', '--alpha', type=float, default=0.05, required=False,help='alpha: the significance value for fa*ir algortihm. Default value is 0.1')
         fairness.add_argument('-att', '--att', type=str, default='popularity', required=True,help='alpha: the significance value for fa*ir algortihm. Default value is 0.1')
