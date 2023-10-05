@@ -127,30 +127,36 @@ def area_under_curve(data_x: list, data_y: list, xlabel: str, ylabel: str, lcolo
     plt.show()
 
 
-def gender_distribution_plot(teamsvecs: scipy.sparse.lil_matrix, index_gender: pd.DataFrame, plot_title: str):
+def attribute_distribution_plot(teamsvecs: scipy.sparse.lil_matrix, index_att: pd.DataFrame, plot_title: str, att: str):
     """
     Args:
         teamsvecs: sparse matrix of teamsvecs
-        index_gender: mapping from indexes to genders as pandas dataframe
+        index_att: mapping from indexes to genders as pandas dataframe
         plot_title: title for the plot
     """
-    index_female = index_gender.loc[index_gender['gender'] == 'F', 'Unnamed: 0'].tolist()
-    index_male = index_gender.loc[index_gender['gender'] == 'M', 'Unnamed: 0'].tolist()
+    if att == 'gender':
+        protected = index_att.loc[index_att[att] == False, 'Unnamed: 0'].tolist()
+        nonprotected = index_att.loc[index_att[att] == True, 'Unnamed: 0'].tolist()
+        legendp, legendnp = 'female', 'male'
+    else:
+        protected = index_att.loc[index_att[att] == False, 'memberidx'].tolist()
+        nonprotected = index_att.loc[index_att[att] == True, 'memberidx'].tolist()
+        legendp, legendnp = 'nonpopular', 'popular'
 
-    nteams_id_male = teamsvecs['member'][:, index_male].sum(axis=0).tolist()[0]
-    nteams_id_female = teamsvecs['member'][:, index_female].sum(axis=0).tolist()[0]
+    nteams_id_male = teamsvecs['member'][:, nonprotected].sum(axis=0)
+    nteams_id_female = teamsvecs['member'][:, protected].sum(axis=0)
 
     stats = dict()
     nmembers_nteams_male = Counter(nteams_id_male.A1.astype(int))
     nmembers_nteams_female = Counter(nteams_id_female.A1.astype(int))
-    stats['male'] = {k: v for k, v in sorted(nmembers_nteams_male.items(), key=lambda item: item[1], reverse=True)}
-    stats['female'] = {k: v for k, v in sorted(nmembers_nteams_female.items(), key=lambda item: item[1], reverse=True)}
+    stats[legendnp] = {k: v for k, v in sorted(nmembers_nteams_male.items(), key=lambda item: item[1], reverse=True)}
+    stats[legendp] = {k: v for k, v in sorted(nmembers_nteams_female.items(), key=lambda item: item[1], reverse=True)}
 
     fig = plt.figure(figsize=(2, 2))
     plt.rcParams.update({'font.family': 'Consolas'})
     ax = fig.add_subplot(1, 1, 1)
     for k, v in stats.items():
-        marker_markeredgecolor = ('x', 'b') if k == 'male' else ('o', 'r')
+        marker_markeredgecolor = ('x', 'b') if k == legendnp else ('o', 'r')
         ax.plot(*zip(*stats[k].items()), marker=marker_markeredgecolor[0], label=k.lower(), linestyle='None', markeredgecolor=marker_markeredgecolor[1], markerfacecolor='none')
 
     ax.set_xlabel('#teams')
@@ -162,5 +168,5 @@ def gender_distribution_plot(teamsvecs: scipy.sparse.lil_matrix, index_gender: p
     plt.legend(fontsize='small')
     ax.set_title(plot_title, fontsize=11)
     ax.set_facecolor('whitesmoke')
-    fig.savefig(f'{plot_title}_nmembers_nteams.pdf', dpi=200, bbox_inches='tight')
+    fig.savefig(f'{plot_title}_{att}_nmembers_nteams.pdf', dpi=200, bbox_inches='tight')
     plt.show()
