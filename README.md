@@ -249,8 +249,11 @@ Hamed Loghmani<sup>1</sup>, [Hossein Fani](https://hosseinfani.github.io/)<sup>1
   author    = {Hamed Loghmani and Hossein Fani},
   title     = {Bootless Application of Greedy Re-ranking Algorithms in Fair Neural Team Formation},
   booktitle = {Advances in Bias and Fairness in Information Retrieval - Fourth International Workshop, {BIAS} 2023, Dublin, Irland, April 2, 2023, Revised Selected Papers},
-  publisher = {Springer},
+  pages     = {108--118},
+  publisher = {Springer Nature Switzerland},
   year      = {2023},
+  url       = {https://doi.org/10.1007/978-3-031-37249-0_9},
+  doi       = {10.1007/978-3-031-37249-0_9},
   bibsource = {dblp computer science bibliography, https://dblp.org}
 }
 ```
