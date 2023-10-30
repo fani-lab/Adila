@@ -78,7 +78,7 @@ def mid_calc(x : np.ndarray, y : np.ndarray)->int:
     left_area = round(np.trapz(y[ : mid_index + 1], x[ : mid_index + 1]), 3)
     right_area = round(np.trapz(y[mid_index : ], x[mid_index : ]), 3)
     # Finding the middle point that divides it equally
-    while(abs(left_area - right_area) < 0.01 and start <= end):
+    while(abs(left_area - right_area) > 0.05 and start <= end):
         if (left_area > right_area):
             end = mid_index 
         elif (right_area > left_area):
