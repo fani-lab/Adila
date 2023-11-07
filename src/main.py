@@ -11,7 +11,7 @@ from scipy.sparse import csr_matrix
 import torch
 
 import reranking
-from cmn.metric import *
+from Adila.src.cmn.metric import *
 
 class Reranking:
     
@@ -99,7 +99,7 @@ class Reranking:
 
 
     @staticmethod
-    def rerank(preds, labels, output, ratios, algorithm: str = 'det_greedy', k_max: int = None, eq_op: bool = False, alpha: float = 0.1) -> tuple:
+    def rerank(preds, labels, output, ratios, algorithm: str = 'det_greedy', k_max: int = None, eq_op: bool = False, att = 'popularity', alpha: float = 0.1) -> tuple:
         """
         Args:
             preds: loaded predictions from a .pred file
@@ -315,7 +315,7 @@ class Reranking:
         return statistics.mean([df.loc[df['metric'] == metric, 'mean'].tolist()[0] for df in utilityevals])
 
     @staticmethod
-    def run(fpred, output, fteamsvecs, fsplits, np_ratio, algorithm='det_cons', k_max=None, fairness_metrics={'ndkl', 'skew'}, utility_metrics={'ndcg_cut_20,50,100'}, eq_op: bool = False, alpha: float = 0.1, att='popularity') -> None:
+    def run(fpred, output, teamsvecs, splits, np_ratio, algorithm='det_cons', k_max=None, fairness_metrics={'ndkl'}, utility_metrics={'map_cut_2,5,10'}, eq_op: bool = False, att='popularity') -> None:
         """
         Args:
             fpred: address of the .pred file
@@ -323,7 +323,7 @@ class Reranking:
             fteamsvecs: address of teamsvecs file
             fsplits: address of splits.json file
             ratio: desired ratio of non-popular experts in the output
-            algorithm: ranker algorithm of choice among {'det_greedy', 'det_cons', 'det_relaxed', 'fa-ir'}
+            algorithm: ranker algorithm of choice among {'det_greedy', 'det_cons', 'det_relaxed'}
             k_max:
             fairness_metrics: desired fairness metric
             utility_metrics: desired utility metric
@@ -335,18 +335,17 @@ class Reranking:
         print(f'Reranking for the baseline {fpred} ...')
         st = time()
         if not os.path.isdir(output): os.makedirs(output)
-        with open(fteamsvecs, 'rb') as f: teamsvecs = pickle.load(f)
-        with open(fsplits, 'r') as f: splits = json.load(f)
+       # with open(fteamsvecs, 'rb') as f: teamsvecs = pickle.load(f)
+       # with open(fsplits, 'r') as f: splits = json.load(f)
         preds = torch.load(fpred)
 
         try:
-            print('Loading popularity labels ...')
+            print('Loading attribute labels ...')
             with open(f'{output}stats.pkl', 'rb') as f: stats = pickle.load(f)
-            labels = pd.read_csv(f'{output}{att}.csv')[att].to_list()
-            if eq_op:
-                with open(f'ratios.pkl', 'rb') as f: ratios = pickle.load(f)
+            labels = pd.read_csv(f'{output}popularity.csv')['popularity'].to_list()
+            with open(f'{output}ratios.pkl', 'rb') as f: ratios = pickle.load(f)
         except (FileNotFoundError, EOFError):
-            print(f'Loading popularity labels failed! Generating popularity labels at {output}stats.pkl ...')
+            print(f'Loading attribute labels failed! Generating popularity labels at {output}stats.pkl ...')
             stats, labels, ratios = Reranking.get_stats(teamsvecs, coefficient=1, output=output, eq_op=eq_op, att=att)
 
         #creating a static ratio in case eq_op is turned off
@@ -361,24 +360,24 @@ class Reranking:
 
         try:
             print('Loading reranking results ...')
-            df = pd.read_csv(f'{new_output}.{algorithm}.{k_max}.rerank.csv', converters={'reranked_idx': eval, 'reranked_probs': eval})
+            df = pd.read_csv(f'{new_output}.{algorithm}.{k_max}.{att}.rerank.csv', converters={'reranked_idx': eval, 'reranked_probs': eval})
             reranked_idx, probs = df['reranked_idx'].to_list(), df['reranked_probs'].to_list()
         except FileNotFoundError:
-            print(f'Loading re-ranking results failed! Reranking the predictions based on {att} with {algorithm} for top-{k_max} ...')
-            reranked_idx, probs, elapsed_time = Reranking.rerank(preds, labels, new_output, ratios, algorithm, k_max, eq_op, alpha)
+            print(f'Loading re-ranking results failed! Reranking the predictions based on {algorithm} for top-{k_max} ...')
+            reranked_idx, probs, elapsed_time = Reranking.rerank(preds, labels, new_output, ratios, algorithm, k_max, eq_op, att)
             #not sure os handles file locking for append during parallel run ...
             # with open(f'{new_output}.rerank.time', 'a') as file: file.write(f'{elapsed_time} {new_output} {algorithm} {k_max}\n')
             with open(f'{output}/rerank.time', 'a') as file: file.write(f'{elapsed_time} {new_output} {algorithm} {k_max}\n')
         try:
-            with open(f'{new_output}.{algorithm}.{k_max}.rerank.pred', 'rb') as f: reranked_preds = pickle.load(f)
-        except FileNotFoundError: reranked_preds = Reranking.reranked_preds(teamsvecs['member'], splits, reranked_idx, probs, new_output, algorithm, k_max)
+            with open(f'{new_output}.{algorithm}.{k_max}.{att}.rerank.pred', 'rb') as f: reranked_preds = pickle.load(f)
+        except FileNotFoundError: reranked_preds = Reranking.reranked_preds(teamsvecs['member'], splits, reranked_idx, probs, new_output, algorithm, k_max, att)
 
         try:
             print('Loading fairness evaluation results before and after reranking ...')
-            fairness_eval = pd.read_csv(f'{new_output}.{algorithm}.{k_max}.faireval.csv')
+            fairness_eval = pd.read_csv(f'{new_output}.{algorithm}.{k_max}.{att}.faireval.csv')
         except FileNotFoundError:
-            print(f'Loading fairness results failed! Evaluating fairness metric {fairness_metrics} ...')
-            Reranking.eval_fairness(preds, labels, reranked_idx, ratios, new_output, algorithm, k_max, eq_op, fairness_metrics)
+            print(f'Loading fairness results failed! Evaluating fairness metric {fairness_metrics} ...') #for now, it's hardcoded for 'ndkl'
+            Reranking.eval_fairness(preds, labels, reranked_idx, ratios, new_output, algorithm, k_max, eq_op, att)
 
         try:
             print('Loading utility metric evaluation results before and after reranking ...')
