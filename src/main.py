@@ -12,6 +12,7 @@ import torch
 
 import reranking
 from cmn.metric import *
+from util.visualization import area_under_curve
 
 warnings.simplefilter(action='ignore', category=FutureWarning)
 
@@ -30,13 +31,14 @@ class Reranking:
 
 
     @staticmethod
-    def get_stats(teamsvecs, coefficient: float, output: str, eq_op: bool = False, att='popularity') -> tuple:
+    def get_stats(teamsvecs, coefficient: float, output: str, eq_op: bool = False, att='popularity', popularity_threshold: str ='avg') -> tuple:
         """
         Args:
             teamsvecs_members: teamsvecs pickle file
             coefficient: coefficient to calculate a threshold for popularity (e.g. if 0.5, threshold = 0.5 * average number of teams for a specific member)
             output: address of the output directory
             eq_op: a flag to turn equality of opportunity criteria on or off(default = False)
+            popularity_threshold: argument to select the method we label popular vs nonpopular experts ('avg' or 'auc')
         Returns:
              tuple (dict, list)
 
@@ -48,7 +50,11 @@ class Reranking:
 
         stats['nteams_candidate-idx'] = {k: v for k, v in enumerate(sorted(col_sums.A1.astype(int), reverse=True))}
         stats['*avg_nteams_member'] = col_sums.mean()
-        threshold = coefficient * stats['*avg_nteams_member']
+
+        x, y = zip(*enumerate(sorted(col_sums.A1.astype(int), reverse=True)))
+        stats['*auc_nteams_member'] =  area_under_curve(x, y, 'expert-idx', 'nteams', show_plot=False)
+
+        threshold = coefficient * stats[f'*{popularity_threshold}_nteams_member']
 
         if att == 'popularity':
             labels = [True if threshold <= nteam_member else False for nteam_member in col_sums.getA1() ] #rowid maps to columnid in teamvecs['member']
@@ -314,7 +320,7 @@ class Reranking:
         return statistics.mean([df.loc[df['metric'] == metric, 'mean'].tolist()[0] for df in utilityevals])
 
     @staticmethod
-    def run(fpred, output, fteamsvecs, fsplits, np_ratio, algorithm='det_cons', k_max=None, fairness_metrics={'ndkl', 'skew'}, utility_metrics={'ndcg_cut_20,50,100'}, eq_op: bool = False, alpha: float = 0.1, att='popularity') -> None:
+    def run(fpred, output, fteamsvecs, fsplits, np_ratio, algorithm='det_cons', k_max=None, fairness_metrics={'ndkl', 'skew'}, utility_metrics={'ndcg_cut_20,50,100'}, eq_op: bool = False, alpha: float = 0.1, att='popularity', popularity_threshold='avg') -> None:
         """
         Args:
             fpred: address of the .pred file
@@ -346,7 +352,7 @@ class Reranking:
                 with open(f'ratios.pkl', 'rb') as f: ratios = pickle.load(f)
         except (FileNotFoundError, EOFError):
             print(f'Loading popularity labels failed! Generating popularity labels at {output}stats.pkl ...')
-            stats, labels, ratios = Reranking.get_stats(teamsvecs, coefficient=1, output=output, eq_op=eq_op, att=att)
+            stats, labels, ratios = Reranking.get_stats(teamsvecs, coefficient=1, output=output, eq_op=eq_op, att=att, popularity_threshold=popularity_threshold)
 
         #creating a static ratio in case eq_op is turned off
         if not eq_op:
@@ -406,6 +412,7 @@ class Reranking:
         fairness.add_argument('-eq_op', '--eq_op', type=bool, default=False, required=False,help='eq_op: a flag to turn equality of opportunity criteria on or off; default: False')
         fairness.add_argument('-alpha', '--alpha', type=float, default=0.05, required=False,help='alpha: the significance value for fa*ir algortihm. Default value is 0.1')
         fairness.add_argument('-att', '--att', type=str, default='popularity', required=True,help='alpha: the significance value for fa*ir algortihm. Default value is 0.1')
+        fairness.add_argument('-popularity_threshold', '--popularity_threshold', type=str, default='avg', required=False, help='popularity_threshold: we determine whether an expert is popular or otherwise based on avg teams per experts of equal auc, default value is avg')
 
         mode = parser.add_argument_group('mode')
         mode.add_argument('-mode', type=int, default=1, choices=[0, 1], help='0 for sequential run and 1 for parallel; default: 1')
@@ -448,7 +455,8 @@ if __name__ == "__main__":
                       eq_op=args.eq_op,
                       utility_metrics=args.utility_metrics,
                       alpha=args.alpha,
-                      att=args.att)
+                      att=args.att,
+                      popularity_threshold=args.popularity_threshold)
         exit(0)
 
     if os.path.isdir(args.fpred):
@@ -476,7 +484,8 @@ if __name__ == "__main__":
                                                       eq_op=args.eq_op,
                                                       utility_metrics=args.utility_metrics,
                                                       alpha=args.alpha,
-                                                      att=args.att)
+                                                      att=args.att,
+                                                      popularity_threshold=args.popularity_threshold)
         elif args.mode == 1: # parallel run
             print(f'Parallel run started ...')
             with multiprocessing.Pool(multiprocessing.cpu_count() if args.core < 0 else args.core) as executor:
@@ -490,4 +499,5 @@ if __name__ == "__main__":
                                          utility_metrics=args.utility_metrics,
                                          eq_op=args.eq_op,
                                          alpha=args.alpha,
-                                         att=args.att), pairs)
+                                         att=args.att,
+                                         popularity_threshold=args.popularity_threshold), pairs)

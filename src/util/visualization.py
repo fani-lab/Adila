@@ -91,7 +91,7 @@ def mid_calc(x : np.ndarray, y : np.ndarray)->int:
     return mid_index
 
 
-def area_under_curve(data_x: list, data_y: list, xlabel: str, ylabel: str, lcolor='green', rcolor='orange'):
+def area_under_curve(data_x: list, data_y: list, xlabel: str, ylabel: str, lcolor: str='green', rcolor: str='orange', show_plot: bool=True)->float:
     """
     Args:
         data1: Index of experts
@@ -124,8 +124,9 @@ def area_under_curve(data_x: list, data_y: list, xlabel: str, ylabel: str, lcolo
     ax.set_facecolor('whitesmoke')
 
     # Displays graph
-    plt.show()
-
+    if show_plot:
+        plt.show()
+    return ynew[mid_index]
 
 def attribute_distribution_plot(teamsvecs: scipy.sparse.lil_matrix, index_att: pd.DataFrame, plot_title: str, att: str):
     """
