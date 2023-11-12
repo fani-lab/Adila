@@ -1,12 +1,13 @@
 # ``Adila``<sup>*</sup>: Fairness-Aware Team Formation
 <sup>*[ عادلة, feminine Arabic given name, meaning just and fair](https://en.wikipedia.org/wiki/Adila_(name))<sup>
 
-`Team Formation` aims to automate forming teams of experts who can successfully solve difficult tasks. While state-of-the-art neural team formation methods are able to efficiently analyze massive collections of experts to form effective collaborative teams, they largely ignore the fairness in recommended teams of experts. Fairness breeds innovation and increases teams' success by enabling a stronger sense of community, reducing conflict, and stimulating more creative thinking. In `Adila`, we study the application of `fairness-aware` team formation algorithms to mitigate the potential popularity bias in the neural team formation models. Our experiments show that, first, neural team formation models are biased toward popular experts. Second, although deterministic re-ranking algorithms mitigate popularity bias substantially, they severely hurt the efficacy of teams.
+`Team Formation` aims to automate forming teams of experts who can successfully solve difficult tasks. While state-of-the-art neural team formation methods are able to efficiently analyze massive collections of experts to form effective collaborative teams, they largely ignore the fairness in recommended teams of experts. Fairness breeds innovation and increases teams' success by enabling a stronger sense of community, reducing conflict, and stimulating more creative thinking. In `Adila`, we study the application of `fairness-aware` team formation algorithms to mitigate the potential popularity bias in the neural team formation models. Our experiments show that, first, neural team formation models are biased toward popular experts. Second, although deterministic re-ranking algorithms mitigate popularity bias substantially, they severely hurt the efficacy of teams. On the other hand, probabilistic greedy re-ranking algorithms mitigate popularity bias significantly and maintain utility.
 ## [![license](https://img.shields.io/badge/Demo-youtu.be/nFLow5Oy9nw-critical?style=&logo=youtube)](https://www.youtube.com/watch?v=EmAFvANqzBM&list=PLhyDn1IGkhLZ8WtaJgYV48zvatxyxpBoS&index=11)
 
-> We have studied the application of state-of-the-art [`deterministic greedy re-ranking methods [Geyik et al. KDD'19]`](https://dl.acm.org/doi/10.1145/3292500.3330691) to mitigate `populairty bias` based on `equality of opportunity` for state-of-the-art neural team formation methods from [`OpeNTF`](https://github.com/fani-lab/opeNTF/). Our experiments show that:
+> We have studied the application of state-of-the-art [`deterministic greedy re-ranking methods [Geyik et al. KDD'19]`](https://dl.acm.org/doi/10.1145/3292500.3330691) in addition to [`probabilistic greedy re-ranking methods [Zehlike et al. IP&M'21]`](https://dl.acm.org/doi/abs/10.1016/j.ipm.2021.102707)to mitigate `populairty bias` and `gender bias` based on `equality of opportunity` and `demographic parity` notions of fairness for state-of-the-art neural team formation methods from [`OpeNTF`](https://github.com/fani-lab/opeNTF/). Our experiments show that:
 > - Neural team formation models are biased toward popular experts;
-> - Although deterministic re-ranking algorithms mitigate popularity bias substantially, they severely hurt the efficacy of teams. 
+> - Although deterministic re-ranking algorithms mitigate bias substantially, they severely hurt the efficacy of teams.
+> - Probabilistic greedy re-ranking methods are able to mitigate bias while maintaining the utility of the teams as well. 
 
 > Currently, we are investigating:
 > - Other fairness factors like demographic attributes, including age, race, and gender; 
@@ -75,7 +76,7 @@ Where the arguements are:
 
   > `np_ratio`: the desired `nonpopular` ratio among members of predicted teams after mitigation process by re-ranking algorithms. E.g., 0.5.
   
-  > `reranker`: fairness-aware reranking algorithm from {`det_greedy`, `det_cons`, `det_relaxed`}. Eg. `det_cons`.  
+  > `reranker`: fairness-aware reranking algorithm from {`det_greedy`, `det_cons`, `det_relaxed`, `fa-ir`}. Eg. `det_cons`.  
 
   > `output`: the path to the reranked predictions of members for teams, as well as, the teams' success and fairness evaluation `before` and `after` mitigation process.
 
