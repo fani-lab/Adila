@@ -6,7 +6,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 
-def calculate_metrics(Y, Y_, per_instance=False, metrics={'P_2,5,10', 'recall_2,5,10', 'ndcg_cut_2,5,10', 'map_cut_2,5,10'}):
+def calculate_metrics(Y, Y_, per_instance=False, metrics={'ndcg_cut_20,50,100'}):
     # eval_met = dict(zip(metrics, [None]*len(metrics)))
     aucroc, fpr, tpr = calculate_auc_roc(Y, Y_)
 
@@ -19,7 +19,9 @@ def calculate_metrics(Y, Y_, per_instance=False, metrics={'P_2,5,10', 'recall_2,
     print(f'Evaluating {metrics} ...')
     df = pd.DataFrame.from_dict(pytrec_eval.RelevanceEvaluator(qrel, metrics).evaluate(run))
     print(f'Averaging ...')
-    df_mean = df.mean(axis=1).append(pd.Series([aucroc], index=['aucroc'])).to_frame('mean')
+    # The commented line changes to line 25 due to compatibility issues after Python3.7
+    #df_mean = df.mean(axis=1).append(pd.Series([aucroc], index=['aucroc'])).to_frame('mean')
+    df_mean = pd.concat([df.mean(axis=1), pd.Series([aucroc], index=['aucroc'])]).to_frame('mean')
     return df if per_instance else None, df_mean, aucroc, (fpr, tpr) # fpr, tpr is a long string that pandas truncate
 
 def calculate_auc_roc(Y, Y_):

@@ -1,4 +1,4 @@
-import json, os, statistics, pandas as pd, pickle, multiprocessing, argparse, numpy as np
+import json, os, statistics, pandas as pd, pickle, multiprocessing, argparse, warnings, numpy as np
 from time import time, perf_counter
 from functools import partial
 
@@ -12,6 +12,8 @@ import torch
 
 import reranking
 from cmn.metric import *
+
+warnings.simplefilter(action='ignore', category=FutureWarning)
 
 class Reranking:
 
@@ -28,7 +30,7 @@ class Reranking:
 
 
     @staticmethod
-    def get_stats(teamsvecs, coefficient: float, output: str, eq_op: bool = False, att='gender') -> tuple:
+    def get_stats(teamsvecs, coefficient: float, output: str, eq_op: bool = False, att='popularity') -> tuple:
         """
         Args:
             teamsvecs_members: teamsvecs pickle file
@@ -157,7 +159,7 @@ class Reranking:
                 probs.append([x.score for x in fair_team])
             pd.DataFrame({'reranked_idx': idx, 'reranked_probs': probs}).to_csv(f'{output}.{algorithm}.{k_max}.rerank.csv', index=False)
 
-        elif algorithm in ['det_greedy', 'det_relaxed', 'det_cons']:
+        elif algorithm in ['det_greedy', 'det_relaxed', 'det_cons', 'det_const_sort']:
             if eq_op:
                 start_time = perf_counter()
                 for i, team in enumerate(tqdm(preds)):
