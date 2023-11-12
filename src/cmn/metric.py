@@ -6,7 +6,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 
-def calculate_metrics(Y, Y_, per_instance=False, metrics={'ndcg_cut_20,50,100'}):
+def calculate_metrics(Y, Y_, per_instance=False, metrics={'P_2,5,10', 'recall_2,5,10', 'ndcg_cut_2,5,10', 'map_cut_2,5,10'}):
     # eval_met = dict(zip(metrics, [None]*len(metrics)))
     aucroc, fpr, tpr = calculate_auc_roc(Y, Y_)
 
