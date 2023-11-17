@@ -1,3 +1,6 @@
+import pickle as pkl
+from scipy.sparse import find
+
 import statistics
 import scipy.sparse
 import numpy as np
@@ -171,3 +174,41 @@ def attribute_distribution_plot(teamsvecs: scipy.sparse.lil_matrix, index_att: p
     ax.set_facecolor('whitesmoke')
     fig.savefig(f'{plot_title}_{att}_nmembers_nteams.pdf', dpi=200, bbox_inches='tight')
     plt.show()
+
+
+
+def graph_members_with_most_teams_topK(teamsvecsFile: str, k: int):
+    """
+    Generates a graph that plots the members from most amount of teams to least amount of teams.
+    Will also find the area under the curve and seperate it into two equal portions
+    Args:
+        teamsvecsFile: file location for the teamsvecs.pkl on the results
+        k: top-k highest number of teams to graph
+    """
+    data_x = [] 
+    data_y = None
+    with open(teamsvecsFile, "rb") as f:
+        opeNTF_out = pkl.load(f)
+
+        ROWS = opeNTF_out['member'].get_shape()[0]
+        COLS = opeNTF_out['member'].get_shape()[1]
+
+        if(not k): k = COLS # if no k is given, plot all teams
+
+        data_y = [0] * COLS
+
+        # For each team recorded:
+        for j in range(0, ROWS):
+            row = (opeNTF_out["member"].getrow(j)) 
+            # Find all the non-zero entries: (what the [1] is for)
+            for i in find(row)[1]: data_y[i] += 1 
+
+        # Make x axis 0 to k:
+        for i in range(0, k): data_x.append(i)
+
+        # Get top-k "y" values
+        data_y.sort(reverse=True)
+        data_y = data_y[:k]
+
+    # Plot area_under_curve with the obtained data:
+    area_under_curve(data_x=data_x, data_y=data_y, xlabel="expert-idx", ylabel="#teams")
