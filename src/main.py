@@ -312,14 +312,6 @@ class Reranking:
         pd.concat([df_mean_before, df_mean_after], axis=1).to_csv(f'{output}.{algorithm}.{k_max}.utileval.csv', index_label='metric')
 
     @staticmethod
-    def fairness_average(fairevals: list) -> tuple:
-        return statistics.mean([df['ndkl.before'].mean() for df in fairevals]), statistics.mean([df['ndkl.after'].mean() for df in fairevals])
-
-    @staticmethod
-    def utility_average(utilityevals: list, metric: str) -> float:
-        return statistics.mean([df.loc[df['metric'] == metric, 'mean'].tolist()[0] for df in utilityevals])
-
-    @staticmethod
     def run(fpred, output, fteamsvecs, fsplits, np_ratio, algorithm='det_cons', k_max=None, fairness_metrics={'ndkl', 'skew'}, utility_metrics={'ndcg_cut_20,50,100'}, eq_op: bool = False, alpha: float = 0.1, att='popularity', popularity_threshold='avg') -> None:
         """
         Args:
