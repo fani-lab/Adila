@@ -114,10 +114,9 @@ class Reranking:
             if eq_op: r = {True: 1 - ratios[i], False: ratios[i]}
             if algorithm == 'fa-ir':
                 fair_doc= [FairScoreDoc(m[0], m[2], not m[1]) for m in member_popularity_probs]
-                fair_teams = list()
                 fair = fsc.Fair(k_max, r[False], alpha)
-                if fair.is_fair(team[:k_max]): reranked = team[:k_max] #no change
-                else: reranked = fair.re_rank(team)[:k_max]
+                if fair.is_fair(fair_doc[:k_max]): reranked = fair_doc[:k_max] #no change
+                else: reranked = fair.re_rank(fair_doc)[:k_max]
                 idx.append([x.id for x in reranked])
                 probs.append([x.score for x in reranked])
 
