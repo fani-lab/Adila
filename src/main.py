@@ -163,8 +163,9 @@ class Reranking:
                 member_popularity_probs = [(m, labels[m], float(team[m])) for m in range(len(team))]
                 member_popularity_probs.sort(key=lambda x: x[2], reverse=True)
                 #IMPORTANT: the ratios keys should match the labels!
-                dic_before[metric].append(reranking.ndkl([label for _, label, _ in member_popularity_probs[:threshold]], r))
-                dic_after[metric].append(reranking.ndkl([labels[int(m)] for m in reranked_idx[i]], r))
+                if 'ndkl' == metric:
+                    dic_before[metric].append(reranking.ndkl([label for _, label, _ in member_popularity_probs[:threshold]], r))
+                    dic_after[metric].append(reranking.ndkl([labels[int(m)] for m in reranked_idx[i]], r))
 
                 if 'skew' == metric:
                     l_before = [label for _, label, _ in member_popularity_probs[: threshold]]
