@@ -107,13 +107,13 @@ class Reranking:
         r = ratios[False]
         idx, probs, protected = list(), list(), list()
         for i, team in enumerate(tqdm(preds)):
-            member_popularity_probs = [(m, labels[m], float(team[m])) for m in range(len(team))]
-            member_popularity_probs.sort(key=lambda x: x[2], reverse=True)
+            member_probs = [(m, labels[m], float(team[m])) for m in range(len(team))]
+            member_probs.sort(key=lambda x: x[2], reverse=True)
             # The usage of not operator is because we mapped popular as True and non-popular as False.
             # Non-popular is our protected group and vice versa. So we need to use not in FairScoreDocs
             if eq_op: r = {True: 1 - ratios[i], False: ratios[i]}
             if algorithm == 'fa-ir':
-                fair_doc = [FairScoreDoc(m[0], m[2], not m[1]) for m in member_popularity_probs]
+                fair_doc = [FairScoreDoc(m[0], m[2], not m[1]) for m in member_probs]
                 fair = fsc.Fair(k_max, r, alpha)
                 if fair.is_fair(fair_doc[:k_max]): reranked = fair_doc[:k_max] #no change
                 else: reranked = fair.re_rank(fair_doc)[:k_max]
@@ -121,8 +121,8 @@ class Reranking:
                 probs.append([x.score for x in reranked])
 
             elif algorithm in ['det_greedy', 'det_relaxed', 'det_cons', 'det_const_sort']:
-                reranked_idx = reranking.rerank([label for _, label, _ in member_popularity_probs], r, k_max=k_max, algorithm=algorithm)
-                reranked_probs = [member_popularity_probs[m][2] for m in reranked_idx]
+                reranked_idx = reranking.rerank([label for _, label, _ in member_probs], r, k_max=k_max, algorithm=algorithm)
+                reranked_probs = [member_probs[m][2] for m in reranked_idx]
                 idx.append(reranked_idx)
                 probs.append(reranked_probs)
             else: raise ValueError('chosen reranking algorithm is not valid')
@@ -160,15 +160,15 @@ class Reranking:
 
                 if eq_op: r = {True: 1 - ratios[i], False: ratios[i]}
                 else: r = ratios
-                member_popularity_probs = [(m, labels[m], float(team[m])) for m in range(len(team))]
-                member_popularity_probs.sort(key=lambda x: x[2], reverse=True)
+                member_probs = [(m, labels[m], float(team[m])) for m in range(len(team))]
+                member_probs.sort(key=lambda x: x[2], reverse=True)
                 #IMPORTANT: the ratios keys should match the labels!
                 if 'ndkl' == metric:
-                    dic_before[metric].append(reranking.ndkl([label for _, label, _ in member_popularity_probs[:threshold]], r))
+                    dic_before[metric].append(reranking.ndkl([label for _, label, _ in member_probs[:threshold]], r))
                     dic_after[metric].append(reranking.ndkl([labels[int(m)] for m in reranked_idx[i]], r))
 
                 if 'skew' == metric:
-                    l_before = [label for _, label, _ in member_popularity_probs[: threshold]]
+                    l_before = [label for _, label, _ in member_probs[: threshold]]
                     l_after = [labels[int(m)] for m in reranked_idx[i]]
                     dic_before['skew']['protected'].append(reranking.skew(Reranking.calculate_prob(False, l_before), r[False]))
                     dic_before['skew']['nonprotected'].append(reranking.skew(Reranking.calculate_prob(True, l_before), r[True]))
