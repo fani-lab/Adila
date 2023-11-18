@@ -113,8 +113,8 @@ class Reranking:
             # Non-popular is our protected group and vice versa. So we need to use not in FairScoreDocs
             if eq_op: r = {True: 1 - ratios[i], False: ratios[i]}
             if algorithm == 'fa-ir':
-                fair_doc= [FairScoreDoc(m[0], m[2], not m[1]) for m in member_popularity_probs]
-                fair = fsc.Fair(k_max, r[False], alpha)
+                fair_doc = [FairScoreDoc(m[0], m[2], not m[1]) for m in member_popularity_probs]
+                fair = fsc.Fair(k_max, r, alpha)
                 if fair.is_fair(fair_doc[:k_max]): reranked = fair_doc[:k_max] #no change
                 else: reranked = fair.re_rank(fair_doc)[:k_max]
                 idx.append([x.id for x in reranked])
