@@ -292,7 +292,8 @@ class Reranking:
 
         try:
             print('Loading fairness evaluation results before and after reranking ...')
-            fairness_eval = pd.read_csv(f'{new_output}.{algorithm}.{k_max}.faireval.csv')
+            for metric in fairness_metrics:
+                fairness_eval = pd.read_csv(f'{new_output}.{algorithm}.{k_max}.{metric}.faireval.csv')
         except FileNotFoundError:
             print(f'Loading fairness results failed! Evaluating fairness metric {fairness_metrics} ...')
             Reranking.eval_fairness(preds, labels, reranked_idx, ratios, new_output, algorithm, k_max, eq_op, fairness_metrics)
