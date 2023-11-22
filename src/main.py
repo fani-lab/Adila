@@ -59,7 +59,7 @@ class Reranking:
             labels = [True if threshold <= nteam_member else False for nteam_member in col_sums.getA1() ] #rowid maps to columnid in teamvecs['member']
             stats['np_ratio'] = labels.count(False) / stats['*nmembers']
             with open(f'{output}/stats.pkl', 'wb') as f: pickle.dump(stats, f)
-            pd.DataFrame(data=labels, columns=['popularity']).to_csv(f'{output}labels.csv', index_label='memberidx')
+            pd.DataFrame(data=labels, columns=['popularity']).to_csv(f'{output}/labels.csv', index_label='memberidx')
             sensitive_att = pd.read_csv(f'{output}/labels.csv')
 
         elif att == 'gender':
