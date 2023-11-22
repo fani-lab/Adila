@@ -177,8 +177,9 @@ class Reranking:
                     dic_before['skew']['nonprotected'].append(reranking.skew(Reranking.calculate_prob(True, l_before), r[True]))
                     dic_after['skew']['protected'].append(reranking.skew(Reranking.calculate_prob(False, l_after), r[False]))
                     dic_after['skew']['nonprotected'].append(reranking.skew(Reranking.calculate_prob(True, l_after), r[True]))
-            df_before = pd.DataFrame(dic_before).mean(axis=0).to_frame('mean.before')
-            df_after = pd.DataFrame(dic_after).mean(axis=0).to_frame('mean.after')
+
+            df_before = pd.DataFrame(dic_before[metric]).mean(axis=0).to_frame('mean.before')
+            df_after = pd.DataFrame(dic_after[metric]).mean(axis=0).to_frame('mean.after')
             df = pd.concat([df_before, df_after], axis=1)
             df.to_csv(f'{output}.{algorithm}.{k_max}.{metric}.faireval.csv', index_label='metric')
 
