@@ -175,7 +175,7 @@ After successful run of all steps, [`./output`](./output) contains:
         │           ├── f2.test.pred.det_cons.10.utileval.csv
         │           ├── f2.test.pred.det_cons.10.rerank.csv
         │           ├── f2.test.pred.det_cons.10.rerank.pred
-        │           ├── popularity.csv
+        │           ├── labels.csv
         │           ├── rerank.time
         │           └── stats.pkl
         └── splits.json

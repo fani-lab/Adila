@@ -13,3 +13,4 @@ dependencies:
     - pytrec-eval-terrier==0.5.2
     - reranking==0.3.6
     - torch==1.13.0
+    - seaborn

@@ -58,19 +58,19 @@ class Reranking:
         if att == 'popularity':
             labels = [True if threshold <= nteam_member else False for nteam_member in col_sums.getA1() ] #rowid maps to columnid in teamvecs['member']
             stats['np_ratio'] = labels.count(False) / stats['*nmembers']
-            with open(f'{output}stats.pkl', 'wb') as f: pickle.dump(stats, f)
-            pd.DataFrame(data=labels, columns=['popularity']).to_csv(f'{output}popularity.csv', index_label='memberidx')
-            sensitive_att = pd.read_csv(f'{output}popularity.csv')
+            with open(f'{output}/stats.pkl', 'wb') as f: pickle.dump(stats, f)
+            pd.DataFrame(data=labels, columns=['popularity']).to_csv(f'{output}labels.csv', index_label='memberidx')
+            sensitive_att = pd.read_csv(f'{output}/labels.csv')
 
         elif att == 'gender':
             sensitive_att, stats['np_ratio'] = Reranking.gender_process(output)
-            with open(f'{output}stats.pkl', 'wb') as f: pickle.dump(stats, f)
+            with open(f'{output}/stats.pkl', 'wb') as f: pickle.dump(stats, f)
             labels = sensitive_att['gender'].tolist()
 
         if eq_op:
             skill_member = skillvecs.transpose() @ teamsvecs_members
             ratios = list()
-            print("Generating Ratios ... ")
+            print("Generating ratios ... ")
             for i in tqdm(range(skillvecs.shape[0])):
                 skill_indexes = skillvecs[i].nonzero()[1].tolist()
                 members = [skill_member[idx].nonzero()[1] for idx in skill_indexes]
@@ -83,7 +83,7 @@ class Reranking:
                 labels_ = [member_dict.get(member, None) for member in intersect]
                 ratios.append(labels_.count(False) / len(intersect))
 
-            with open(f'ratios.{att}.pkl', 'wb') as file: pickle.dump(ratios, file)
+            with open(f'{output}/ratios.pkl', 'wb') as file: pickle.dump(ratios, file)
             return stats, labels, ratios
 
         else: return stats, labels, None # None is to unify the number of returned arguments by the function to avoid complications in run function
@@ -104,17 +104,20 @@ class Reranking:
             tuple (list, list)
         """
         start_time = perf_counter()
-        r = ratios[False]
+        r = ratios
+        fair = fsc.Fair(k_max, r[False], alpha)
         idx, probs, protected = list(), list(), list()
         for i, team in enumerate(tqdm(preds)):
             member_probs = [(m, labels[m], float(team[m])) for m in range(len(team))]
             member_probs.sort(key=lambda x: x[2], reverse=True)
             # The usage of not operator is because we mapped popular as True and non-popular as False.
             # Non-popular is our protected group and vice versa. So we need to use not in FairScoreDocs
-            if eq_op: r = {True: 1 - ratios[i], False: ratios[i]}
+            if eq_op:
+                r = {True: 1 - ratios[i], False: ratios[i]}
+                fair = fsc.Fair(k_max, r[False], alpha) #fair.p = r; fair._cache = {}
             if algorithm == 'fa-ir':
                 fair_doc = [FairScoreDoc(m[0], m[2], not m[1]) for m in member_probs]
-                fair = fsc.Fair(k_max, r, alpha)
+                # fair = fsc.Fair(k_max, ratios[i], alpha)
                 if fair.is_fair(fair_doc[:k_max]): reranked = fair_doc[:k_max] #no change
                 else: reranked = fair.re_rank(fair_doc)[:k_max]
                 idx.append([x.id for x in reranked])
@@ -246,21 +249,22 @@ class Reranking:
             None
         """
         print('#'*100)
-        print(f'Reranking for the baseline {fpred} ...')
+        print(f'Reranking for {att} using {algorithm} for the baseline {fpred} ...')
         st = time()
+        output += f'{att}'
         if not os.path.isdir(output): os.makedirs(output)
         with open(fteamsvecs, 'rb') as f: teamsvecs = pickle.load(f)
         with open(fsplits, 'r') as f: splits = json.load(f)
         preds = torch.load(fpred)
 
         try:
-            print('Loading popularity labels ...')
-            with open(f'{output}stats.pkl', 'rb') as f: stats = pickle.load(f)
-            labels = pd.read_csv(f'{output}{att}.csv')[att].to_list()
+            print(f'Loading stats, labels {", ratios" if eq_op else ""}  ...')
+            with open(f'{output}/stats.pkl', 'rb') as f: stats = pickle.load(f)
+            labels = pd.read_csv(f'{output}labels.csv')[att].to_list()
             if eq_op:
-                with open(f'ratios.pkl', 'rb') as f: ratios = pickle.load(f)
+                with open(f'{output}/ratios.pkl', 'rb') as f: ratios = pickle.load(f)
         except (FileNotFoundError, EOFError):
-            print(f'Loading popularity labels failed! Generating popularity labels at {output}stats.pkl ...')
+            print(f'Loading failed! Generating files {output} ...')
             stats, labels, ratios = Reranking.get_stats(teamsvecs, coefficient=1, output=output, eq_op=eq_op, att=att, popularity_threshold=popularity_threshold)
 
         #creating a static ratio in case eq_op is turned off
