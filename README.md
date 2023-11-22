@@ -162,7 +162,7 @@ After successful run of all steps, [`./output`](./output) contains:
         │       ├── f0.test.pred
         │       ├── f1.test.pred
         │       ├── f2.test.pred
-        │       └── rerank
+        │       └── rerank/{popularity, gender}
         │           ├── f0.test.pred.det_cons.10.faireval.csv
         │           ├── f0.test.pred.det_cons.10.utileval.csv
         │           ├── f0.test.pred.det_cons.10.rerank.csv
