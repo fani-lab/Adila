@@ -279,7 +279,7 @@ class Reranking:
         new_output = f'{output}/{os.path.split(fpred)[-1]}'
         try:
             print('Loading reranking results ...')
-            df = pd.read_csv(f'{new_output}.{algorithm}.{k_max}.rerank.csv', converters={'reranked_idx': eval, 'reranked_probs': eval})
+            df = pd.read_csv(f'{new_output}.{algorithm}.{str(alpha).replace("0.", "")+"." if algorithm=="fa-ir" else ""}{k_max}.rerank.csv', converters={'reranked_idx': eval, 'reranked_probs': eval})
             reranked_idx, probs = df['reranked_idx'].to_list(), df['reranked_probs'].to_list()
         except FileNotFoundError:
             print(f'Loading re-ranking results failed! Reranking the predictions based on {att} with {algorithm} for top-{k_max} ...')
@@ -294,14 +294,14 @@ class Reranking:
         try:
             print('Loading fairness evaluation results before and after reranking ...')
             for metric in fairness_metrics:
-                fairness_eval = pd.read_csv(f'{new_output}.{algorithm}.{k_max}.{metric}.faireval.csv')
+                fairness_eval = pd.read_csv(f'{new_output}.{algorithm}.{str(alpha).replace("0.", "")+"." if algorithm=="fa-ir" else ""}{k_max}.{metric}.faireval.csv')
         except FileNotFoundError:
             print(f'Loading fairness results failed! Evaluating fairness metric {fairness_metrics} ...')
             Reranking.eval_fairness(preds, labels, reranked_idx, ratios, new_output, algorithm, k_max, alpha, eq_op, fairness_metrics)
 
         try:
             print('Loading utility metric evaluation results before and after reranking ...')
-            utility_before = pd.read_csv(f'{new_output}.{algorithm}.{k_max}.utileval.csv')
+            utility_before = pd.read_csv(f'{new_output}.{algorithm}.{str(alpha).replace("0.", "")+"." if algorithm=="fa-ir" else ""}{k_max}.utileval.csv')
         except:
             print(f' Loading utility metric results failed! Evaluating utility metric {utility_metrics} ...')
             Reranking.eval_utility(teamsvecs['member'], reranked_preds, fpred, preds, splits, utility_metrics, new_output, algorithm, k_max=k_max, alpha=alpha)
