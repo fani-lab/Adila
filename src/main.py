@@ -30,14 +30,14 @@ class Reranking:
         return ig, gender_ratio
 
     @staticmethod
-    def get_stats(teamsvecs, coefficient: float, output: str, eq_op: bool = False, att='popularity', popularity_threshold: str ='avg') -> tuple:
+    def get_stats(teamsvecs, coefficient: float, output: str, fairness_notion: str = 'dp', att='popularity', popularity_thresholding: str ='avg') -> tuple:
         """
         Args:
             teamsvecs_members: teamsvecs pickle file
             coefficient: coefficient to calculate a threshold for popularity (e.g. if 0.5, threshold = 0.5 * average number of teams for a specific member)
             output: address of the output directory
-            eq_op: a flag to turn equality of opportunity criteria on or off(default = False)
-            popularity_threshold: argument to select the method we label popular vs nonpopular experts ('avg' or 'auc')
+            fairness_notion: dp: demographic parity, eo: equality of opportunity
+            popularity_thresholding: argument to select the method we label popular vs nonpopular experts ('avg' or 'auc')
         Returns:
              tuple (dict, list)
 
@@ -53,7 +53,7 @@ class Reranking:
         x, y = zip(*enumerate(sorted(col_sums.A1.astype(int), reverse=True)))
         stats['*auc_nteams_member'] =  area_under_curve(x, y, 'expert-idx', 'nteams', show_plot=False)
 
-        threshold = coefficient * stats[f'*{popularity_threshold}_nteams_member']
+        threshold = coefficient * stats[f'*{popularity_thresholding}_nteams_member']
 
         if att == 'popularity':
             labels = [True if threshold <= nteam_member else False for nteam_member in col_sums.getA1() ] #rowid maps to columnid in teamvecs['member']
@@ -67,7 +67,7 @@ class Reranking:
             with open(f'{output}/stats.pkl', 'wb') as f: pickle.dump(stats, f)
             labels = sensitive_att['gender'].tolist()
 
-        if eq_op:
+        if fairness_notion == 'eo':
             skill_member = skillvecs.transpose() @ teamsvecs_members
             ratios = list()
             print("Generating ratios ... ")
@@ -89,7 +89,7 @@ class Reranking:
         else: return stats, labels, None # None is to unify the number of returned arguments by the function to avoid complications in run function
 
     @staticmethod
-    def rerank(preds, labels, output, ratios, algorithm: str = 'det_greedy', k_max: int = None, eq_op: bool = False, alpha: float = 0.05) -> tuple:
+    def rerank(preds, labels, output, ratios, algorithm: str = 'det_greedy', k_max: int = None, fairness_notion: str = 'dp', alpha: float = 0.05) -> tuple:
         """
         Args:
             preds: loaded predictions from a .pred file
@@ -112,7 +112,7 @@ class Reranking:
             member_probs.sort(key=lambda x: x[2], reverse=True)
             # The usage of not operator is because we mapped popular as True and non-popular as False.
             # Non-popular is our protected group and vice versa. So we need to use not in FairScoreDocs
-            if eq_op:
+            if fairness_notion == 'eo':
                 r = {True: 1 - ratios[i], False: ratios[i]}
                 fair = fsc.Fair(k_max, r[False], alpha) #fair.p = r; fair._cache = {}
             if algorithm == 'fa-ir':
@@ -136,7 +136,7 @@ class Reranking:
     def calculate_prob(atr: bool, team: list) -> float: return team.count(atr) / len(team)
 
     @staticmethod
-    def eval_fairness(preds, labels, reranked_idx, ratios, output, algorithm, k_max, alpha, eq_op: bool = False, metrics: set = {'skew', 'ndkl'}) -> pandas.DataFrame:
+    def eval_fairness(preds, labels, reranked_idx, ratios, output, algorithm, k_max, alpha, fairness_notion: str = 'dp', metrics: set = {'skew', 'ndkl'}) -> pandas.DataFrame:
         """
         Args:
             preds: loaded predictions from a .pred file
@@ -161,7 +161,7 @@ class Reranking:
                 # defining the threshold for the times we have or don't have cutoff
                 threshold = len(preds) if k_max is None else k_max
 
-                if eq_op: r = {True: 1 - ratios[i], False: ratios[i]}
+                if fairness_notion == 'eo': r = {True: 1 - ratios[i], False: ratios[i]}
                 else: r = ratios
                 member_probs = [(m, labels[m], float(team[m])) for m in range(len(team))]
                 member_probs.sort(key=lambda x: x[2], reverse=True)
@@ -233,18 +233,25 @@ class Reranking:
         pd.concat([df_mean_before, df_mean_after], axis=1).to_csv(f'{output}.{algorithm}.{str(alpha).replace("0.", "")+"." if algorithm=="fa-ir" else ""}{k_max}.utileval.csv', index_label='metric')
 
     @staticmethod
-    def run(fpred, output, fteamsvecs, fsplits, np_ratio, algorithm='det_cons', k_max=None, fairness_metrics={'ndkl', 'skew'}, utility_metrics={'ndcg_cut_20,50,100'}, eq_op: bool = False, alpha: float = 0.1, att='popularity', popularity_threshold='avg') -> None:
+    def run(fpred, fteamsvecs, fsplits,
+            fairness_notion='eo', att='popularity', algorithm='det_cons',
+            k_max=None, alpha: float = 0.1, np_ratio=None, popularity_thresholding='avg',
+            fairness_metrics={'ndkl', 'skew'}, utility_metrics={'ndcg_cut_20,50,100'},
+            output='./'
+    ) -> None:
         """
         Args:
             fpred: address of the .pred file
-            output: address of the output directory
             fteamsvecs: address of teamsvecs file
             fsplits: address of splits.json file
-            ratio: desired ratio of non-popular experts in the output
+            fairness_notion:
+            att:
             algorithm: ranker algorithm of choice among {'det_greedy', 'det_cons', 'det_relaxed', 'fa-ir'}
+            np_ratio: desired ratio of non-popular experts in the output
             k_max:
             fairness_metrics: desired fairness metric
             utility_metrics: desired utility metric
+            output: address of the output directory
 
         Returns:
             None
@@ -259,18 +266,18 @@ class Reranking:
         preds = torch.load(fpred)
 
         try:
-            print(f'Loading stats, labels {", ratios" if eq_op else ""}  ...')
+            print(f'Loading stats, labels {", ratios" if fairness_notion == "eo" else ""}  ...')
             with open(f'{output}/stats.pkl', 'rb') as f: stats = pickle.load(f)
-            labels = pd.read_csv(f'{output}labels.csv')[att].to_list()
-            if eq_op:
+            labels = pd.read_csv(f'{output}/labels.csv')[att].to_list()
+            if fairness_notion == 'eo':
                 with open(f'{output}/ratios.pkl', 'rb') as f: ratios = pickle.load(f)
         except (FileNotFoundError, EOFError):
             print(f'Loading failed! Generating files {output} ...')
-            stats, labels, ratios = Reranking.get_stats(teamsvecs, coefficient=1, output=output, eq_op=eq_op, att=att, popularity_threshold=popularity_threshold)
+            stats, labels, ratios = Reranking.get_stats(teamsvecs, coefficient=1, output=output, fairness_notion=fairness_notion, att=att, popularity_thresholding=popularity_thresholding)
 
-        output += f'/{"eo" if eq_op else "dp"}'
-        #creating a static ratio in case eq_op is turned off
-        if not eq_op:
+        output += f'/{fairness_notion}'
+        #creating a static ratio in case fairness_notion is 'dp'
+        if fairness_notion == 'dp':
             if not np_ratio: ratios = {True: 1 - stats['np_ratio'], False: stats['np_ratio']}
             else: ratios = {True: 1 - np_ratio, False: np_ratio}
             assert np.sum(list(ratios.values())) == 1.0
@@ -283,7 +290,7 @@ class Reranking:
             reranked_idx, probs = df['reranked_idx'].to_list(), df['reranked_probs'].to_list()
         except FileNotFoundError:
             print(f'Loading re-ranking results failed! Reranking the predictions based on {att} with {algorithm} for top-{k_max} ...')
-            reranked_idx, probs, elapsed_time = Reranking.rerank(preds, labels, new_output, ratios, algorithm, k_max, eq_op, alpha)
+            reranked_idx, probs, elapsed_time = Reranking.rerank(preds, labels, new_output, ratios, algorithm, k_max, fairness_notion, alpha)
             #not sure os handles file locking for append during parallel run ...
             # with open(f'{new_output}.rerank.time', 'a') as file: file.write(f'{elapsed_time} {new_output} {algorithm} {k_max}\n')
             with open(f'{output}/rerank.time', 'a') as file: file.write(f'{elapsed_time} {new_output} {algorithm} {k_max}\n')
@@ -297,7 +304,7 @@ class Reranking:
                 fairness_eval = pd.read_csv(f'{new_output}.{algorithm}.{str(alpha).replace("0.", "")+"." if algorithm=="fa-ir" else ""}{k_max}.{metric}.faireval.csv')
         except FileNotFoundError:
             print(f'Loading fairness results failed! Evaluating fairness metric {fairness_metrics} ...')
-            Reranking.eval_fairness(preds, labels, reranked_idx, ratios, new_output, algorithm, k_max, alpha, eq_op, fairness_metrics)
+            Reranking.eval_fairness(preds, labels, reranked_idx, ratios, new_output, algorithm, k_max, alpha, fairness_notion, fairness_metrics)
 
         try:
             print('Loading utility metric evaluation results before and after reranking ...')
@@ -318,19 +325,9 @@ class Reranking:
         dataset.add_argument('-output', '--output', type=str, required=True, help='output directory')
 
         fairness = parser.add_argument_group('fairness')
-        fairness.add_argument('-np_ratio', '--np_ratio', type=float, default=None, required=False, help='desired ratio of non-popular experts after reranking; if None, based on distribution in dataset; default: None; Eg. 0.5')
-        fairness.add_argument('-fairness_metrics', '--fairness_metrics', nargs='+', type=set, default={'ndkl', 'skew'}, required=False, help='list of fairness metrics; default: ndkl')
-        fairness.add_argument('-algorithm', '--algorithm', type=str, required=True, help='reranking algorithm from {fa-ir, det_greedy, det_cons, det_relaxed}; required; Eg. det_cons')
-        fairness.add_argument('-k_max', '--k_max', type=int, default=None, required=False, help='cutoff for the reranking algorithms; default: None')
-        fairness.add_argument('-utility_metrics', '--utility_metrics', nargs='+', type=set, default={'ndcg_cut_2,5,10,20,50,100', 'map_cut_2,5,10,20,50,100'}, required=False, help='list of utility metric in the form of pytrec_eval; default: map_cut_2,5,10')
-        fairness.add_argument('-eq_op', '--eq_op', type=bool, default=False, required=False, help='eq_op: a flag to turn equality of opportunity criteria on or off; default: False')
-        fairness.add_argument('-alpha', '--alpha', type=float, default=0.05, required=False, help='alpha: the significance value for fa*ir algortihm. Default value is 0.1')
+        fairness.add_argument('-fairness_notion', '--fairness_notion', type=str, default='eo', help='eo: equality of opportunity, dp: demographic parity')
         fairness.add_argument('-att', '--att', type=str, required=True, help='protected attribute: popularity or gender')
-        fairness.add_argument('-popularity_threshold', '--popularity_threshold', type=str, default='avg', required=False, help='popularity_threshold: we determine whether an expert is popular or otherwise based on avg teams per experts of equal auc, default value is avg')
-
-        mode = parser.add_argument_group('mode')
-        mode.add_argument('-mode', type=int, default=1, choices=[0, 1], help='0 for sequential run and 1 for parallel; default: 1')
-        mode.add_argument('-core', type=int, default=-1, help='number of cores to dedicate to parallel run, -1 means all available cores; default: -1')
+        fairness.add_argument('-algorithm', '--algorithm', type=str, required=True, help='reranking algorithm from {fa-ir, det_greedy, det_cons, det_relaxed}; required; Eg. det_cons')
 
 """
 A running example of arguments
@@ -339,6 +336,8 @@ python -u main.py
 -fteamsvecs ../data/preprocessed/dblp/toy.dblp.v12.json/teamsvecs.pkl
 -fsplit ../output/toy.dblp.v12.json/splits.json
 -fpred ../output/toy.dblp.v12.json/bnn/t31.s11.m13.l[100].lr0.1.b4096.e20.s1/f0.test.pred 
+-fairness_notion eo
+-att popularity
 -algorithm det_cons
 -output ../output/toy.dblp.v12.json/
 
@@ -347,32 +346,34 @@ python -u main.py
 -fteamsvecs ../data/preprocessed/dblp/toy.dblp.v12.json/teamsvecs.pkl
 -fsplit ../output/toy.dblp.v12.json/splits.json
 -fpred ../output/toy.dblp.v12.json/
+-fairness_notion eo
+-att popularity
 -algorithm det_cons
 -output ../output/toy.dblp.v12.json/
 """
 def test_toy_all():
+    import params
     for alg in ['det_greedy', 'det_relaxed', 'det_cons', 'det_const_sort', 'fa-ir']:
-        for metric in ['skew', 'ndkl']:
-            for ep in [False, True]:
-                for umetric in ['ndcg_cut_10', 'map_cut_10']:
-                    for att in ['popularity', 'gender']:
-                        for th in ['avg', 'auc']:
-                            Reranking.run(fpred='../output/toy.dblp.v12.json/bnn/t31.s11.m13.l[100].lr0.1.b4096.e20.s1/f0.test.pred',
-                                          output='../output/toy.dblp.v12.json/bnn/t31.s11.m13.l[100].lr0.1.b4096.e20.s1/rerank/',
-                                          fteamsvecs='../data/preprocessed/dblp/toy.dblp.v12.json/teamsvecs.pkl',
-                                          fsplits='../output/toy.dblp.v12.json/splits.json',
-                                          np_ratio=None,
-                                          algorithm=alg,
-                                          k_max=10,
-                                          fairness_metrics=metric,
-                                          eq_op=ep,
-                                          utility_metrics=umetric,
-                                          alpha=0.01,
-                                          att=att,
-                                          popularity_threshold=th)
+        for notion in ['eo', 'dp']:
+            for att in ['popularity', 'gender']:
+                for th in ['avg', 'auc']:
+                    params.settings['fair']['popularity_thresholding'] = th
+                    Reranking.run(fpred='../output/toy.dblp.v12.json/bnn/t31.s11.m13.l[100].lr0.1.b4096.e20.s1/f0.test.pred',
+                                  output='../output/toy.dblp.v12.json/bnn/t31.s11.m13.l[100].lr0.1.b4096.e20.s1/rerank/',
+                                  fteamsvecs='../data/preprocessed/dblp/toy.dblp.v12.json/teamsvecs.pkl',
+                                  fsplits='../output/toy.dblp.v12.json/splits.json',
+                                  fairness_notion=notion,
+                                  att=att,
+                                  algorithm=alg,
+                                  k_max=params.settings['fair']['k_max'],
+                                  alpha=params.settings['fair']['alpha'],
+                                  np_ratio=params.settings['fair']['np_ratio'],
+                                  popularity_thresholding=params.settings['fair']['popularity_thresholding'],
+                                  fairness_metrics=params.settings['fair']['metrics'],
+                                  utility_metrics=params.settings['utility_metrics'])
 
 if __name__ == "__main__":
-
+    import params
     test_toy_all()
     exit(0)
 
@@ -385,15 +386,15 @@ if __name__ == "__main__":
                       output=args.output,
                       fteamsvecs=args.fteamsvecs,
                       fsplits=args.fsplits,
-                      np_ratio=args.np_ratio,
-                      algorithm=args.reranker,
-                      k_max=args.k_max,
-                      fairness_metrics=args.fairness_metrics,
-                      eq_op=args.eq_op,
-                      utility_metrics=args.utility_metrics,
-                      alpha=args.alpha,
+                      fairness_notion=args.fairness_notion,
                       att=args.att,
-                      popularity_threshold=args.popularity_threshold)
+                      algorithm=args.reranker,
+                      k_max=params.settings['fair']['k_max'],
+                      alpha=params.settings['fair']['alpha'],
+                      np_ratio=params.settings['fair']['np_ratio'],
+                      popularity_thresholding=params.settings['fair']['popularity_thresholding'],
+                      fairness_metrics=params.settings['fair']['metrics'],
+                      utility_metrics=params.settings['utility_metrics'])
         exit(0)
 
     if os.path.isdir(args.fpred):
@@ -409,32 +410,32 @@ if __name__ == "__main__":
             output = f"{row['.']}/{row['..']}/{row['domain']}/{row['baseline']}/{row['setting']}/"
             pairs.append((f'{output}{row["rfile"]}', f'{output}rerank/'))
 
-        if args.mode == 0: # sequential run
-            for fpred, output in pairs: Reranking.run(fpred=fpred,
-                                                      output=output,
-                                                      fteamsvecs=args.fteamsvecs,
-                                                      fsplits=args.fsplits,
-                                                      np_ratio=args.np_ratio,
-                                                      algorithm=args.algorithm,
-                                                      k_max=args.k_max,
-                                                      fairness_metrics=args.fairness_metrics,
-                                                      eq_op=args.eq_op,
-                                                      utility_metrics=args.utility_metrics,
-                                                      alpha=args.alpha,
-                                                      att=args.att,
-                                                      popularity_threshold=args.popularity_threshold)
-        elif args.mode == 1: # parallel run
+        if params.settings['parallel']:
             print(f'Parallel run started ...')
             with multiprocessing.Pool(multiprocessing.cpu_count() if args.core < 0 else args.core) as executor:
                 executor.starmap(partial(Reranking.run,
                                          fteamsvecs=args.fteamsvecs,
                                          fsplits=args.fsplits,
-                                         np_ratio=args.np_ratio,
-                                         algorithm=args.algorithm,
-                                         k_max=args.k_max,
-                                         fairness_metrics=args.fairness_metrics,
-                                         utility_metrics=args.utility_metrics,
-                                         eq_op=args.eq_op,
-                                         alpha=args.alpha,
+                                         fairness_notion=args.fairness_notion,
                                          att=args.att,
-                                         popularity_threshold=args.popularity_threshold), pairs)
+                                         algorithm=args.reranker,
+                                         k_max=params.settings['fair']['k_max'],
+                                         alpha=params.settings['fair']['alpha'],
+                                         np_ratio=params.settings['fair']['np_ratio'],
+                                         popularity_thresholding=params.settings['fair']['popularity_thresholding'],
+                                         fairness_metrics=params.settings['fair']['metrics'],
+                                         utility_metrics=params.settings['utility_metrics']), pairs)
+        else:
+            for fpred, output in pairs: Reranking.run(fpred=fpred,
+                                                      output=output,
+                                                      fteamsvecs=args.fteamsvecs,
+                                                      fsplits=args.fsplits,
+                                                      fairness_notion=args.fairness_notion,
+                                                      att=args.att,
+                                                      algorithm=args.reranker,
+                                                      k_max=params.settings['fair']['k_max'],
+                                                      alpha=params.settings['fair']['alpha'],
+                                                      np_ratio=params.settings['fair']['np_ratio'],
+                                                      popularity_thresholding=params.settings['fair']['popularity_thresholding'],
+                                                      fairness_metrics=params.settings['fair']['metrics'],
+                                                      utility_metrics=params.settings['utility_metrics'])
