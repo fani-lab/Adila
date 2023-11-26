@@ -325,7 +325,7 @@ class Reranking:
         fairness.add_argument('-utility_metrics', '--utility_metrics', nargs='+', type=set, default={'ndcg_cut_2,5,10,20,50,100', 'map_cut_2,5,10,20,50,100'}, required=False, help='list of utility metric in the form of pytrec_eval; default: map_cut_2,5,10')
         fairness.add_argument('-eq_op', '--eq_op', type=bool, default=False, required=False, help='eq_op: a flag to turn equality of opportunity criteria on or off; default: False')
         fairness.add_argument('-alpha', '--alpha', type=float, default=0.05, required=False, help='alpha: the significance value for fa*ir algortihm. Default value is 0.1')
-        fairness.add_argument('-att', '--att', type=str, default='popularity', required=True, help='alpha: the significance value for fa*ir algortihm. Default value is 0.1')
+        fairness.add_argument('-att', '--att', type=str, required=True, help='protected attribute: popularity or gender')
         fairness.add_argument('-popularity_threshold', '--popularity_threshold', type=str, default='avg', required=False, help='popularity_threshold: we determine whether an expert is popular or otherwise based on avg teams per experts of equal auc, default value is avg')
 
         mode = parser.add_argument_group('mode')
@@ -350,8 +350,31 @@ python -u main.py
 -algorithm det_cons
 -output ../output/toy.dblp.v12.json/
 """
+def test_toy_all():
+    for alg in ['det_greedy', 'det_relaxed', 'det_cons', 'det_const_sort', 'fa-ir']:
+        for metric in ['skew', 'ndkl']:
+            for ep in [False, True]:
+                for umetric in ['ndcg_cut_10', 'map_cut_10']:
+                    for att in ['popularity', 'gender']:
+                        for th in ['avg', 'auc']:
+                            Reranking.run(fpred='../output/toy.dblp.v12.json/bnn/t31.s11.m13.l[100].lr0.1.b4096.e20.s1/f0.test.pred',
+                                          output='../output/toy.dblp.v12.json/bnn/t31.s11.m13.l[100].lr0.1.b4096.e20.s1/rerank/',
+                                          fteamsvecs='../data/preprocessed/dblp/toy.dblp.v12.json/teamsvecs.pkl',
+                                          fsplits='../output/toy.dblp.v12.json/splits.json',
+                                          np_ratio=None,
+                                          algorithm=alg,
+                                          k_max=10,
+                                          fairness_metrics=metric,
+                                          eq_op=ep,
+                                          utility_metrics=umetric,
+                                          alpha=0.01,
+                                          att=att,
+                                          popularity_threshold=th)
 
 if __name__ == "__main__":
+
+    test_toy_all()
+    exit(0)
 
     parser = argparse.ArgumentParser(description='Fair Team Formation')
     Reranking.addargs(parser)

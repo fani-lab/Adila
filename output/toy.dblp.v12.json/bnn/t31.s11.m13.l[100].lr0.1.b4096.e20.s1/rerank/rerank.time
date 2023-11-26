@@ -1,3 +1,0 @@
-0.08399000000000001 ../output/toy.dblp.v12.json/bnn/t31.s11.m13.l[100].lr0.1.b4096.e20.s1/rerank//f1.test.pred det_cons 10
-0.024683208999999984 ../output/toy.dblp.v12.json/bnn/t31.s11.m13.l[100].lr0.1.b4096.e20.s1/rerank//f2.test.pred det_cons 10
-0.0247785829999998 ../output/toy.dblp.v12.json/bnn/t31.s11.m13.l[100].lr0.1.b4096.e20.s1/rerank//f0.test.pred det_cons 10
