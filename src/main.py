@@ -19,16 +19,17 @@ warnings.simplefilter(action='ignore', category=FutureWarning)
 class Reranking:
 
     @staticmethod
-    def gender_process(fgender, output: str):
-        #try catch for lazy load  f'{output}/labels.csv'
-        ig = pd.read_csv(fgender)
-        ig.fillna('M', inplace=True)
+    def gender_process(fgender: str, output: str):
+        try: ig = pd.read_csv(f'{output}/labels.csv')
+        except FileNotFoundError:
+            ig = pd.read_csv(fgender)
+            ig.fillna('M', inplace=True)
+            ig = ig.rename(columns={'Unnamed: 0': 'memberidx'})
+            ig.sort_values(by='memberidx', inplace=True)
+            pd.to_csv(ig, f'{output}/labels.csv')
         index_female = ig.loc[ig['gender'] == False, 'Unnamed: 0'].tolist()
         index_male = ig.loc[ig['gender'] == True, 'Unnamed: 0'].tolist()
         gender_ratio = len(index_female) / (len(index_female) + len(index_male))
-        ig = ig.rename(columns={'Unnamed: 0': 'memberidx'})
-        ig.sort_values(by='memberidx', inplace=True)
-        pd.to_csv(ig, f'{output}/labels.csv')
         return ig, gender_ratio
 
     @staticmethod
@@ -246,11 +247,12 @@ class Reranking:
             fpred: address of the .pred file
             fteamsvecs: address of teamsvecs file
             fsplits: address of splits.json file
-            fairness_notion:
-            att:
+            fgender: address of the gender label files
+            fairness_notion: chosen notion of fairness 'eo' or 'dp'
+            att: chosen sensitive attribute ( 'popularity', 'gender')
             algorithm: ranker algorithm of choice among {'det_greedy', 'det_cons', 'det_relaxed', 'fa-ir'}
             np_ratio: desired ratio of non-popular experts in the output
-            k_max:
+            k_max: chosen cutoff ( should be an integer less than the size of the team)
             fairness_metrics: desired fairness metric
             utility_metrics: desired utility metric
             output: address of the output directory
@@ -366,6 +368,7 @@ def test_toy_all():
                                   output='../output/toy.dblp.v12.json/bnn/t31.s11.m13.l[100].lr0.1.b4096.e20.s1/rerank/',
                                   fteamsvecs='../data/preprocessed/dblp/toy.dblp.v12.json/teamsvecs.pkl',
                                   fsplits='../output/toy.dblp.v12.json/splits.json',
+                                  fgender='../data/preprocessed/dblp/toy.dblp.v12.json/gender.csv',
                                   fairness_notion=notion,
                                   att=att,
                                   algorithm=alg,
@@ -378,8 +381,8 @@ def test_toy_all():
 
 if __name__ == "__main__":
     import params
-    # test_toy_all()
-    # exit(0)
+    test_toy_all()
+    exit(0)
 
     parser = argparse.ArgumentParser(description='Fair Team Formation')
     Reranking.addargs(parser)
@@ -423,6 +426,7 @@ if __name__ == "__main__":
                                          fsplits=args.fsplits,
                                          fairness_notion=args.fairness_notion,
                                          att=args.att,
+                                         fgender=args.fgender,
                                          algorithm=args.reranker,
                                          k_max=params.settings['fair']['k_max'],
                                          alpha=params.settings['fair']['alpha'],
@@ -435,6 +439,7 @@ if __name__ == "__main__":
                                                       output=output,
                                                       fteamsvecs=args.fteamsvecs,
                                                       fsplits=args.fsplits,
+                                                      fgender=args.fgender,
                                                       fairness_notion=args.fairness_notion,
                                                       att=args.att,
                                                       algorithm=args.reranker,
