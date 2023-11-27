@@ -1,0 +1,5 @@
+0.016639499999999696 ../output/toy.dblp.v12.json/bnn/t31.s11.m13.l[100].lr0.1.b4096.e20.s1/rerank/gender/dp/f0.test.pred det_greedy 10
+0.017096200000000117 ../output/toy.dblp.v12.json/bnn/t31.s11.m13.l[100].lr0.1.b4096.e20.s1/rerank/gender/dp/f0.test.pred det_relaxed 10
+0.0164118000000002 ../output/toy.dblp.v12.json/bnn/t31.s11.m13.l[100].lr0.1.b4096.e20.s1/rerank/gender/dp/f0.test.pred det_cons 10
+0.020089000000000024 ../output/toy.dblp.v12.json/bnn/t31.s11.m13.l[100].lr0.1.b4096.e20.s1/rerank/gender/dp/f0.test.pred det_const_sort 10
+0.04435710000000004 ../output/toy.dblp.v12.json/bnn/t31.s11.m13.l[100].lr0.1.b4096.e20.s1/rerank/gender/dp/f0.test.pred fa-ir 10

@@ -20,7 +20,7 @@ class Reranking:
 
     @staticmethod
     def gender_process(output: str):
-        ig = pd.read_csv(f'{output}gender.csv')
+        ig = pd.read_csv(f'{output}/labels.csv')
         ig.fillna('M', inplace=True)
         index_female = ig.loc[ig['gender'] == False, 'Unnamed: 0'].tolist()
         index_male = ig.loc[ig['gender'] == True, 'Unnamed: 0'].tolist()
