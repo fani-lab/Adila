@@ -358,6 +358,7 @@ def test_toy_all():
             for att in ['popularity', 'gender']:
                 for th in ['avg', 'auc']:
                     params.settings['fair']['popularity_thresholding'] = th
+                    params.settings['fair']['k_max'] = 10
                     Reranking.run(fpred='../output/toy.dblp.v12.json/bnn/t31.s11.m13.l[100].lr0.1.b4096.e20.s1/f0.test.pred',
                                   output='../output/toy.dblp.v12.json/bnn/t31.s11.m13.l[100].lr0.1.b4096.e20.s1/rerank/',
                                   fteamsvecs='../data/preprocessed/dblp/toy.dblp.v12.json/teamsvecs.pkl',
