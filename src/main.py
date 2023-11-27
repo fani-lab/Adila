@@ -19,18 +19,20 @@ warnings.simplefilter(action='ignore', category=FutureWarning)
 class Reranking:
 
     @staticmethod
-    def gender_process(output: str):
-        ig = pd.read_csv(f'{output}/labels.csv')
+    def gender_process(fgender, output: str):
+        #try catch for lazy load  f'{output}/labels.csv'
+        ig = pd.read_csv(fgender)
         ig.fillna('M', inplace=True)
         index_female = ig.loc[ig['gender'] == False, 'Unnamed: 0'].tolist()
         index_male = ig.loc[ig['gender'] == True, 'Unnamed: 0'].tolist()
         gender_ratio = len(index_female) / (len(index_female) + len(index_male))
         ig = ig.rename(columns={'Unnamed: 0': 'memberidx'})
         ig.sort_values(by='memberidx', inplace=True)
+        pd.to_csv(ig, f'{output}/labels.csv')
         return ig, gender_ratio
 
     @staticmethod
-    def get_stats(teamsvecs, coefficient: float, output: str, fairness_notion: str = 'dp', att='popularity', popularity_thresholding: str ='avg') -> tuple:
+    def get_stats(teamsvecs, fgender, coefficient: float, output: str, fairness_notion: str = 'dp', att='popularity', popularity_thresholding: str ='avg') -> tuple:
         """
         Args:
             teamsvecs_members: teamsvecs pickle file
@@ -63,7 +65,7 @@ class Reranking:
             sensitive_att = pd.read_csv(f'{output}/labels.csv')
 
         elif att == 'gender':
-            sensitive_att, stats['np_ratio'] = Reranking.gender_process(output)
+            sensitive_att, stats['np_ratio'] = Reranking.gender_process(fgender, output)
             with open(f'{output}/stats.pkl', 'wb') as f: pickle.dump(stats, f)
             labels = sensitive_att['gender'].tolist()
 
@@ -233,7 +235,7 @@ class Reranking:
         pd.concat([df_mean_before, df_mean_after], axis=1).to_csv(f'{output}.{algorithm}.{str(alpha).replace("0.", "")+"." if algorithm=="fa-ir" else ""}{k_max}.utileval.csv', index_label='metric')
 
     @staticmethod
-    def run(fpred, fteamsvecs, fsplits,
+    def run(fpred, fteamsvecs, fsplits, fgender,
             fairness_notion='eo', att='popularity', algorithm='det_cons',
             k_max=None, alpha: float = 0.1, np_ratio=None, popularity_thresholding='avg',
             fairness_metrics={'ndkl', 'skew'}, utility_metrics={'ndcg_cut_20,50,100'},
@@ -273,7 +275,7 @@ class Reranking:
                 with open(f'{output}/ratios.pkl', 'rb') as f: ratios = pickle.load(f)
         except (FileNotFoundError, EOFError):
             print(f'Loading failed! Generating files {output} ...')
-            stats, labels, ratios = Reranking.get_stats(teamsvecs, coefficient=1, output=output, fairness_notion=fairness_notion, att=att, popularity_thresholding=popularity_thresholding)
+            stats, labels, ratios = Reranking.get_stats(teamsvecs, fgender, coefficient=1, output=output, fairness_notion=fairness_notion, att=att, popularity_thresholding=popularity_thresholding)
 
         output += f'/{fairness_notion}'
         #creating a static ratio in case fairness_notion is 'dp'
@@ -322,6 +324,7 @@ class Reranking:
         dataset.add_argument('-fteamsvecs', '--fteamsvecs', type=str, required=True, help='teamsvecs (pickle of a dictionary for three lil_matrix for teamids (1×n), skills(n×s), and members(n×m)) file; required; Eg. -fteamvecs ./data/preprocessed/dblp/toy.dblp.v12.json/teamsvecs.pkl')
         dataset.add_argument('-fsplits', '--fsplits', type=str, required=True, help='splits.json for test rowids in teamsvecs and pred file; required; Eg. -fsplits output/toy.dblp.v12.json/splits.json')
         dataset.add_argument('-fpred', '--fpred', type=str, required=True, help='.pred file (torch ndarray (test×m)) or root directory of *.pred files; required; Eg. -fpred ./output/toy.dblp.v12.json/bnn/t31.s11.m13.l[100].lr0.1.b4096.e20.s1/f0.test.pred)')
+        dataset.add_argument('-fgender', '--fgender', type=str, required=False, help='')#TODO
         dataset.add_argument('-output', '--output', type=str, required=True, help='output directory')
 
         fairness = parser.add_argument_group('fairness')
@@ -375,8 +378,8 @@ def test_toy_all():
 
 if __name__ == "__main__":
     import params
-    test_toy_all()
-    exit(0)
+    # test_toy_all()
+    # exit(0)
 
     parser = argparse.ArgumentParser(description='Fair Team Formation')
     Reranking.addargs(parser)
@@ -387,6 +390,7 @@ if __name__ == "__main__":
                       output=args.output,
                       fteamsvecs=args.fteamsvecs,
                       fsplits=args.fsplits,
+                      fgender=args.fgender,
                       fairness_notion=args.fairness_notion,
                       att=args.att,
                       algorithm=args.reranker,
