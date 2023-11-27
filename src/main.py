@@ -26,9 +26,9 @@ class Reranking:
             ig.fillna('M', inplace=True)
             ig = ig.rename(columns={'Unnamed: 0': 'memberidx'})
             ig.sort_values(by='memberidx', inplace=True)
-            pd.to_csv(ig, f'{output}/labels.csv')
-        index_female = ig.loc[ig['gender'] == False, 'Unnamed: 0'].tolist()
-        index_male = ig.loc[ig['gender'] == True, 'Unnamed: 0'].tolist()
+            ig.to_csv(f'{output}/labels.csv', index=False)
+        index_female = ig.loc[ig['gender'] == False, 'memberidx'].tolist()
+        index_male = ig.loc[ig['gender'] == True, 'memberidx'].tolist()
         gender_ratio = len(index_female) / (len(index_female) + len(index_male))
         return ig, gender_ratio
 
@@ -381,8 +381,8 @@ def test_toy_all():
 
 if __name__ == "__main__":
     import params
-    test_toy_all()
-    exit(0)
+    # test_toy_all()
+    # exit(0)
 
     parser = argparse.ArgumentParser(description='Fair Team Formation')
     Reranking.addargs(parser)

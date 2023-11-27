@@ -1,5 +1,0 @@
-0.018639800000000317 ../output/toy.dblp.v12.json/bnn/t31.s11.m13.l[100].lr0.1.b4096.e20.s1/rerank/popularity/eo/f0.test.pred det_greedy 10
-0.017251300000000303 ../output/toy.dblp.v12.json/bnn/t31.s11.m13.l[100].lr0.1.b4096.e20.s1/rerank/popularity/eo/f0.test.pred det_relaxed 10
-0.020197700000000207 ../output/toy.dblp.v12.json/bnn/t31.s11.m13.l[100].lr0.1.b4096.e20.s1/rerank/popularity/eo/f0.test.pred det_cons 10
-0.01654219999999995 ../output/toy.dblp.v12.json/bnn/t31.s11.m13.l[100].lr0.1.b4096.e20.s1/rerank/popularity/eo/f0.test.pred det_const_sort 10
-0.33017390000000013 ../output/toy.dblp.v12.json/bnn/t31.s11.m13.l[100].lr0.1.b4096.e20.s1/rerank/popularity/eo/f0.test.pred fa-ir 10
