@@ -10,8 +10,9 @@ class MappingGender:
         self.memberId_2_i = {}
         self.df = None
 
-        with open(opeNTF_output_dir, "rb") as f:
-            self.opeNTF_out = pkl.load(f)
+        if(opeNTF_output_dir):
+            with open(opeNTF_output_dir, "rb") as f:
+                self.opeNTF_out = pkl.load(f)
         
     
     # Generates the Mapping for Member ID to opeNTF index
@@ -169,6 +170,31 @@ class MappingGender:
         
         self.df = pd.DataFrame.from_dict(data, orient="index", columns=["gender"])
 
+    def generate_mapping_uspt(self, teams_pkl: str, indexes_pkl: str):
+        """
+        Generates gender.csv file to map OpeNTF ID to gender value
+        True: Male, False: Female, Null: null
+        Args:
+            teams_pkl: location of teams.pkl file for uspt
+            indexes_pkl: location of indexes.pkl file for uspt
+        Return:
+            None
+        """
+        mappings = {}
+
+        with open(teams_pkl, "rb") as f_1:
+            with open(indexes_pkl, "rb") as f_2:
+                teams_pkl = pkl.load(f_1)
+                indexes_pkl = pkl.load(f_2)
+                c2i = indexes_pkl['c2i']
+
+                for patent in teams_pkl:
+                    for member in patent.members:
+                        ind = c2i[member.id + "_" + member.name]
+                        if(ind not in mappings):
+                            mappings[ind] = member.gender
+                                
+                self.df = pd.DataFrame.from_dict(mappings, orient="index", columns=["gender"])
 
 
 
@@ -196,15 +222,26 @@ class MappingGender:
 # imdbMapGender.exportResults_toPickle('data/preprocessed/imdb/i2gender.pkl')
 
 
-dblpMapGender = MappingGender('data/preprocessed/dblp/dblp.v12.json/indexes.pkl')
+# dblpMapGender = MappingGender('data/preprocessed/dblp/dblp.v12.json/indexes.pkl')
 
-dblpMapGender.createMemberID_2_i_DBLP()
+# dblpMapGender.createMemberID_2_i_DBLP()
 
-dblpMapGender.findGenderResults_DBLP_v2('../dblp_labelledGender_updated.json')
+# dblpMapGender.findGenderResults_DBLP_v2('../dblp_labelledGender_updated.json')
 
-dblpMapGender.exportResults_toCSV('data/preprocessed/dblp/i2gender.csv')
+# dblpMapGender.exportResults_toCSV('data/preprocessed/dblp/i2gender.csv')
 
-dblpMapGender.exportResults_toPickle('data/preprocessed/dblp/i2gender.pkl')
+# dblpMapGender.exportResults_toPickle('data/preprocessed/dblp/i2gender.pkl')
 
 
 
+# USPT:
+
+uspt_map_gender = MappingGender(None)
+
+uspt_map_gender.generate_mapping_uspt(teams_pkl="data/preprocessed/uspt/patent.tsv.filtered.mt75.ts3/teams.pkl",
+                                      indexes_pkl="data/preprocessed/uspt/patent.tsv.filtered.mt75.ts3/indexes.pkl")
+
+
+uspt_map_gender.exportResults_toCSV("data/preprocessed/uspt/patent.tsv.filtered.mt75.ts3/gender.csv")
+uspt_map_gender.exportResults_toPickle("data/preprocessed/uspt/patent.tsv.filtered.mt75.ts3/gender.pkl")
+        
