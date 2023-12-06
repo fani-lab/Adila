@@ -7,6 +7,6 @@ settings = {
         'popularity_thresholding': 'avg', #we determine whether an expert is popular or otherwise based on avg teams per experts of equal auc
     },
     'utility_metrics': {'ndcg_cut_2,5,10,20,50,100', 'map_cut_2,5,10,20,50,100'}, # any pytrec_eval metrics
-    'parallel': True,
+    'parallel': False,
     'core': -1, #number of cores to dedicate to parallel run, -1 means all available cores
 }

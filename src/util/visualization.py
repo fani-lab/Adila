@@ -102,7 +102,8 @@ def area_under_curve(data_x: list, data_y: list, xlabel: str, ylabel: str, lcolo
         xlabel: label for x axis
         ylabel: label for y axis
     """
-    fig, ax = plt.subplots(figsize = (10,6))
+    fig, ax = plt.subplots(figsize = (2,2))
+    plt.rcParams.update({'font.family': 'Consolas'})
     # To plot a line graph of the data, interpolation can be used which creates a function based on the data points
     f = interpolate.interp1d(data_x, data_y, kind='linear') 
     xnew = np.arange(min(data_x), max(data_x), 0.001) # returns evenly spaced values from the data set
@@ -129,6 +130,7 @@ def area_under_curve(data_x: list, data_y: list, xlabel: str, ylabel: str, lcolo
     # Displays graph
     if show_plot:
         plt.show()
+        fig.savefig(f'auc-avg.pdf', dpi=200, bbox_inches='tight')
     return ynew[mid_index]
 
 def attribute_distribution_plot(teamsvecs: scipy.sparse.lil_matrix, index_att: pd.DataFrame, plot_title: str, att: str):
