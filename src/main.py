@@ -59,13 +59,18 @@ class Reranking:
         threshold = coefficient * stats[f'*{popularity_thresholding}_nteams_member']
 
         if att == 'popularity':
+            #TODO: many nonpopular but few popular. So, we only keep popular labels. Though the protected group is the nonpopulars.
+            #TODO: this should be the same for all baselines, so read the file from ./output/{domain}
             labels = [True if threshold <= nteam_member else False for nteam_member in col_sums.getA1() ] #rowid maps to columnid in teamvecs['member']
             stats['np_ratio'] = labels.count(False) / stats['*nmembers']
             with open(f'{output}/stats.pkl', 'wb') as f: pickle.dump(stats, f)
             pd.DataFrame(data=labels, columns=['popularity']).to_csv(f'{output}/labels.csv', index_label='memberidx')
+            #TODO: we read it again!
             sensitive_att = pd.read_csv(f'{output}/labels.csv')
 
         elif att == 'gender':
+            #TODO: many males but few females. So, we keep the females. Also, females are protected groups.
+            #TODO: this should be the same for all baselines, so read the file from ./output/{domain}
             sensitive_att, stats['np_ratio'] = Reranking.gender_process(fgender, output)
             with open(f'{output}/stats.pkl', 'wb') as f: pickle.dump(stats, f)
             labels = sensitive_att['gender'].tolist()
@@ -81,6 +86,7 @@ class Reranking:
                 # to avoid empty set
                 if len(intersect) == 0: intersect = [randrange(0, teamsvecs_members.shape[1]) for i in range(5)]
 
+                #TODO: need to be changed if we only keep the labels of minority group
                 member_dict = dict(zip(sensitive_att['memberidx'], sensitive_att[att]))
                 # Retrieve 'gender' values for members in 'intersect'
                 labels_ = [member_dict.get(member, None) for member in intersect]
