@@ -237,12 +237,7 @@ The files containing the rest of our experiment results with various notions, da
 We benefit from [``pytrec``](https://github.com/cvangysel/pytrec_eval), [``reranking``](https://github.com/yuanlonghao/reranking), and other libraries. We would like to thank the authors of these libraries and helpful resources.
   
 ## 6. License
-©2023. This work is licensed under a [CC BY-NC-SA 4.0](license.txt) license.
-
-Hamed Loghmani<sup>1</sup>, [Hossein Fani](https://hosseinfani.github.io/)<sup>1,2</sup> 
-
-<sup><sup>1</sup>School of Computer Science, Faculty of Science, University of Windsor, ON, Canada.</sup>
-<sup><sup>2</sup>[hfani@uwindsor.ca](mailto:hfani@uwindsor.ca)</sup>
+©2024. This work is licensed under a [CC BY-NC-SA 4.0](license.txt) license.
 
 ## 7. Citation
 ```
