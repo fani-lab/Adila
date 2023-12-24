@@ -12,6 +12,7 @@ from fairsearchcore.models import FairScoreDoc
 import reranking
 
 from cmn.metric import *
+from util.fair_greedy import fairness_greedy
 from util.visualization import area_under_curve
 
 warnings.simplefilter(action='ignore', category=FutureWarning)
@@ -141,6 +142,15 @@ class Reranking:
             elif algorithm in ['det_greedy', 'det_relaxed', 'det_cons', 'det_const_sort']:
                 reranked_idx = reranking.rerank([label for _, label, _ in member_probs], r, k_max=k_max, algorithm=algorithm)
                 reranked_probs = [member_probs[m][2] for m in reranked_idx]
+                idx.append(reranked_idx)
+                probs.append(reranked_probs)
+            elif algorithm == 'fair_greedy':
+                #TODO refactor and parameterize this algorithm
+                bias_dict = dict([(member_probs.index(m), {'att': m[1], 'prob': m[2], 'idx': m[0]}) for m in member_probs])
+                attr = 'att'
+                method = 'move_down'
+                reranked_idx = fairness_greedy(bias_dict, r, attr, method)[:k_max]
+                reranked_probs = [bias_dict[idx]['prob'] for idx in reranked_idx[:k_max]]
                 idx.append(reranked_idx)
                 probs.append(reranked_probs)
             else: raise ValueError('chosen reranking algorithm is not valid')
