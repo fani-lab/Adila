@@ -1,7 +1,6 @@
-import json, os, statistics, pandas as pd, pickle, multiprocessing, argparse, warnings, numpy as np
+import json, os, statistics, pandas as pd, pickle, multiprocessing, argparse, warnings, numpy as np, random
 from time import time, perf_counter
 from functools import partial
-import pandas
 from tqdm import tqdm
 from random import randrange
 from scipy.sparse import csr_matrix
@@ -24,7 +23,9 @@ class Reranking:
         try: ig = pd.read_csv(f'{output}/labels.csv')
         except FileNotFoundError:
             ig = pd.read_csv(fgender)
-            ig.fillna('M', inplace=True)
+            random.seed(42)  # To make the results reproducible
+            # For now only false is given since in uspt the gender bias is extreme 93% male in the random case
+            ig.fillna(random.choice([False]), inplace=True)
             ig = ig.rename(columns={'Unnamed: 0': 'memberidx'})
             ig.sort_values(by='memberidx', inplace=True)
             ig.to_csv(f'{output}/labels.csv', index=False)
@@ -161,7 +162,7 @@ class Reranking:
     def calculate_prob(atr: bool, team: list) -> float: return team.count(atr) / len(team)
 
     @staticmethod
-    def eval_fairness(preds, labels, reranked_idx, ratios, output, algorithm, k_max, alpha, fairness_notion: str = 'dp', metrics: set = {'skew', 'ndkl'}, att: str = 'popularity', popularity_thresholding: str ='avg' ) -> pandas.DataFrame:
+    def eval_fairness(preds, labels, reranked_idx, ratios, output, algorithm, k_max, alpha, fairness_notion: str = 'dp', metrics: set = {'skew', 'ndkl'}, att: str = 'popularity', popularity_thresholding: str ='avg' ):
         """
         Args:
             preds: loaded predictions from a .pred file
