@@ -127,9 +127,9 @@ To find the cutoff between `head` and `tail`, we calculate the average number of
 ### 3.2. Gender
 The following figures will demonstrate the gender distributions in `imdb` and `dblp` datasets.
 <p align="center">
- <img src='./misc/imdb_nmembers_nteams_regular_edited.png' width="250" >
+ <img src='./misc/imdb_nmembers_nteams_regular_edited.png' width="240" >
  <img src='./misc/dblp_nmembers_nteams_regular_edited.png' width="250" >
- <img src='./misc/uspt_nmembers_nteams_regular_edited.png' width="250" >
+ <img src='./misc/uspt_nmembers_nteams_regular_edited.png' width="225" >
 </p>
 
 ### 3.3. Reranking 
