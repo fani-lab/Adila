@@ -10,7 +10,7 @@
 
 > Currently, we are investigating:
 > - Other fairness factors like demographic attributes, including age, race, and gender; 
-> - Developing machine learning-based models using Learning-to-Rank (L2R) techniques to mitigate popularity bias as opposed to deterministic greedy algorithms.
+> - Developing machine learning-based models using Learning-to-Rank (L2R) techniques to mitigate bias as opposed to deterministic greedy algorithms.
 
 - [1. Setup](#1-setup)
 - [2. Quickstart](#2-quickstart)
