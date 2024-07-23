@@ -129,6 +129,7 @@ The following figures will demonstrate the gender distributions in `imdb` and `d
 <p align="center">
  <img src='./misc/imdb_nmembers_nteams_regular_edited.png' width="250" >
  <img src='./misc/dblp_nmembers_nteams_regular_edited.png' width="250" >
+ <img src='./misc/uspt_nmembers_nteams_regular_edited.png' width="250" >
 </p>
 
 ### 3.3. Reranking 
