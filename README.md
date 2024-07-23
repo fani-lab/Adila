@@ -125,7 +125,7 @@ To find the cutoff between `head` and `tail`, we calculate the average number of
 `Future:` We will consider equal area under the curve for the cutoff.
 
 ### 3.2. Gender
-The following figures will demonstrate the gender distributions in `imdb` and `dblp` datasets.
+The following figures will demonstrate the gender distributions in `imdb`, `dblp` and `uspt`  datasets.
 <p align="center">
  <img src='./misc/imdb_nmembers_nteams_regular_edited.png' width="240" >
  <img src='./misc/dblp_nmembers_nteams_regular_edited.png' width="250" >
