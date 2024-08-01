@@ -7,6 +7,7 @@ from scipy.sparse import csr_matrix
 import torch
 
 import fairsearchcore as fsc
+import FairRankTune as frt
 from fairsearchcore.models import FairScoreDoc
 import reranking
 
@@ -147,7 +148,7 @@ class Reranking:
                 probs.append(reranked_probs)
             elif algorithm == 'fair_greedy':
                 #TODO refactor and parameterize this algorithm
-                bias_dict = dict([(member_probs.index(m), {'att': m[1], 'prob': m[2], 'idx': m[0]}) for m in member_probs])
+                bias_dict = dict([(member_probs.index(m), {'att': m[1], 'prob': m[2], 'idx': m[0]}) for m in member_probs[:500]])
                 method = 'move_down'
                 reranked_idx = fairness_greedy(bias_dict, r, 'att', method)[:k_max]
                 reranked_probs = [bias_dict[idx]['prob'] for idx in reranked_idx[:k_max]]
@@ -181,7 +182,7 @@ class Reranking:
         dic_before, dic_after = dict(), dict()
         for metric in metrics:
             dic_before[metric], dic_after[metric] = list(), list()
-            if 'skew' == metric: dic_before[metric], dic_after[metric] = {'protected': [], 'nonprotected': []}, {'protected': [], 'nonprotected': []}
+            if 'skew' == metric or 'exposure' == metric: dic_before[metric], dic_after[metric] = {'protected': [], 'nonprotected': []}, {'protected': [], 'nonprotected': []}
             for i, team in enumerate(tqdm(preds)):
                 # defining the threshold for the times we have or don't have cutoff
                 threshold = len(preds) if k_max is None else k_max
@@ -202,6 +203,18 @@ class Reranking:
                     dic_before['skew']['nonprotected'].append(reranking.skew(Reranking.calculate_prob(True, l_before), r[True]))
                     dic_after['skew']['protected'].append(reranking.skew(Reranking.calculate_prob(False, l_after), r[False]))
                     dic_after['skew']['nonprotected'].append(reranking.skew(Reranking.calculate_prob(True, l_after), r[True]))
+
+                if 'exposure' == metric:
+                    #TODO Needs Refactor
+                    exp_before, per_group_exp_before = frt.Metrics.EXP(pd.DataFrame(data=[j[0] for j in member_probs[:k_max]]), dict([(j[0], j[1]) for j in member_probs[:k_max]]), 'MinMaxRatio')
+                    try: dic_before['exposure']['protected'].append(per_group_exp_before[False])
+                    except KeyError:dic_before['exposure']['protected'].append(0)
+                    try: dic_before['exposure']['nonprotected'].append(per_group_exp_before[True])
+                    except KeyError: dic_before['exposure']['nonprotected'].append(0)
+                    dic_before['exposure']['exp'] = exp_before
+                    exp_after, per_group_exp_after = frt.Metrics.EXP(pd.DataFrame(data=reranked_idx[i][:k_max]), dict([(j, labels[j]) for j in reranked_idx[i][:k_max]]), 'MinMaxRatio')
+                    dic_after['exposure']['protected'].append(per_group_exp_after[False]), dic_after['exposure']['nonprotected'].append(per_group_exp_after[True])
+                    dic_after['exposure']['exp'] = exp_after
 
             df_before = pd.DataFrame(dic_before[metric]).mean(axis=0).to_frame('mean.before')
             df_after = pd.DataFrame(dic_after[metric]).mean(axis=0).to_frame('mean.after')
