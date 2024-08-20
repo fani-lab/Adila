@@ -296,7 +296,7 @@ class Reranking:
             None
         """
         print('#'*100)
-        print(f'Reranking for {att} using {algorithm} for the baseline {fpred} ...')
+        print(f'Reranking for {att} using {algorithm} for the top-{k_max} on the baseline {fpred} ...')
         st = time()
         output += f'{att}'
         if not os.path.isdir(output): os.makedirs(output)
