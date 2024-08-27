@@ -182,7 +182,7 @@ class Reranking:
         dic_before, dic_after = dict(), dict()
         for metric in metrics:
             dic_before[metric], dic_after[metric] = list(), list()
-            if 'skew' == metric or 'exposure' == metric: dic_before[metric], dic_after[metric] = {'protected': [], 'nonprotected': []}, {'protected': [], 'nonprotected': []}
+            if metric in ['skew', 'exp', 'expu']: dic_before[metric], dic_after[metric] = {'protected': [], 'nonprotected': []}, {'protected': [], 'nonprotected': []}
             for i, team in enumerate(tqdm(preds)):
                 # defining the threshold for the times we have or don't have cutoff
                 threshold = len(preds) if k_max is None else k_max
@@ -204,17 +204,22 @@ class Reranking:
                     dic_after['skew']['protected'].append(reranking.skew(Reranking.calculate_prob(False, l_after), r[False]))
                     dic_after['skew']['nonprotected'].append(reranking.skew(Reranking.calculate_prob(True, l_after), r[True]))
 
-                if 'exposure' == metric:
+                if metric in ['exp', 'expu']:
                     #TODO Needs Refactor
-                    exp_before, per_group_exp_before = frt.Metrics.EXP(pd.DataFrame(data=[j[0] for j in member_probs[:k_max]]), dict([(j[0], j[1]) for j in member_probs[:k_max]]), 'MinMaxRatio')
-                    try: dic_before['exposure']['protected'].append(per_group_exp_before[False])
-                    except KeyError:dic_before['exposure']['protected'].append(0)
-                    try: dic_before['exposure']['nonprotected'].append(per_group_exp_before[True])
+                    if metric == 'exp':
+                        exp_before, per_group_exp_before = frt.Metrics.EXP(pd.DataFrame(data=[j[0] for j in member_probs[:k_max]]), dict([(j[0], j[1]) for j in member_probs[:k_max]]), 'MinMaxRatio')
+                    elif metric == 'expu':
+                        exp_before, per_group_exp_before = frt.Metrics.EXPU(pd.DataFrame(data=[j[0] for j in member_probs[:k_max]]), dict([(j[0], j[1]) for j in member_probs[:k_max]]), pd.DataFrame(data=[j[2] for j in member_probs[:k_max]]),'MinMaxRatio')
+                    else: raise ValueError('Chosen Metric Is not Valid')
+
+                    try: dic_before[metric]['protected'].append(per_group_exp_before[False])
+                    except KeyError:dic_before[metric]['protected'].append(0)
+                    try: dic_before[metric]['nonprotected'].append(per_group_exp_before[True])
                     except KeyError: dic_before['exposure']['nonprotected'].append(0)
-                    dic_before['exposure']['exp'] = exp_before
+                    dic_before[metric][metric] = exp_before
                     exp_after, per_group_exp_after = frt.Metrics.EXP(pd.DataFrame(data=reranked_idx[i][:k_max]), dict([(j, labels[j]) for j in reranked_idx[i][:k_max]]), 'MinMaxRatio')
-                    dic_after['exposure']['protected'].append(per_group_exp_after[False]), dic_after['exposure']['nonprotected'].append(per_group_exp_after[True])
-                    dic_after['exposure']['exp'] = exp_after
+                    dic_after[metric]['protected'].append(per_group_exp_after[False]), dic_after[metric]['nonprotected'].append(per_group_exp_after[True])
+                    dic_after[metric][metric] = exp_after
 
             df_before = pd.DataFrame(dic_before[metric]).mean(axis=0).to_frame('mean.before')
             df_after = pd.DataFrame(dic_after[metric]).mean(axis=0).to_frame('mean.after')
