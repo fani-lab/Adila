@@ -1,6 +1,6 @@
 settings = {
     'fair': {
-        'metrics': {'ndkl', 'skew'},
+        'metrics': {'ndkl', 'skew', 'exp', 'expu'},
         'k_max': 100, #cutoff for the reranking algorithms
         'alpha': 0.1, #the significance value for fa-ir algortihm
         'np_ratio': None, #nonpopularity ratio, if None, based on distribution in dataset from popularity_threshold; default: None; Eg. 0.5'
