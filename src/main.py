@@ -215,7 +215,7 @@ class Reranking:
                     try: dic_before[metric]['protected'].append(per_group_exp_before[False])
                     except KeyError:dic_before[metric]['protected'].append(0)
                     try: dic_before[metric]['nonprotected'].append(per_group_exp_before[True])
-                    except KeyError: dic_before['exposure']['nonprotected'].append(0)
+                    except KeyError: dic_before[metric]['nonprotected'].append(0)
                     dic_before[metric][metric] = exp_before
 
                     if metric == 'exp':
