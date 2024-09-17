@@ -220,12 +220,18 @@ class Reranking:
 
                     if metric == 'exp':
                         exp_after, per_group_exp_after = frt.Metrics.EXP(pd.DataFrame(data=reranked_idx[i][:k_max]), dict([(j, labels[j]) for j in reranked_idx[i][:k_max]]), 'MinMaxRatio')
-                        dic_after[metric]['protected'].append(per_group_exp_after[False]), dic_after[metric]['nonprotected'].append(per_group_exp_after[True])
-                        dic_after[metric][metric] = exp_after
+                        # dic_after[metric]['protected'].append(per_group_exp_after[False]), dic_after[metric]['nonprotected'].append(per_group_exp_after[True])
+                        # dic_after[metric][metric] = exp_after
                     elif metric == 'expu':
                         exp_after, per_group_exp_after = frt.Metrics.EXPU(pd.DataFrame(data=reranked_idx[i][:k_max]), dict([(j, labels[j]) for j in reranked_idx[i][:k_max]]), pd.DataFrame(data=[j[2] for i in reranked_idx[i][:k_max] for j in member_probs if j[0] == i]), 'MinMaxRatio')
-                        dic_after[metric]['protected'].append(per_group_exp_after[False]), dic_after[metric]['nonprotected'].append(per_group_exp_after[True])
-                        dic_after[metric][metric] = exp_after
+                        # dic_after[metric]['protected'].append(per_group_exp_after[False]), dic_after[metric]['nonprotected'].append(per_group_exp_after[True])
+                        # dic_after[metric][metric] = exp_after
+                    else:raise ValueError('Chosen Metric Is not Valid')
+                    try: dic_after[metric]['protected'].append(per_group_exp_after[False])
+                    except KeyError: dic_before[metric]['protected'].append(0)
+                    try:  dic_after[metric]['nonprotected'].append(per_group_exp_after[True])
+                    except KeyError:  dic_after[metric]['nonprotected'].append(0)
+                    dic_after[metric][metric] = exp_after
 
             df_before = pd.DataFrame(dic_before[metric]).mean(axis=0).to_frame('mean.before')
             df_after = pd.DataFrame(dic_after[metric]).mean(axis=0).to_frame('mean.after')
