@@ -228,7 +228,7 @@ class Reranking:
                         # dic_after[metric][metric] = exp_after
                     else:raise ValueError('Chosen Metric Is not Valid')
                     try: dic_after[metric]['protected'].append(per_group_exp_after[False])
-                    except KeyError: dic_before[metric]['protected'].append(0)
+                    except KeyError: dic_after[metric]['protected'].append(0)
                     try:  dic_after[metric]['nonprotected'].append(per_group_exp_after[True])
                     except KeyError:  dic_after[metric]['nonprotected'].append(0)
                     dic_after[metric][metric] = exp_after
