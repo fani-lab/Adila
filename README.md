@@ -1,6 +1,10 @@
 # ``Adila``<sup>*</sup>: Fairness-Aware Team Recommendation
 <sup>*[ عادلة, feminine Arabic given name, meaning just and fair](https://en.wikipedia.org/wiki/Adila_(name))<sup>
 
+> Bootless Application of Greedy Re-ranking Algorithms in Fair Neural Team Formation. BIAS-ECIR, 2023.[`pdf`](https://hosseinfani.github.io/res/papers/2023_BIAS_ECIR_Bootless_Application_of_Greedy_Re-ranking_Algorithms_in_Fair_Neural_Team_Formation.pdf) [`doi`](https://doi.org/10.1007/978-3-031-37249-0_9) [`reviews`](https://hosseinfani.github.io/res/papers/2023_BIAS_ECIR_Bootless_Application_of_Greedy_Re-ranking_Algorithms_in_Fair_Neural_Team_Formation.txt) [`video`](https://www.youtube.com/watch?v=EmAFvANqzBM)
+
+> A Probabilistic Greedy Attempt to be Fair in Neural Team Recommendation. COIN, 2025. `Under Review`
+
 `Team Recommendation` aims to automate forming teams of experts who can collaborate and successfully solve tasks. While state-of-the-art methods are able to efficiently analyze massive collections of experts to recommend effective collaborative teams, they largely ignore the fairness in the recommended experts; our experiments show that they are biased toward `popular` and `male` experts. In `Adila`, we aim to mitigate the potential biases for fair team recommendation. Fairness breeds innovation and increases teams' success by enabling a stronger sense of community, reducing conflict, and stimulating more creative thinking. 
 
 We have studied the application of state-of-the-art [`deterministic greedy re-ranking methods [Geyik et al. KDD'19]`](https://dl.acm.org/doi/10.1145/3292500.3330691) in addition to [`probabilistic greedy re-ranking methods [Zehlike et al. IP&M'22]`](https://dl.acm.org/doi/abs/10.1016/j.ipm.2021.102707)to mitigate `populairty bias` and `gender bias` based on `equality of opportunity` and `demographic parity` notions of fairness for state-of-the-art neural team formation methods from [`OpeNTF`](https://github.com/fani-lab/opeNTF/). Our experiments show that:
