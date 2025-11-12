@@ -2,10 +2,10 @@ matplotlib==3.4.2
 matplotlib-inline==0.1.6
 pandas==1.3.3
 pytrec-eval-terrier==0.5.2
-reranking==0.3.6
+reranking==0.3.6 #https://pypi.org/project/reranking/ #https://github.com/yuanlonghao/reranking
 scikit-learn==0.24.2
 torch==1.13.0
 tqdm==4.60.0
-fairsearchcore==1.0.4
+fairsearchcore==1.0.4 #https://github.com/fair-search/fairsearch-fair-python https://github.com/fair-search 
 seaborn
-FairRankTune
+FairRankTune #https://pypi.org/project/FairRankTune/ #https://github.com/KCachel/FairRankTune
