@@ -42,12 +42,12 @@ To run `Adila`, you can use [`./src/main.py`](./src/main.py):
 ```bash
 cd src
 python -u main.py \
-  -fteamsvecs ../data/preprocessed/dblp/toy.dblp.v12.json/teamsvecs.pkl \
-  -fsplit ../output/toy.dblp.v12.json/splits.json \
-  -fpred ../output/toy.dblp.v12.json/bnn/ \
+  -fteamsvecs ../output/dblp/toy.dblp.v12.json/teamsvecs.pkl \
+  -fsplit ../output/dblp/toy.dblp.v12.json/splits.json \
+  -fpred ../output/dblp/toy.dblp.v12.json/bnn/ \
   -np_ratio 0.5 \
   -reranker det_cons \
-  -output ../output/toy.dblp.v12.json/
+  -output ../output/dblp/toy.dblp.v12.json/
 ```
 
 Where the arguments are:
@@ -55,15 +55,15 @@ Where the arguments are:
   > `fteamsvecs`: the sparse matrix representation of all teams in a pickle file, including the teams whose members are predicted in `--pred`. It should contain a dictionary of three `lil_matrix` with keys `[id]` of size `[#teams × 1]`, `[skill]` of size `[#teams × #skills]`, `[member]` of size `[#teams × #experts]`. Simply, each row of a metrix shows the occurrence vector of skills and experts in a team. For a toy example, try 
   ```
   import pickle
-  with open(./data/preprocessed/dblp/toy.dblp.v12.json/teamsvecs.pkl) as f: teams=pickle.load(f)
+  with open(./output/dblp/toy.dblp.v12.json/teamsvecs.pkl) as f: teams=pickle.load(f)
   ```
   
-  > `fsplit`: the split.json file that indicates the index (rowid) of teams whose members are predicted in `--pred`. For a toy example, see [`output/toy.dblp.v12.json/splits.json`](output/toy.dblp.v12.json/splits.json)  
+  > `fsplit`: the split.json file that indicates the index (rowid) of teams whose members are predicted in `--pred`. For a toy example, see [`output/toy.dblp.v12.json/splits.json`](output/dblp/toy.dblp.v12.json/splits.json)  
 
   > `fpred`: a file or folder that includes the prediction files of a neural team formation methods in the format of `torch.ndarray`. The file name(s) should be `*.pred` and the content is `[#test × #experts]` probabilities that shows the membership probability of an expert to a team in test set. For a toy example, try 
   ```
   import torch
-  torch.load(./output/toy.dblp.v12.json/bnn/t31.s11.m13.l[100].lr0.1.b4096.e20.s1/f0.test.pred)
+  torch.load(./output/dblp/toy.dblp.v12.json/bnn/t31.s11.m13.l[100].lr0.1.b4096.e20.s1/f0.test.pred)
   ```     
 
   > `np_ratio`: the desired `nonpopular` ratio among members of predicted teams after mitigation process by re-ranking algorithms. E.g., 0.5.
@@ -100,7 +100,7 @@ Where the arguments are:
 ### 3.1. Popularity
 <p align="center"><img src='./docs/bias_ecir_23/latex/figures/nteams_candidate-idx_.png' width="200" ></p>
 
-Based on the distribution of experts on teams, which is power law (long tail) as shown in the figure, we label those in the `tail` as `nonpopular` and those in the `head` as popular. To find the cutoff between `head` and `tail`, we calculate the `avg` number of teams per expert over the entire dataset, or based on equal area under the curve `auc`. The result is a Boolean value in `{popular: True, nonpopular: False}` for each expert and is save in `{output}/popularity.csv` like [`./output/toy.dblp.v12.json/bnn/t31.s11.m13.l[100].lr0.1.b4096.e20.s1/rerank/popularity.csv`](./output/toy.dblp.v12.json/bnn/t31.s11.m13.l[100].lr0.1.b4096.e20.s1/rerank/popularity.csv) 
+Based on the distribution of experts on teams, which is power law (long tail) as shown in the figure, we label those in the `tail` as `nonpopular` and those in the `head` as popular. To find the cutoff between `head` and `tail`, we calculate the `avg` number of teams per expert over the entire dataset, or based on equal area under the curve `auc`. The result is a Boolean value in `{popular: True, nonpopular: False}` for each expert and is save in `{output}/popularity.csv` like [`./output/dblp/toy.dblp.v12.json/bnn/t31.s11.m13.l[100].lr0.1.b4096.e20.s1/rerank/popularity/labels.csv`](./output/dblp/toy.dblp.v12.json/bnn/t31.s11.m13.l[100].lr0.1.b4096.e20.s1/rerank/popularity/labels.csv) 
  
 ### 3.2. Gender
 The following figures will demonstrate the gender distributions in `imdb`, `dblp` and `uspt`  datasets.
@@ -112,21 +112,17 @@ The following figures will demonstrate the gender distributions in `imdb`, `dblp
 
 ### 3.3. Reranking 
   
-We apply rerankers from [`deterministic greedy re-ranking methods [Geyik et al. KDD'19]`](https://dl.acm.org/doi/10.1145/3292500.3330691), including `{'det_greedy', 'det_cons', 'det_relaxed'}` to mitigate `populairty bias`. The reranker needs a cutoff `k_max` which is set to `10` by default. 
+We apply rerankers including `{'det_greedy', 'det_cons', 'det_relaxed', fa-ir}` to mitigate `populairty` and `gender` bias. The reranker needs a cutoff `k_max` which is set to `10` by default. 
 
-The result of predictions after reranking is saved in `{output}/rerank/{fpred}.{reranker}.{k_max}.rerank.pred` like [`./output/toy.dblp.v12.json/bnn/t31.s11.m13.l[100].lr0.1.b4096.e20.s1/rerank/f0.test.pred.det_cons.10.rerank.pred`](./output/toy.dblp.v12.json/bnn/t31.s11.m13.l[100].lr0.1.b4096.e20.s1/rerank/f0.test.pred.det_cons.10.rerank.pred).
+The result of predictions after reranking is saved in `{output}/rerank/{gender, popularity}/{dp, eo}/{fpred}.{reranker}.{k_max}.rerank.pred` like [`./output/dblp/toy.dblp.v12.json/bnn/t31.s11.m13.l[100].lr0.1.b4096.e20.s1/rerank/gender/dp/f0.test.pred.det_cons.10.rerank.pred`](./output/dblp/toy.dblp.v12.json/bnn/t31.s11.m13.l[100].lr0.1.b4096.e20.s1/rerank/gender/dp/f0.test.pred.det_cons.10.rerank.pred).
 
 ### 3.4. Evaluations 
   
-We evaluate `fairness` and `utility` metrics `before` and `after` applying rerankers on team predictions to answer two research questions (RQs):
+We evaluate `fairness` and `utility` metrics `before` and `after` applying rerankers on team predictions to see whether re-ranking algorithms improve the fairness of models while maintaining their accuracy.
+
+> The result of `fairness` metrics `before` and `after` will be stored in `{output}/rerank/{gender, popularity}/{dp, eo}/{fpred}.{reranker}.{k_max}.{ndkl,skew}.{faireval}.csv` like [`./output/dblp/toy.dblp.v12.json/bnn/t31.s11.m13.l[100].lr0.1.b4096.e20.s1/rerank/gender/dp/f0.test.pred.det_cons.10.ndkl.faireval.csv`](./output/dblp/toy.dblp.v12.json/bnn/t31.s11.m13.l[100].lr0.1.b4096.e20.s1/rerank/gender/dp/f0.test.pred.det_cons.10.ndkl.faireval.csv) .
     
-**`RQ1:`** Do state-of-the-art neural team formation models produce fair teams of experts in terms of popularity bias? To this end, we measure the fairness scores of predicted teams `before` applying rerankers. 
-    
-**`RQ2:`** Do state-of-the-art deterministic greedy re-ranking algorithms improve the fairness of neural team formation models while maintaining their accuracy? To this end, we measure the `fairness` and `utility` metrics `before` and `after` applying rerankers.
-    
-The result of `fairness` metrics `before` and `after` will be stored in `{output}.{algorithm}.{k_max}.{faireval}.csv` like [`./output/toy.dblp.v12.json/bnn/t31.s11.m13.l[100].lr0.1.b4096.e20.s1/rerank/f2.test.pred.det_cons.10.faireval.csv`](./output/toy.dblp.v12.json/bnn/t31.s11.m13.l[100].lr0.1.b4096.e20.s1/rerank/f2.test.pred.det_cons.10.faireval.csv) .
-    
-The result of `utility` metrics `before` and `after` will be stored in `{output}.{algorithm}.{k_max}.{utileval}.csv` like [`./output/toy.dblp.v12.json/bnn/t31.s11.m13.l[100].lr0.1.b4096.e20.s1/rerank/f1.test.pred.det_cons.10.utileval.csv`](./output/toy.dblp.v12.json/bnn/t31.s11.m13.l[100].lr0.1.b4096.e20.s1/rerank/f1.test.pred.det_cons.10.utileval.csv).
+> The result of `utility` metrics `before` and `after` will be stored in `{output}/rerank/{gender, popularity}/{dp, eo}/{fpred}.{reranker}.{k_max}.{utileval}.csv` like [`./output/dblp/toy.dblp.v12.json/bnn/t31.s11.m13.l[100].lr0.1.b4096.e20.s1/rerank/gender/dp/f0.test.pred.det_cons.10.utileval.csv`](./output/dblp/toy.dblp.v12.json/bnn/t31.s11.m13.l[100].lr0.1.b4096.e20.s1/rerank/gender/dp/f0.test.pred.det_cons.10.utileval.csv).
    
 After successful run of all steps, [`./output`](./output) contains:
 
