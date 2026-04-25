@@ -13,7 +13,7 @@ Either the raw dataset has them all, like in US patents (`uspt`), or partially l
 
 3- We populate the gender labels in `uniqueNames_populated.csv`
 
->> For a `toy` run, refer to [`./toy/main.py`](./toy/main.py) for a sample run for a few experts in [`input.csv`](./toy/input.csv) and the results in [`output.csv`](./toy/ouput.csv).
+>> Refer to [`./toy/main.py`](./toy/main.py) for a `toy` run for a few experts in [`input.csv`](./toy/input.csv) and the results in [`output.csv`](./toy/output.csv).
 
 > Using [`c2g.py`](c2g.py) (candidate-to-gender),
 
