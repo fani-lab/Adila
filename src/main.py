@@ -1,4 +1,5 @@
 import os, logging, multiprocessing, re
+from concurrent.futures import ProcessPoolExecutor
 log = logging.getLogger(__name__)
 import hydra
 import pkgmgr as opentf
@@ -23,9 +24,14 @@ def _(adila, fpred, minorities, ratios, algorithm, k_max, alpha, acceleration, e
         adila.n_processes = multiprocessing.cpu_count() - 1 if acceleration == 'cpu' else int(acceleration.split(':')[1])
         if adila.n_processes < 2:
             for fpred in fpreds: outputs.append(__(fpred, adila, minorities, ratios, algorithm, k_max, alpha, evalcfg))
-        else:
-            with multiprocessing.Pool(initializer=init_process, processes=min(adila.n_processes, len(fpreds))) as p:
-                outputs = p.map(partial(__, adila=adila, minorities=minorities, ratios=ratios, algorithm=algorithm, k_max=k_max, alpha=alpha, evalcfg=evalcfg), fpreds)
+        else:#cannot use multiprocessing.Pool AssertionError: daemonic processes are not allowed to have children for second layer underlying paralell in Adila.rerank()
+            args_list = [(fpred, adila, minorities, ratios, algorithm, k_max, alpha, evalcfg) for fpred in fpreds]
+            with ProcessPoolExecutor(max_workers=min(adila.n_processes, len(fpreds)), initializer=init_process) as p:
+                futures = [p.submit(__, *args) for args in args_list]
+                for f in futures:
+                    try: outputs.append(f.result())
+                    except Exception as e: print(f"Adila worker failed: {e}")
+
     return sorted(outputs)
 
 @hydra.main(version_base=None, config_path='.', config_name='__config__')

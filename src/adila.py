@@ -1,4 +1,6 @@
 import os, pickle, logging, multiprocessing
+from concurrent.futures import ProcessPoolExecutor
+
 log = logging.getLogger(__name__)
 
 import pkgmgr as opentf
@@ -6,6 +8,7 @@ import pkgmgr as opentf
 pd = opentf.install_import('pandas')
 tqdm = opentf.install_import('tqdm', from_module='tqdm')
 torch = opentf.install_import('torch')
+def init_process(): logging.basicConfig(level=logging.INFO)
 
 class Adila:
 
@@ -99,6 +102,40 @@ class Adila:
         if self.fair_notion == 'dp': ratios = [stats['minority_ratio']]
         return stats, minorities, ratios
 
+    @staticmethod #needs to be static due to picklability constraint in multiprocesses:
+    def _rerank_worker(i, team_, preds, algorithm, r, ratios, k_max, attribute, fair_notion, alpha):
+        # for i, team_ in enumerate(tqdm(teams_)):
+        if fair_notion == 'eo': r = min(max(ratios[i], 0.1), 0.9)  # dynamic ratio r, clamps to stay between [0.1,0.9]
+        if algorithm == 'fa-ir':
+            fsc = opentf.install_import('fairsearchcore')
+            # FairScoreDocs needs True label for the members of the protected group.
+            # For gender, our minorities and protected group is the same, i.e., females.
+            # For popularilty, our minorities are populars but the protected group is non-populars. So, 'not' of their minority labels
+            experts = [fsc.models.FairScoreDoc(int(m[0]), float(m[2]), not bool(m[1]) if attribute == 'popularity' else bool(m[1])) for m in team_]
+            # Reset the Fair obj to dynamic ratio r
+            fair = fsc.Fair(min(k_max, preds.shape[1]), 1 - r if attribute == 'popularity' else r, alpha)  # fair.p = r; fair._cache = {} #reset the Fair obj but it's buggy
+
+            # fairsearchcore/fail_prob.py L#177 in __hash__(), cast to int. The value of self.remaining_candidates is of numpy type!
+            # see https://github.com/fair-search/fairsearch-fair-python/issues/4
+            if fair.is_fair(experts[:k_max]): experts_ = experts[:k_max]  # no change
+            else: experts_ = fair.re_rank(experts)[:k_max]
+            experts_ = [x.id for x in experts_]
+            # reranked_idx = [2, 0, 1, 5, 4, 3, 6]
+
+        elif algorithm in ['det_greedy', 'det_relaxed', 'det_cons', 'det_const_sort']:
+            frr = opentf.install_import('reranking')
+            experts_ = frr.rerank([bool(label) for _, label, _ in team_], {True: r, False: 1 - r}, None, min(k_max, preds.shape[1]), algorithm, verbose=False)  # verbose=True, a dataframe with more info
+            # reranked_idx = [2, 0, 1, 5, 4, 3, 6]
+        else: raise ValueError('Invalid fair reranking algorithm!')
+        return i, [(j, expert_, team_[j][2]) for j, expert_ in enumerate(experts_)]
+        # we switch the top-rank probs for top-re-ranked experts
+        # this way both lists give correct top experts after final rankings for evaluation
+        # example:
+        # preds: [0.1, 0.5, 0.3, 0.4, 0.1, 0.8, 0.3]
+        # sorted preds: [0.8, 0.5, 0.4, 0.3, 0.3, 0.1, 0.1] -> [5, 1, 3, 6, 2, 0, 4]
+        # rerank: [2, 0, 1, 5, 4, 3, 6] -> assign top probs [0.5, 0.4, 0.8, 0.3, 0.3, 0.1, 0.1]
+        # sorted rerank: [0.8, 0.5, 0.4, 0.3, 0.3, 0.1, 0.1] -> [2, 0, 1, 5, 4, 3, 6]
+
     def rerank(self, fpred, minorities, ratios, algorithm='det_greedy', k_max=100, alpha=0.05) -> tuple:
         """
         Args:
@@ -124,60 +161,28 @@ class Adila:
             log.info(f'No existing rerank version. Reranking {fpred} ...')
             # start_time = perf_counter()
             r = min(max(ratios[0], 0.1), 0.9) #clamps to stay between [0.1,0.9]
-
-            if algorithm == 'fa-ir':
-                fsc = opentf.install_import('fairsearchcore')
-                fair = fsc.Fair(min(k_max, preds.shape[1]), 1 - r if self.attribute == 'popularity' else r, alpha) #r: proportion of protected candidates (gender, or 1 - popular for nonpopular) in the topK elements (should be between 0.02 and 0.98)
-            elif algorithm in ['det_greedy', 'det_relaxed', 'det_cons', 'det_const_sort']:
-                frr = opentf.install_import('reranking')
-
             preds_ = preds.detach().clone() #for the final reranked probs
             teams_ = self._get_labeled_sorted_preds(preds, minorities, k_max)
             # [[expertid, minority label, ranked prob], ...] ==> up to k_max tuples
 
-            for i, team_ in enumerate(tqdm(teams_)):
-                if self.fair_notion == 'eo': r = min(max(ratios[i], 0.1), 0.9)  # dynamic ratio r, clamps to stay between [0.1,0.9]
-                if algorithm == 'fa-ir':
-                    # FairScoreDocs needs True label for the members of the protected group.
-                    # For gender, our minorities and protected group is the same, i.e., females.
-                    # For popularilty, our minorities are populars but the protected group is non-populars. So, 'not' of their minority labels
-                    experts = [fsc.models.FairScoreDoc(int(m[0]), float(m[2]), not bool(m[1]) if self.attribute=='popularity' else bool(m[1])) for m in team_]
-                    # Reset the Fair obj to dynamic ratio r
-                    if self.fair_notion == 'eo': fair = fsc.Fair(min(k_max, preds.shape[1]), 1 - r if self.attribute == 'popularity' else r, alpha)  # fair.p = r; fair._cache = {} #reset the Fair obj but it's buggy
+            args_list = [(i, team_, preds, algorithm, r, ratios, k_max, self.attribute, self.fair_notion, alpha) for i, team_ in enumerate(teams_)]
+            results = []
+            if self.n_processes < 2:
+                for args in args_list: results.append(Adila._rerank_worker(*args))
+            else: #cannot use multiprocessing.Pool AssertionError: daemonic processes are not allowed to have children
+                with ProcessPoolExecutor(initializer=init_process, max_workers=self.n_processes) as p:
+                    futures = [p.submit(Adila._rerank_worker, *args) for args in args_list]
+                    for f in futures:
+                        try: results.append(f.result())
+                        except Exception as e: print(f"Adila.rerank worker failed: {e}")
+                    # results = list(p.map(Adila._rerank_worker, args_list))
+            all_i, all_j, all_vals = [], [], []
+            for i, assignments in results:
+                for j, expert_, val in assignments:
+                    all_i.append(i); all_j.append(expert_); all_vals.append(val)
 
-                    # fairsearchcore/fail_prob.py L#177 in __hash__(), cast to int. The value of self.remaining_candidates is of numpy type!
-                    # see https://github.com/fair-search/fairsearch-fair-python/issues/4
-                    if fair.is_fair(experts[:k_max]): experts_ = experts[:k_max] #no change
-                    else: experts_ = fair.re_rank(experts)[:k_max]
-                    experts_ = [x.id for x in experts_]
-                    # reranked_idx = [2, 0, 1, 5, 4, 3, 6]
-
-                elif algorithm in ['det_greedy', 'det_relaxed', 'det_cons', 'det_const_sort']:
-                    experts_ = frr.rerank([bool(label) for _, label, _ in team_], {True: r, False: 1 - r}, None, min(k_max, preds.shape[1]), algorithm, verbose=False) #verbose=True, a dataframe with more info
-                    # reranked_idx = [2, 0, 1, 5, 4, 3, 6]
-
-                # elif algorithm == 'fair_greedy':
-                #     #TODO refactor and parameterize this algorithm
-                #     bias_dict = dict([(member_probs.index(m), {'att': m[1], 'prob': m[2], 'idx': m[0]}) for m in member_probs[:500]])
-                #     method = 'move_down'
-                #     reranked_idx = fairness_greedy(bias_dict, r, 'att', method)[:k_max]
-                #     reranked_probs = [bias_dict[idx]['prob'] for idx in reranked_idx[:k_max]]
-
-                else: raise ValueError('Invalid fair reranking algorithm!')
-
-                for j, expert_ in enumerate(experts_):
-                    if not preds.is_sparse: preds_[i][expert_] = team_[j][2]
-                    else: #sparse coo is immutable, cannot assign/modify values as it changes sparsity pattern
-                        mask = (preds_.indices()[0] == i) & (preds_.indices()[1] == expert_) # within the k_max/topK nnz values
-                        preds_.values()[mask] = team_[j][2]
-                # we switch the top-rank probs for top-re-ranked experts
-                # this way both lists give correct top experts after final rankings for evaluation
-                # example:
-                # preds: [0.1, 0.5, 0.3, 0.4, 0.1, 0.8, 0.3]
-                # sorted preds: [0.8, 0.5, 0.4, 0.3, 0.3, 0.1, 0.1] -> [5, 1, 3, 6, 2, 0, 4]
-                # rerank: [2, 0, 1, 5, 4, 3, 6] -> assign top probs [0.5, 0.4, 0.8, 0.3, 0.3, 0.1, 0.1]
-                # sorted rerank: [0.8, 0.5, 0.4, 0.3, 0.3, 0.1, 0.1] -> [2, 0, 1, 5, 4, 3, 6]
-
+            if not preds.is_sparse: preds_[all_i, all_j] = torch.tensor(all_vals)
+            else: preds_ = torch.sparse_coo_tensor(torch.tensor([all_i, all_j]), torch.tensor(all_vals), preds.shape)
             with open(fpred_, 'wb') as f: pickle.dump(preds_, f)
         return preds, preds_, fpred_
 
