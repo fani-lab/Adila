@@ -119,6 +119,8 @@ class Adila:
             # For popularilty, our minorities are populars but the protected group is non-populars. So, 'not' of their minority labels
             experts = [fsc.models.FairScoreDoc(int(m[0]), float(m[2]), not bool(m[1]) if attribute == 'popularity' else bool(m[1])) for m in team_]
             # Reset the Fair obj to dynamic ratio r
+            # r: proportion of protected candidates (gender, or 1 - popular for nonpopular) in the topK elements
+            # based on fair lib ref, should be between 0.02 and 0.98
             fair = fsc.Fair(min(k_max, preds.shape[1]), 1 - r if attribute == 'popularity' else r, alpha)  # fair.p = r; fair._cache = {} #reset the Fair obj but it's buggy
 
             # fairsearchcore/fail_prob.py L#177 in __hash__(), cast to int. The value of self.remaining_candidates is of numpy type!
