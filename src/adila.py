@@ -9,6 +9,7 @@ pd = opentf.install_import('pandas')
 tqdm = opentf.install_import('tqdm', from_module='tqdm')
 torch = opentf.install_import('torch')
 scipy = opentf.install_import('scipy')
+
 def init_process(): logging.basicConfig(level=logging.INFO)
 
 class Adila:
@@ -29,6 +30,7 @@ class Adila:
         self.n_processes = n_processes
 
     def __str__(self): return f'{self.attribute}.{self.fair_notion}.{self.is_popular_alg}'
+
     def _get_labeled_sorted_preds(self, preds, minorities, k_max):
         if not preds.is_sparse: sorted_probs, sorted_indices = preds.sort(dim=1, descending=True)  # |Test| * |Experts|
         else: #|Test| * |topK == k_max|, we need to avoid working with dense
@@ -79,7 +81,7 @@ class Adila:
             if self.attribute == 'popularity':
                 stats['*avg_nteams_expert'] = col_sums.mean()
                 x, y = zip(*enumerate(sorted(col_sums.A1.astype(int), reverse=True)))
-                if self.is_popular_alg == 'auc': import plot; stats['*auc_nteams_expert'] = plot.area_under_curve(x, y, 'expert-idx', 'nteams', show_plot=False)
+                if self.is_popular_alg == 'auc': from . import plot; stats['*auc_nteams_expert'] = plot.area_under_curve(x, y, 'expert-idx', 'nteams', show_plot=False)
                 threshold = coef * stats[f'*{self.is_popular_alg}_nteams_expert']
                 minorities = [expertidx for expertidx, nteam_expert in enumerate(col_sums.getA1()) if threshold <= nteam_expert] #rowid maps to columnid in teamvecs['member']
             elif self.attribute == 'gender': minorities = pd.read_csv(self.fgender).iloc[:, 0].tolist()
