@@ -9,7 +9,7 @@ torch = opentf.install_import('torch')
 
 class Adila:
 
-    def __init__(self, fteamsvecs, fsplits, fgender):
+    def __init__(self, fteamsvecs, fsplits, fgender, n_processes=1):
         if isinstance(fteamsvecs, dict): self.teamsvecs = fteamsvecs
         else:
             with open(fteamsvecs, 'rb') as f: self.teamsvecs = pickle.load(f)
@@ -22,6 +22,7 @@ class Adila:
         self.is_popular_alg = None
         self.fgender = fgender
         self.minorities = []
+        self.n_processes = n_processes
 
     def __str__(self): return f'{self.attribute}.{self.fair_notion}.{self.is_popular_alg}'
     def _get_labeled_sorted_preds(self, preds, minorities, k_max):
@@ -47,7 +48,7 @@ class Adila:
         return torch.stack([sorted_indices, sorted_labels.to(sorted_indices.dtype), sorted_probs], dim=-1)
         # [[expertid, minority label, ranked prob], ...]
 
-    def prep(self, output, fair_notion='dp', attribute='popularity', is_popular_alg='avg', coef=1.0, plot=None) -> tuple: #coefficient to calculate a threshold for popularity (e.g. if 1.5, threshold = 1.5 * average number of teams per expert)
+    def prep(self, output, fair_notion='dp', attribute='popularity', is_popular_alg='avg', coef=1.0) -> tuple: #coefficient to calculate a threshold for popularity (e.g. if 1.5, threshold = 1.5 * average number of teams per expert)
         self.output = f'{output}/adila/{attribute}{"." + is_popular_alg if attribute == "popularity" else ""}'
         if not os.path.isdir(self.output): os.makedirs(self.output)
         if not os.path.isdir(f'{self.output}/{fair_notion}'): os.makedirs(f'{self.output}/{fair_notion}')
@@ -74,7 +75,7 @@ class Adila:
             if self.attribute == 'popularity':
                 stats['*avg_nteams_expert'] = col_sums.mean()
                 x, y = zip(*enumerate(sorted(col_sums.A1.astype(int), reverse=True)))
-                if self.is_popular_alg == 'auc': stats['*auc_nteams_expert'] = plot.area_under_curve(x, y, 'expert-idx', 'nteams', show_plot=False)
+                if self.is_popular_alg == 'auc': import plot; stats['*auc_nteams_expert'] = plot.area_under_curve(x, y, 'expert-idx', 'nteams', show_plot=False)
                 threshold = coef * stats[f'*{self.is_popular_alg}_nteams_expert']
                 minorities = [expertidx for expertidx, nteam_expert in enumerate(col_sums.getA1()) if threshold <= nteam_expert] #rowid maps to columnid in teamvecs['member']
             elif self.attribute == 'gender': minorities = pd.read_csv(self.fgender).iloc[:, 0].tolist()
@@ -126,7 +127,7 @@ class Adila:
 
             if algorithm == 'fa-ir':
                 fsc = opentf.install_import('fairsearchcore')
-                fair = fsc.Fair(min(k_max, preds.shape[1]), 1 - r if self.attribute == 'popularity' else r, alpha)
+                fair = fsc.Fair(min(k_max, preds.shape[1]), 1 - r if self.attribute == 'popularity' else r, alpha) #r: proportion of protected candidates (gender, or 1 - popular for nonpopular) in the topK elements (should be between 0.02 and 0.98)
             elif algorithm in ['det_greedy', 'det_relaxed', 'det_cons', 'det_const_sort']:
                 frr = opentf.install_import('reranking')
 
@@ -136,7 +137,6 @@ class Adila:
 
             for i, team_ in enumerate(tqdm(teams_)):
                 if self.fair_notion == 'eo': r = min(max(ratios[i], 0.1), 0.9)  # dynamic ratio r, clamps to stay between [0.1,0.9]
-
                 if algorithm == 'fa-ir':
                     # FairScoreDocs needs True label for the members of the protected group.
                     # For gender, our minorities and protected group is the same, i.e., females.
