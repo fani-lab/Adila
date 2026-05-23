@@ -81,7 +81,10 @@ class Adila:
             if self.attribute == 'popularity':
                 stats['*avg_nteams_expert'] = col_sums.mean()
                 x, y = zip(*enumerate(sorted(col_sums.A1.astype(int), reverse=True)))
-                if self.is_popular_alg == 'auc': from . import plot; stats['*auc_nteams_expert'] = plot.area_under_curve(x, y, 'expert-idx', 'nteams', show_plot=False)
+                if self.is_popular_alg == 'auc':
+                    try: import plot #for external call by opentf, more common
+                    except ImportError: from . import plot #for direct call by python main.py
+                    stats['*auc_nteams_expert'] = plot.area_under_curve(x, y, 'expert-idx', 'nteams', show_plot=False)
                 threshold = coef * stats[f'*{self.is_popular_alg}_nteams_expert']
                 minorities = [expertidx for expertidx, nteam_expert in enumerate(col_sums.getA1()) if threshold <= nteam_expert] #rowid maps to columnid in teamvecs['member']
             elif self.attribute == 'gender': minorities = pd.read_csv(self.fgender).iloc[:, 0].tolist()
