@@ -8,6 +8,7 @@ import pkgmgr as opentf
 pd = opentf.install_import('pandas')
 tqdm = opentf.install_import('tqdm', from_module='tqdm')
 torch = opentf.install_import('torch')
+scipy = opentf.install_import('scipy')
 def init_process(): logging.basicConfig(level=logging.INFO)
 
 class Adila:
